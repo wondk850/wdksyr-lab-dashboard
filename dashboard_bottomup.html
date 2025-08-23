@@ -55,7 +55,179 @@
     </div>
 
 <script>
-// ... (자바스크립트 코드는 이전과 동일) ...
+// =================================================================================
+// 문제의 원인이었던 프록시 주소를, 이미 잘 쓰고 계신 구글 프록시 주소로 바꿨습니다.
+// =================================================================================
+const PROXY_URL = 'https://asia-northeast3-my-dashboard-proxy.cloudfunctions.net/fredProxy';
+
+const TICKERS = ['NVDA', 'MSFT', 'AAPL', 'GOOGL', 'AMZN', 'META', 'TSLA'];
+
+const scoreboardBody = document.getElementById('scoreboard-body');
+const lastUpdatedEl = document.getElementById('last-updated');
+const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+function showLoadingState() {
+    let skeletonHTML = '';
+    TICKERS.forEach(ticker => {
+        skeletonHTML += `
+            <tr class="border-b dark:border-slate-700">
+                <td class="px-4 py-4"><div class="h-4 w-4 bg-slate-200 dark:bg-slate-700 rounded skeleton"></div></td>
+                <td class="px-4 py-4 font-bold"><div class="h-4 w-16 bg-slate-200 dark:bg-slate-700 rounded skeleton"></div></td>
+                <td class="px-4 py-4 text-center"><div class="h-4 w-12 mx-auto bg-slate-200 dark:bg-slate-700 rounded skeleton"></div></td>
+                <td class="px-4 py-4 text-center"><div class="h-4 w-12 mx-auto bg-slate-200 dark:bg-slate-700 rounded skeleton"></div></td>
+                <td class="px-4 py-4 text-center"><div class="h-4 w-12 mx-auto bg-slate-200 dark:bg-slate-700 rounded skeleton"></div></td>
+                <td class="px-4 py-4 text-center"><div class="h-4 w-12 mx-auto bg-slate-200 dark:bg-slate-700 rounded skeleton"></div></td>
+            </tr>
+        `;
+    });
+    scoreboardBody.innerHTML = skeletonHTML;
+}
+
+async function fetchTickerData(ticker, retries = 2) {
+    // 프록시 서버가 finviz.com 주소를 받아서 대신 접속하도록 URL 구조를 바꿨습니다.
+    const finvizUrl = `https://finviz.com/quote.ashx?t=${ticker}`;
+    const requestUrl = `${PROXY_URL}?url=${encodeURIComponent(finvizUrl)}`;
+    
+    for (let i = 0; i <= retries; i++) {
+        try {
+            const response = await fetch(requestUrl);
+            if (!response.ok) throw new Error(`Proxy fetch failed: ${response.status}`);
+            
+            // 구글 프록시는 바로 HTML 텍스트를 보내주므로, JSON 파싱 과정이 필요 없습니다.
+            const htmlText = await response.text();
+
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(htmlText, 'text/html');
+            
+            const data = {};
+            const table = doc.querySelector('.snapshot-table2');
+            if (!table) throw new Error('Data table not found on Finviz page');
+
+            const cells = table.querySelectorAll('td');
+            for (let j = 0; j < cells.length; j += 2) {
+                const key = cells[j].textContent.trim();
+                const value = cells[j + 1].textContent.trim();
+                data[key] = value;
+            }
+            return { ticker, data }; // 성공
+
+        } catch (error) {
+            console.warn(`Attempt ${i + 1} for ${ticker} failed:`, error);
+            if (i === retries) return { ticker, error: error.message }; // 최종 실패
+            await sleep(1000);
+        }
+    }
+}
+
+function calculateScores(tickerData) {
+    const data = tickerData.data;
+    if (!data) return { ...tickerData, scores: null, finalScore: -Infinity };
+
+    const parseFloatOrNull = (str) => {
+        if (typeof str !== 'string' || str === '-') return null;
+        return parseFloat(str.replace('%', ''));
+    };
+
+    let momentumScore = 0;
+    const rsi = parseFloatOrNull(data['RSI (14)']);
+    const isAboveSMA200 = data['SMA200']?.includes('Above');
+    const isBelowSMA200 = data['SMA200']?.includes('Below');
+    if (rsi !== null) {
+        if (rsi >= 50 && isAboveSMA200) momentumScore = 1;
+        else if (rsi < 50 && isBelowSMA200) momentumScore = -1;
+    }
+
+    let fundamentalScore = 0;
+    const salesGrowthQQ = parseFloatOrNull(data['Sales Q/Q']);
+    const epsGrowthQQ = parseFloatOrNull(data['EPS Q/Q']);
+    if (salesGrowthQQ !== null && epsGrowthQQ !== null) {
+        if (salesGrowthQQ >= 15 && epsGrowthQQ >= 15) fundamentalScore = 1;
+        else if (salesGrowthQQ < 0 || epsGrowthQQ < 0) fundamentalScore = -1;
+    }
+
+    let valuationScore = 0;
+    const forwardPE = parseFloatOrNull(data['Forward P/E']);
+    const pastPE = parseFloatOrNull(data['P/E']);
+    if (forwardPE !== null && pastPE !== null && pastPE > 0) {
+        if (forwardPE < pastPE * 0.9) valuationScore = 1;
+        else if (forwardPE > pastPE * 1.2) valuationScore = -1;
+    }
+    
+    const scores = { momentum: momentumScore, fundamental: fundamentalScore, valuation: valuationScore };
+    const finalScore = (scores.momentum * 0.4) + (scores.fundamental * 0.4) + (scores.valuation * 0.2);
+    return { ...tickerData, scores, finalScore };
+}
+
+function renderScoreboard(results) {
+    const allFailed = results.every(r => r.error);
+    if (results.length === 0 || allFailed) {
+        scoreboardBody.innerHTML = `
+            <tr>
+                <td colspan="6" class="px-4 py-10 text-center text-red-500 font-semibold">
+                    ❗️ 외부 데이터 로딩에 실패했습니다.<br>
+                    잠시 후 페이지를 새로고침(F5) 해주세요.
+                </td>
+            </tr>
+        `;
+        lastUpdatedEl.textContent = 'Error';
+        return;
+    }
+
+    results.sort((a, b) => b.finalScore - a.finalScore);
+
+    let tableHTML = '';
+    results.forEach((result, index) => {
+        const rank = index + 1;
+        let rankClass = '';
+        if (rank === 1) rankClass = 'rank-gold';
+        else if (rank === 2) rankClass = 'rank-silver';
+        else if (rank === 3) rankClass = 'rank-bronze';
+
+        const getScoreHTML = (score) => {
+            let scoreClass = 'score-neutral';
+            if (score > 0) scoreClass = 'score-positive';
+            else if (score < 0) scoreClass = 'score-negative';
+            return `<span class="font-bold ${scoreClass}">${score}</span>`;
+        };
+        
+        const getFinalScoreHTML = (score) => {
+             let scoreClass = 'text-slate-500';
+            if (score > 0) scoreClass = 'score-positive';
+            else if (score < 0) scoreClass = 'score-negative';
+            return `<span class="font-bold text-lg ${scoreClass}">${score.toFixed(2)}</span>`;
+        }
+
+        tableHTML += `<tr class="border-b dark:border-slate-700 ${rankClass}">
+            <td class="px-4 py-4 font-bold text-lg">${rank}</td>
+            <td class="px-4 py-4 font-bold text-slate-900 dark:text-slate-100">${result.ticker}</td>`;
+
+        if (result.error || !result.scores) {
+            tableHTML += `<td colspan="4" class="px-4 py-4 text-center text-red-500">데이터 로딩 실패: ${result.error || 'N/A'}</td>`;
+        } else {
+            tableHTML += `
+                <td class="px-4 py-4 text-center">${getScoreHTML(result.scores.momentum)}</td>
+                <td class="px-4 py-4 text-center">${getScoreHTML(result.scores.fundamental)}</td>
+                <td class="px-4 py-4 text-center">${getScoreHTML(result.scores.valuation)}</td>
+                <td class="px-4 py-4 text-center">${getFinalScoreHTML(result.finalScore)}</td>`;
+        }
+        tableHTML += `</tr>`;
+    });
+
+    scoreboardBody.innerHTML = tableHTML;
+    lastUpdatedEl.textContent = new Date().toLocaleString('ko-KR');
+}
+
+async function main() {
+    showLoadingState();
+    // 여러 데이터를 동시에 병렬로 불러와서 로딩 속도를 개선했습니다.
+    const fetchPromises = TICKERS.map(ticker => fetchTickerData(ticker));
+    const rawResults = await Promise.all(fetchPromises);
+    const scoredResults = rawResults.map(result => calculateScores(result));
+    renderScoreboard(scoredResults);
+}
+
+document.addEventListener('DOMContentLoaded', main);
+
 </script>
 </body>
 </html>
