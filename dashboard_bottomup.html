@@ -3,292 +3,376 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WDK LAB 바텀업 스코어카드 v3.0</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <title>WDK LAB 투자 시스템: 궁극의 행동강령 2부 (v2.0)</title>
     <style>
-        body { font-family: 'Inter', sans-serif; }
-        .skeleton { animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
-        @keyframes pulse { 50% { opacity: .5; } }
-        .rank-gold { background-color: #fffbeb; }
-        .rank-silver { background-color: #f8fafc; }
-        .rank-bronze { background-color: #fdf8f6; }
-        .score-positive { color: #16a34a; }
-        .score-negative { color: #dc2626; }
-        .score-neutral { color: #64748b; }
-        .tooltip-container { position: relative; display: inline-block; cursor: help; }
-        .tooltip-text { visibility: hidden; width: 160px; background-color: #1f2937; color: #fff; text-align: center; border-radius: 6px; padding: 5px 0; position: absolute; z-index: 1; bottom: 125%; left: 50%; margin-left: -80px; opacity: 0; transition: opacity 0.3s; font-size: 12px; }
-        .tooltip-container:hover .tooltip-text { visibility: visible; opacity: 1; }
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap');
+
+        :root {
+            --primary-color: #005A9C;
+            --secondary-color: #003366;
+            --text-color: #333;
+            --light-gray: #f8f9fa;
+            --border-color: #dee2e6;
+            --green-signal: #28a745;
+            --yellow-signal: #ffc107;
+            --red-signal: #dc3545;
+            --white-color: #ffffff;
+            --shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            line-height: 1.8;
+            color: var(--text-color);
+            background-color: #fdfdfd;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background-color: var(--white-color);
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: var(--white-color);
+            padding: 40px;
+            text-align: center;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 2.4em;
+            font-weight: 700;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.2);
+        }
+        
+        header p {
+            margin-top: 10px;
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        main {
+            padding: 30px 40px;
+        }
+
+        section {
+            margin-bottom: 50px;
+        }
+
+        h2 {
+            font-size: 2em;
+            color: var(--secondary-color);
+            margin-top: 0;
+            margin-bottom: 25px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid var(--primary-color);
+        }
+
+        h3 {
+            font-size: 1.6em;
+            color: var(--secondary-color);
+            margin-top: 40px;
+            margin-bottom: 20px;
+            padding-left: 15px;
+            border-left: 5px solid var(--primary-color);
+        }
+        
+        h4 {
+            font-size: 1.2em;
+            font-weight: 700;
+            color: #343a40;
+            margin-top: 25px;
+        }
+
+        p, ul, li {
+            font-size: 1.05em;
+            margin-bottom: 18px;
+        }
+
+        ul {
+            padding-left: 25px;
+        }
+        
+        li {
+            padding-left: 10px;
+            margin-bottom: 12px;
+        }
+
+        strong, b {
+            font-weight: 700;
+        }
+        
+        .highlight {
+            color: var(--primary-color);
+            font-weight: bold;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 25px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        th, td {
+            border: 1px solid var(--border-color);
+            padding: 15px;
+            text-align: left;
+            vertical-align: middle;
+        }
+
+        thead {
+            background-color: var(--secondary-color);
+            color: var(--white-color);
+            font-weight: 700;
+            font-size: 1.1em;
+        }
+
+        tbody tr:nth-child(even) {
+            background-color: var(--light-gray);
+        }
+        
+        .info-box {
+            background-color: #e9f5ff;
+            border-left: 5px solid var(--primary-color);
+            padding: 25px;
+            margin: 30px 0;
+            border-radius: 8px;
+        }
+        
+        .example-box {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            padding: 20px;
+            margin-top: 20px;
+            border-radius: 8px;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);
+        }
+        .example-box strong {
+            color: #495057;
+            font-size: 1.1em;
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        .rule-card {
+            border: 1px solid var(--border-color);
+            border-left-width: 5px;
+            border-radius: 8px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.05);
+        }
+        .rule-card h3 {
+            margin-top: 0;
+            font-size: 1.5em;
+            display: flex;
+            align-items: center;
+            border: none;
+            padding-left: 0;
+        }
+        .rule-card.green { border-left-color: var(--green-signal); }
+        .rule-card.green h3 { color: var(--green-signal); }
+        .rule-card.yellow { border-left-color: var(--yellow-signal); }
+        .rule-card.yellow h3 { color: #b38600; }
+        .rule-card.red { border-left-color: var(--red-signal); }
+        .rule-card.red h3 { color: var(--red-signal); }
+        .rule-card ul { list-style-type: '👉 '; }
+
+        @media (max-width: 768px) {
+            body { padding: 10px; }
+            header { padding: 20px; }
+            main { padding: 20px; }
+            header h1 { font-size: 1.8em; }
+            h2 { font-size: 1.5em; }
+        }
     </style>
 </head>
-<body class="bg-slate-100 dark:bg-slate-900 text-slate-800 dark:text-slate-200">
+<body>
 
-    <div class="container mx-auto p-4 sm:p-6 lg:p-8">
-        <header class="text-center mb-8">
-            <h1 class="text-3xl sm:text-4xl font-bold text-slate-900 dark:text-white">WDK LAB 바텀업 스코어카드</h1>
-            <p class="text-slate-500 dark:text-slate-400 mt-2">최정예 빅테크 요원 선발 시스템 (v3.0)</p>
-            <div class="mt-4">
-                <a href="./index.html" class="text-emerald-500 hover:text-emerald-600 transition-colors">← 홈 (탑다운 대시보드)으로 돌아가기</a>
+    <div class="container">
+        <header>
+            <h1>WDK LAB 투자 시스템: 궁극의 행동강령 2부</h1>
+            <p>최정예 요원 선발 가이드 (바텀업 스코어카드 편 v2.0)</p>
+            <div style="margin-top: 20px;">
+                <a href="./index.html" style="color: white; background-color: rgba(255,255,255,0.2); padding: 8px 16px; border-radius: 99px; text-decoration: none; font-size: 0.9em;">🏠 홈으로 돌아가기</a>
             </div>
         </header>
 
-        <section id="scoreboard">
-            <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-lg p-6">
-                <div class="overflow-x-auto">
-                    <table class="w-full text-sm text-left">
-                        <thead class="text-xs text-slate-700 dark:text-slate-400 uppercase bg-slate-50 dark:bg-slate-700">
-                            <tr>
-                                <th class="px-4 py-3">순위</th>
-                                <th class="px-4 py-3">종목</th>
-                                <th class="px-4 py-3 text-center">모멘텀 (40%)</th>
-                                <th class="px-4 py-3 text-center">펀더멘탈 (40%)</th>
-                                <th class="px-4 py-3 text-center">밸류에이션 (20%)</th>
-                                <th class="px-4 py-3 text-center">최종 점수</th>
-                            </tr>
-                        </thead>
-                        <tbody id="scoreboard-body">
-                            </tbody>
-                    </table>
+        <main>
+            <section id="intro">
+                <h2>1. 이 강령은 왜 필요한가? "공군과 특수부대"</h2>
+                <p>우리가 가진 <b>탑다운 대시보드</b>는 <b>'공군'</b>입니다. 하늘 높은 곳에서 전체 전장(시장)을 보며 "지금 공격하기 좋은 날씨인가(🟢)?"를 알려주는 전략 지도입니다.</p>
+                <p>하지만 '공격하라!'는 공군의 명령이 떨어졌을 때, 어떤 부대를 보내야 할까요? 아무 부대나 보내면 안 됩니다. 우리는 가장 날카롭고, 가장 강력하며, 현재 컨디션이 최상인 <b>'최정예 특수부대'</b>를 투입해야 합니다.</p>
+                <p>이 <b>바텀업 스코어카드</b>가 바로 그 최정예 요원을 선발하는 <b>'특수부대 선발 시스템'</b>입니다.</p>
+                <div class="info-box">
+                    <p><b>탑다운 (공군):</b> "언제(When)" 싸울지를 결정합니다. (타이밍의 문제)</p>
+                    <p><b>바텀업 (특수부대):</b> "누구(Who)"를 내보낼지를 결정합니다. (선택의 문제)</p>
+                    <p>이 두 가지가 결합될 때, 비로소 우리의 투자는 감정이 배제된 완벽한 시스템이 됩니다.</p>
                 </div>
-                 <p class="text-xs text-slate-400 mt-4 text-right">Last Updated: <span id="last-updated">-</span></p>
-            </div>
-        </section>
+            </section>
+
+            <section id="design">
+                <h2>2. 어떻게 요원을 선발하는가? (스코어카드 설계도)</h2>
+                <p>RSI 지표 하나만 보는 것은 마치 자동차의 '속도계'만 보고 운전하는 것과 같습니다. 속도가 빠르다고 해서 좋은 차는 아니죠. 엔진이 고장 나기 직전일 수도 있고, 기름을 너무 많이 먹는 차일 수도 있습니다.</p>
+                <p>그래서 우리는 최고의 차를 고르기 위해 세 가지를 종합적으로 점검합니다.</p>
+                <ul>
+                    <li><b>속도계 (모멘텀):</b> 지금 얼마나 힘차게 달리고 있는가?</li>
+                    <li><b>엔진 상태 (펀더멘탈):</b> 엔진이 튼튼하고 고장날 위험은 없는가?</li>
+                    <li><b>연료 효율 (밸류에이션):</b> 이 엄청난 성능에 비해 가격은 합리적인가?</li>
+                </ul>
+                <p>우리 선발 시스템은 각 빅테크 요원을 이 세 가지 기준으로 평가합니다.</p>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>평가 기준</th>
+                            <th>질문</th>
+                            <th>핵심 지표</th>
+                            <th>비유</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><b>1. 모멘텀 (40%)</b></td>
+                            <td>지금 힘차게 달리고 있는가?</td>
+                            <td>RSI, 200일 이동평균선</td>
+                            <td><b>달리는 말에 올라타라</b></td>
+                        </tr>
+                        <tr>
+                            <td><b>2. 펀더멘탈 (40%)</b></td>
+                            <td>뼈대가 튼튼하고 건강한가?</td>
+                            <td>매출/이익 성장률</td>
+                            <td><b>엔진이 강력한가?</b></td>
+                        </tr>
+                        <tr>
+                            <td><b>3. 밸류에이션 (20%)</b></td>
+                            <td>가격이 너무 비싸지는 않은가?</td>
+                            <td>PEG 비율</td>
+                            <td><b>바겐세일인가, 거품인가?</b></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <section id="deep-dive">
+                <h2>3. 평가 기준 상세 분석 (v2.0 업데이트)</h2>
+                <h3>1) 모멘텀 스코어: "지금 가장 뜨거운 요원은 누구인가?"</h3>
+                <p><b>왜 중요한가?</b> 주식 시장에서는 '추세'가 가장 중요합니다. 이미 상승 흐름을 타고 있는 주식이 계속해서 더 오를 확률이 높습니다. 우리는 멈춰있는 요원이 아니라, 지금 당장 전장을 향해 달려 나가고 있는 요원을 원합니다.</p>
+                <p><b>어떻게 평가하나?</b></p>
+                <ul>
+                    <li><b>RSI > 50:</b> '상대강도지수'라는 기술적 지표로, 주가의 힘겨루기에서 매수세와 매도세 중 누가 이기고 있는지를 보여줍니다. 50 이상이면 매수세가 더 강하다는 뜻입니다.</li>
+                    <li><b>주가 > 200일선:</b> '200일 이동평균선'은 지난 200일간의 평균 주가로, 주식의 장기적인 생명선이자 추세선입니다. 주가가 이 선 위에 있다는 것은 장기 상승 추세에 있다는 강력한 증거입니다.</li>
+                </ul>
+                <p><b>점수:</b></p>
+                <ul>
+                    <li><b>+1점:</b> 위 두 조건을 모두 만족할 때 (단기, 장기 추세 모두 강력)</li>
+                    <li><b>-1점:</b> RSI < 50 이고, 주가가 200일선 아래일 때 (완벽한 하락 추세)</li>
+                    <li><b>0점:</b> 그 외 모든 경우 (방향성이 애매함)</li>
+                </ul>
+
+                <h3>2) 펀더멘탈 스코어: "가장 건강하고 힘센 요원은 누구인가?"</h3>
+                <p><b>왜 중요한가?</b> 아무리 잘 달려도, 체력이 약하면 금방 지칩니다. 회사가 실제로 돈을 폭발적으로 벌어들이고 있어야만 그 상승세가 '진짜'라고 믿을 수 있습니다.</p>
+                <p><b>어떻게 평가하나? (최신 분기 실적 기준)</b></p>
+                <ul>
+                    <li><b>매출 성장률 > 15%:</b> 회사의 덩치(매출)가 지난 분기 대비 빠르게 커지고 있는가? 15%는 기술 성장주에게 기대하는 최소한의 성장률입니다.</li>
+                    <li><b>영업이익 성장률 > 15%:</b> 실속 있게 돈을 잘 벌고 있는가? 매출만 늘고 이익이 줄면 의미가 없습니다.</li>
+                </ul>
+                <p><b>점수:</b></p>
+                <ul>
+                    <li><b>+1점:</b> 위 두 조건을 모두 만족할 때 (성장성과 수익성 모두 폭발적)</li>
+                    <li><b>-1점:</b> 둘 중 하나라도 마이너스(-) 성장일 때 (건강에 적신호)</li>
+                    <li><b>0점:</b> 그 외 모든 경우 (안정적이지만, 폭발적이진 않음)</li>
+                </ul>
+
+                <h3>3) 밸류에이션 스코어: "몸값이 합리적인 요원인가?"</h3>
+                <p><b>왜 중요한가?</b> 아무리 뛰어난 요원이라도, 터무니없는 연봉을 주고 데려올 수는 없습니다. 우리는 '가성비'를 따져야 합니다.</p>
+                <p><b>어떻게 평가하나? (v2.0 고도화)</b></p>
+                <p>이전 버전에서는 현재 P/E와 미래 P/E를 비교했지만, 더 정교한 평가를 위해 <b>PEG 비율</b>을 도입합니다. PEG 비율은 주가수익비율(P/E)을 미래 이익 성장률로 나눈 값으로, <b class="highlight">"이 회사의 성장성을 고려했을 때, 현재 주가가 싼 편인가 비싼 편인가?"</b>를 알려주는 최고의 '가성비' 지표입니다.</p>
+                <div class="info-box">
+                    <p><b>P/E가 '연봉'이라면, PEG는 '연봉 대비 업무 성과'입니다.</b><br>
+                    연봉이 1억인 A직원(P/E=100)과 3천만원인 B직원(P/E=30)이 있을 때, A가 더 비싸 보입니다. 하지만 A가 매년 100%씩 성장하고 B가 10%씩 성장한다면, 성장성까지 고려한 '가성비(PEG)'는 A가 훨씬 더 뛰어난 셈입니다.</p>
+                </div>
+                <ul>
+                    <li><b>PEG 비율 = P/E ÷ EPS 성장률(향후 5년)</b></li>
+                </ul>
+                <p><b>점수:</b></p>
+                <ul>
+                    <li><b>+1점:</b> PEG 비율이 <b>1.5 이하</b>일 때 (성장성에 비해 매우 저렴!)</li>
+                    <li><b>-1점:</b> PEG 비율이 <b>2.5 이상</b>일 때 (성장성을 감안해도 너무 비쌈!)</li>
+                    <li><b>0점:</b> 그 사이 (적정 몸값)</li>
+                </ul>
+                <div class="example-box">
+                    <strong>예시:</strong><br>
+                    <p><b>구글:</b> 현재 P/E 25배, 미래 EPS 성장률 20% → PEG = 1.25 → <b>+1점</b> (성장성에 비해 저평가된 A급 요원)</p>
+                    <p><b>엔비디아:</b> 현재 P/E 60배, 미래 EPS 성장률 40% → PEG = 1.5 → <b>+1점</b> (높은 P/E에도 불구하고, 폭발적 성장성 덕분에 여전히 합리적인 S급 요원)</p>
+                    <p><b>어떤 회사:</b> 현재 P/E 30배, 미래 EPS 성장률 10% → PEG = 3.0 → <b>-1점</b> (성장성에 비해 너무 비싼 거품 위험 요원)</p>
+                </div>
+            </section>
+            
+            <section id="workflow">
+                <h2>4. 실전 워크플로우: "오늘 밤, 우리는 이렇게 움직인다"</h2>
+                <p><b>상황:</b> 오늘 밤 10시 30분, 당신은 투자를 위해 컴퓨터 앞에 앉았습니다.</p>
+                <div class="info-box">
+                    <h4>1단계: 공군의 출격 허가 확인 (탑다운)</h4>
+                    <p>가장 먼저 <b>`dashboard_topdown.html`</b>을 켭니다. 신호등을 확인합니다. <b>"오! 3일간의 검증을 마치고 🟢GREEN 신호가 켜졌다!"</b><br>
+                    <b>결정:</b> "좋아, 오늘은 투자를 집행하는 날이다. 이제 어떤 녀석을 보낼지 결정하자."</p>
+                    
+                    <h4>2단계: 최정예 요원 선발 (바텀업)</h4>
+                    <p>이제 <b>`dashboard_bottomup.html`</b>로 이동합니다. 페이지가 열리면, 시스템이 자동으로 최신 데이터를 분석하여 스코어카드를 보여줍니다. 오늘의 스코어카드는 다음과 같습니다.</p>
+                    <table style="background-color: white;">
+                        <thead><tr><th>순위</th><th>종목</th><th>모멘텀</th><th>펀더멘탈</th><th>밸류에이션</th><th><b>최종 스코어</b></th></tr></thead>
+                        <tbody>
+                            <tr><td>🥇</td><td><b>엔비디아</b></td><td>+1</td><td>+1</td><td>-1</td><td><b>+0.6점</b></td></tr>
+                            <tr><td>🥈</td><td><b>마이크로소프트</b></td><td>+1</td><td>0</td><td>0</td><td><b>+0.4점</b></td></tr>
+                            <tr><td>🥉</td><td><b>애플</b></td><td>0</td><td>0</td><td>+1</td><td><b>+0.2점</b></td></tr>
+                            <tr><td>4</td><td><b>구글</b></td><td>0</td><td>0</td><td>+1</td><td><b>+0.2점</b></td></tr>
+                            <tr><td>5</td><td><b>아마존</b></td><td>+1</td><td>-1</td><td>0</td><td><b>0.0점</b></td></tr>
+                            <tr><td>6</td><td><b>메타</b></td><td>-1</td><td>0</td><td>+1</td><td><b>-0.2점</b></td></tr>
+                            <tr><td>7</td><td><b>테슬라</b></td><td>-1</td><td>-1</td><td>0</td><td><b>-0.8점</b></td></tr>
+                        </tbody>
+                    </table>
+
+                    <h4>3단계: 최종 명령 및 임무 수행</h4>
+                    <p><b>결정:</b> "스코어카드를 보니, 지금 전반적인 컨디션이 가장 좋은 최정예 요원은 단연 <b>엔비디아</b>로군. 이번 투자의 주인공은 너다."<br>
+                    <b>행동:</b> '행동강령 1부'에 따라, 밤 11시 35분에 증권사 앱을 켜고, 계획한 1차 매수 금액만큼 <b>엔비디아 주식</b>을 매수합니다.</p>
+                </div>
+            </section>
+
+            <section id="faq">
+                <h2>5. 비상 상황 대처법 (FAQ)</h2>
+                <div class="rule-card yellow">
+                    <h3>Q: 만약 1등과 2등의 점수가 똑같으면 어떡하죠?</h3>
+                    <ul>
+                        <li><b>A:</b> 그럴 때는 <b>'모멘텀 점수'가 더 높은 요원</b>을 선발합니다. 우리는 '달리는 말'을 더 선호하기 때문입니다. 만약 모멘텀 점수까지 같다면, <b>'펀더멘탈 점수'가 높은 요원</b>을 선발합니다.</li>
+                    </ul>
+                </div>
+                <div class="rule-card red">
+                    <h3>Q: "데이터 로딩 실패"가 뜨면 어떡하죠?</h3>
+                    <ul>
+                        <li><b>A:</b> 당황하지 말고, <b>브라우저 새로고침(F5)</b>을 한두 번 눌러줍니다. 우리 심부름꾼이 잠시 길을 잃었던 것뿐입니다. 대부분의 경우, 재시도하면 성공합니다.</li>
+                    </ul>
+                </div>
+                <div class="rule-card">
+                    <h3>Q: 저는 2등인 마이크로소프트가 더 좋은데, 1등인 엔비디아를 꼭 사야 하나요?</h3>
+                    <ul>
+                        <li><b>A: 네, 반드시 1등을 사야 합니다.</b> 이 시스템의 존재 이유는 <b>당신의 '감'과 '선호'를 배제하기 위함</b>입니다. 시스템을 믿기로 했다면, 그 결과를 100% 따라야 합니다. 이것이 원칙입니다.</li>
+                    </ul>
+                </div>
+            </section>
+            
+            <section id="conclusion">
+                <h2>6. 결론: 당신은 이제 사령관입니다</h2>
+                <p>이제 당신은 공군과 특수부대를 모두 거느린, 완벽한 투자 사령관이 되었습니다. 이 강령을 믿고, 시스템을 믿고, 원칙을 지키십시오. 승리는 우리의 것입니다.</p>
+            </section>
+        </main>
     </div>
 
-<script>
-const PROXY_URL = 'https://api.allorigins.win/get?url=';
-const TICKERS = ['NVDA', 'MSFT', 'AAPL', 'GOOGL', 'AMZN', 'META', 'TSLA'];
-
-const scoreboardBody = document.getElementById('scoreboard-body');
-const lastUpdatedEl = document.getElementById('last-updated');
-const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
-const CLAMP = (v, a, b) => Math.max(a, Math.min(b, v));
-
-function robustParseNumber(raw) {
-    if (raw == null) return null;
-    let s = String(raw).trim();
-    if (s === '-' || /^n\/a$/i.test(s) || s.length === 0) return null;
-
-    let negative = false;
-    if (s.startsWith('(') && s.endsWith(')')) {
-        negative = true;
-        s = s.slice(1, -1).trim();
-    }
-
-    s = s.replace(/,/g, '').replace(/\s+/g, '');
-    const isPercent = s.endsWith('%');
-    if (isPercent) s = s.slice(0, -1);
-
-    const m = s.match(/^([+-]?\d*\.?\d+)([KMBT])?$/i);
-    if (!m) {
-        const v = parseFloat(s);
-        return Number.isFinite(v) ? (negative ? -v : v) : null;
-    }
-    let num = parseFloat(m[1]);
-    const suf = m[2] ? m[2].toUpperCase() : null;
-    if (suf) {
-        if (suf === 'K') num *= 1e3;
-        else if (suf === 'M') num *= 1e6;
-        else if (suf === 'B') num *= 1e9;
-        else if (suf === 'T') num *= 1e12;
-    }
-    return negative ? -num : num;
-}
-
-function getField(data, variants) {
-    const keys = Object.keys(data || {});
-    for (const v of variants) {
-        const exact = keys.find(k => k.trim().toLowerCase() === v.trim().toLowerCase());
-        if (exact && data[exact] !== undefined) return data[exact];
-    }
-    for (const v of variants) {
-        const found = keys.find(k => k.toLowerCase().includes(v.trim().toLowerCase()));
-        if (found && data[found] !== undefined) return data[found];
-    }
-    return undefined;
-}
-
-async function fetchTickerData(ticker, retries = 2) {
-    const finvizUrl = `https://finviz.com/quote.ashx?t=${ticker}`;
-    const requestUrl = `${PROXY_URL}${encodeURIComponent(finvizUrl)}`;
-    
-    for (let attempt = 0; attempt <= retries; attempt++) {
-        try {
-            const response = await fetch(requestUrl);
-            if (!response.ok) throw new Error(`Proxy status ${response.status}`);
-            const json = await response.json();
-            const htmlText = json.contents;
-            if (!htmlText) throw new Error('No html content from proxy');
-
-            const parser = new DOMParser();
-            const doc = parser.parseFromString(htmlText, 'text/html');
-            
-            const table = doc.querySelector('.snapshot-table2');
-            if (!table) throw new Error('Data table not found in HTML');
-
-            const cells = Array.from(table.querySelectorAll('td'));
-            const data = {};
-            for (let i = 0; i < cells.length; i += 2) {
-                const key = (cells[i].textContent || '').trim();
-                const value = (cells[i + 1] && cells[i + 1].textContent) ? cells[i + 1].textContent.trim() : '';
-                if (key) data[key] = value;
-            }
-            console.debug(`[${ticker}] parsed keys:`, Object.keys(data));
-            return { ticker, data };
-        } catch (err) {
-            console.warn(`fetch ${ticker} attempt ${attempt+1} failed:`, err);
-            if (attempt === retries) return { ticker, error: err.message || String(err) };
-            await sleep(500 * Math.pow(2, attempt));
-        }
-    }
-}
-
-function calculateScoresNormalized(rawResults) {
-    const metrics = rawResults.map(r => {
-        const d = r.data || {};
-        return {
-            ticker: r.ticker,
-            error: r.error,
-            rsi: robustParseNumber(getField(d, ['RSI (14)', 'RSI'])),
-            sma200Text: getField(d, ['SMA200']),
-            salesQQ: robustParseNumber(getField(d, ['Sales Q/Q'])),
-            epsQQ: robustParseNumber(getField(d, ['EPS Q/Q'])),
-            pe: robustParseNumber(getField(d, ['P/E'])),
-            epsNext5y: robustParseNumber(getField(d, ['EPS next 5Y']))
-        };
-    });
-
-    metrics.forEach(m => {
-        m.peg = (m.pe > 0 && m.epsNext5y > 0) ? m.pe / m.epsNext5y : null;
-    });
-
-    const getStats = (key) => {
-        const vals = metrics.map(x => x[key]).filter(v => v != null && isFinite(v));
-        if (vals.length === 0) return { min: 0, max: 0 };
-        return { min: Math.min(...vals), max: Math.max(...vals) };
-    };
-    const stats = {
-        salesQQ: getStats('salesQQ'),
-        epsQQ: getStats('epsQQ'),
-        peg: getStats('peg')
-    };
-
-    const minMaxNorm = (v, key, invert = false) => {
-        const s = stats[key];
-        if (v == null || !s || s.max === s.min) return 0;
-        const scaled = (v - s.min) / (s.max - s.min);
-        const result = CLAMP(scaled * 2 - 1, -1, 1);
-        return invert ? -result : result;
-    };
-
-    return metrics.map(m => {
-        const rsiScore = (m.rsi != null) ? CLAMP((m.rsi - 50) / 50, -1, 1) : 0;
-        const smaSign = m.sma200Text ? (/above/i.test(m.sma200Text) ? 1 : (/below/i.test(m.sma200Text) ? -1 : 0)) : 0;
-        const momentum = CLAMP(0.7 * rsiScore + 0.3 * smaSign, -1, 1);
-
-        const salesN = minMaxNorm(m.salesQQ, 'salesQQ');
-        const epsN = minMaxNorm(m.epsQQ, 'epsQQ');
-        const fundamental = CLAMP(0.4 * salesN + 0.6 * epsN, -1, 1);
-
-        const valuation = minMaxNorm(m.peg, 'peg', true);
-
-        const finalScore = (momentum * 0.4) + (fundamental * 0.4) + (valuation * 0.2);
-
-        return { ticker: m.ticker, error: m.error, scores: { momentum, fundamental, valuation, peg: m.peg }, finalScore };
-    });
-}
-
-function renderScoreboard(results) {
-    results.sort((a, b) => b.finalScore - a.finalScore);
-    scoreboardBody.innerHTML = '';
-
-    results.forEach((r, idx) => {
-        const tr = document.createElement('tr');
-        tr.className = 'border-b dark:border-slate-700';
-        if (idx === 0) tr.classList.add('rank-gold');
-        else if (idx === 1) tr.classList.add('rank-silver');
-        else if (idx === 2) tr.classList.add('rank-bronze');
-
-        const createCell = (content, className = '') => {
-            const td = document.createElement('td');
-            td.className = `px-4 py-4 ${className}`;
-            if (typeof content === 'string' || typeof content === 'number') {
-                td.textContent = content;
-            } else {
-                td.appendChild(content);
-            }
-            return td;
-        };
-
-        tr.appendChild(createCell(idx + 1, 'font-bold text-lg'));
-        tr.appendChild(createCell(r.ticker, 'font-bold text-slate-900 dark:text-slate-100'));
-
-        if (r.error || !r.scores) {
-            const tdError = createCell(`데이터 로딩 실패: ${r.error || 'N/A'}`, 'text-center text-red-500');
-            tdError.colSpan = 4;
-            tr.appendChild(tdError);
-        } else {
-            const createScoreCell = (score, tooltipText = '') => {
-                const span = document.createElement('span');
-                span.className = 'font-bold';
-                span.textContent = score.toFixed(2);
-                if (score > 0.1) span.classList.add('score-positive');
-                else if (score < -0.1) span.classList.add('score-negative');
-                else span.classList.add('score-neutral');
-
-                if (tooltipText) {
-                    const container = document.createElement('div');
-                    container.className = 'tooltip-container';
-                    const tip = document.createElement('span');
-                    tip.className = 'tooltip-text';
-                    tip.textContent = tooltipText;
-                    container.append(span, tip);
-                    return createCell(container, 'text-center');
-                }
-                return createCell(span, 'text-center');
-            };
-            
-            tr.appendChild(createScoreCell(r.scores.momentum));
-            tr.appendChild(createScoreCell(r.scores.fundamental));
-            tr.appendChild(createScoreCell(r.scores.valuation, r.scores.peg ? `PEG: ${r.scores.peg.toFixed(2)}` : 'PEG 계산 불가'));
-            tr.appendChild(createScoreCell(r.finalScore));
-        }
-        scoreboardBody.appendChild(tr);
-    });
-
-    lastUpdatedEl.textContent = new Date().toLocaleString('ko-KR');
-}
-
-async function main() {
-    scoreboardBody.innerHTML = TICKERS.map(() => `
-        <tr class="border-b dark:border-slate-700">
-            <td class="px-4 py-4"><div class="h-4 w-4 bg-slate-200 dark:bg-slate-700 rounded skeleton"></div></td>
-            <td class="px-4 py-4 font-bold"><div class="h-4 w-16 bg-slate-200 dark:bg-slate-700 rounded skeleton"></div></td>
-            <td class="px-4 py-4 text-center"><div class="h-4 w-12 mx-auto bg-slate-200 dark:bg-slate-700 rounded skeleton"></div></td>
-            <td class="px-4 py-4 text-center"><div class="h-4 w-12 mx-auto bg-slate-200 dark:bg-slate-700 rounded skeleton"></div></td>
-            <td class="px-4 py-4 text-center"><div class="h-4 w-12 mx-auto bg-slate-200 dark:bg-slate-700 rounded skeleton"></div></td>
-            <td class="px-4 py-4 text-center"><div class="h-4 w-12 mx-auto bg-slate-200 dark:bg-slate-700 rounded skeleton"></div></td>
-        </tr>
-    `).join('');
-
-    try {
-        const rawResults = [];
-        for (const ticker of TICKERS) {
-            const result = await fetchTickerData(ticker);
-            rawResults.push(result);
-            const humanLikeDelay = 1000 + Math.random() * 1500;
-            await sleep(humanLikeDelay);
-        }
-        const scored = calculateScoresNormalized(rawResults);
-        renderScoreboard(scored);
-    } catch (err) {
-        console.error('main error', err);
-        scoreboardBody.innerHTML = `<tr><td colspan="6" class="px-4 py-4 text-center text-red-500">치명적 오류: ${String(err)}</td></tr>`;
-        lastUpdatedEl.textContent = new Date().toLocaleString('ko-KR');
-    }
-}
-
-document.addEventListener('DOMContentLoaded', main);
-</script>
 </body>
 </html>
