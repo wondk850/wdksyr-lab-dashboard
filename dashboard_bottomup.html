@@ -143,18 +143,6 @@ async function fetchTickerData(ticker, retries = 2) {
     }
 }
 
-async function fetchAllTickers(tickers, concurrency = 3) {
-    const results = [];
-    for (let i = 0; i < tickers.length; i += concurrency) {
-        const batch = tickers.slice(i, i + concurrency);
-        const batchPromises = batch.map(t => fetchTickerData(t));
-        const batchRes = await Promise.all(batchPromises);
-        results.push(...batchRes);
-        if (i + concurrency < tickers.length) await sleep(300);
-    }
-    return results;
-}
-
 function calculateScoresNormalized(rawResults) {
     const metrics = rawResults.map(r => {
         const d = r.data || {};
@@ -202,7 +190,7 @@ function calculateScoresNormalized(rawResults) {
         const epsN = minMaxNorm(m.epsQQ, 'epsQQ');
         const fundamental = CLAMP(0.4 * salesN + 0.6 * epsN, -1, 1);
 
-        const valuation = minMaxNorm(m.peg, 'peg', true); // Invert because lower PEG is better
+        const valuation = minMaxNorm(m.peg, 'peg', true);
 
         const finalScore = (momentum * 0.4) + (fundamental * 0.4) + (valuation * 0.2);
 
@@ -284,8 +272,14 @@ async function main() {
     `).join('');
 
     try {
-        const raw = await fetchAllTickers(TICKERS, 3);
-        const scored = calculateScoresNormalized(raw);
+        const rawResults = [];
+        for (const ticker of TICKERS) {
+            const result = await fetchTickerData(ticker);
+            rawResults.push(result);
+            const humanLikeDelay = 1000 + Math.random() * 1500;
+            await sleep(humanLikeDelay);
+        }
+        const scored = calculateScoresNormalized(rawResults);
         renderScoreboard(scored);
     } catch (err) {
         console.error('main error', err);
