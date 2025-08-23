@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WDK LAB 투자 시스템: 궁극의 행동강령 2부</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap');
+
+        :root {
+            --primary-color: #005A9C;
+            --secondary-color: #003366;
+            --text-color: #333;
+            --light-gray: #f8f9fa;
+            --border-color: #dee2e6;
+            --green-signal: #28a745;
+            --yellow-signal: #ffc107;
+            --red-signal: #dc3545;
+            --white-color: #ffffff;
+            --shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            line-height: 1.8;
+            color: var(--text-color);
+            background-color: #fdfdfd;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background-color: var(--white-color);
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: var(--white-color);
+            padding: 40px;
+            text-align: center;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 2.4em;
+            font-weight: 700;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.2);
+        }
+        
+        header p {
+            margin-top: 10px;
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        main {
+            padding: 30px 40px;
+        }
+
+        section {
+            margin-bottom: 50px;
+        }
+
+        h2 {
+            font-size: 2em;
+            color: var(--secondary-color);
+            margin-top: 0;
+            margin-bottom: 25px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid var(--primary-color);
+        }
+
+        h3 {
+            font-size: 1.6em;
+            color: var(--secondary-color);
+            margin-top: 40px;
+            margin-bottom: 20px;
+            padding-left: 15px;
+            border-left: 5px solid var(--primary-color);
+        }
+        
+        h4 {
+            font-size: 1.2em;
+            font-weight: 700;
+            color: #343a40;
+            margin-top: 25px;
+        }
+
+        p, ul, li {
+            font-size: 1.05em;
+            margin-bottom: 18px;
+        }
+
+        ul {
+            padding-left: 25px;
+        }
+        
+        li {
+            padding-left: 10px;
+            margin-bottom: 12px;
+        }
+
+        strong, b {
+            font-weight: 700;
+        }
+        
+        .highlight {
+            color: var(--primary-color);
+            font-weight: bold;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 25px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        th, td {
+            border: 1px solid var(--border-color);
+            padding: 15px;
+            text-align: left;
+            vertical-align: middle;
+        }
+
+        thead {
+            background-color: var(--secondary-color);
+            color: var(--white-color);
+            font-weight: 700;
+            font-size: 1.1em;
+        }
+
+        tbody tr:nth-child(even) {
+            background-color: var(--light-gray);
+        }
+        
+        .info-box {
+            background-color: #e9f5ff;
+            border-left: 5px solid var(--primary-color);
+            padding: 25px;
+            margin: 30px 0;
+            border-radius: 8px;
+        }
+        
+        .example-box {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            padding: 20px;
+            margin-top: 20px;
+            border-radius: 8px;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);
+        }
+        .example-box strong {
+            color: #495057;
+            font-size: 1.1em;
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        .rule-card {
+            border: 1px solid var(--border-color);
+            border-left-width: 5px;
+            border-radius: 8px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.05);
+        }
+        .rule-card h3 {
+            margin-top: 0;
+            font-size: 1.5em;
+            display: flex;
+            align-items: center;
+            border: none;
+            padding-left: 0;
+        }
+        .rule-card.green { border-left-color: var(--green-signal); }
+        .rule-card.green h3 { color: var(--green-signal); }
+        .rule-card.yellow { border-left-color: var(--yellow-signal); }
+        .rule-card.yellow h3 { color: #b38600; }
+        .rule-card.red { border-left-color: var(--red-signal); }
+        .rule-card.red h3 { color: var(--red-signal); }
+        .rule-card ul { list-style-type: '👉 '; }
+
+        @media (max-width: 768px) {
+            body { padding: 10px; }
+            header { padding: 20px; }
+            main { padding: 20px; }
+            header h1 { font-size: 1.8em; }
+            h2 { font-size: 1.5em; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <h1>WDK LAB 투자 시스템: 궁극의 행동강령 2부</h1>
+            <p>최정예 요원 선발 가이드 (바텀업 스코어카드 편)</p>
+        </header>
+
+        <main>
+            <section id="intro">
+                <h2>1. 이 강령은 왜 필요한가? "공군과 특수부대"</h2>
+                <p>우리가 가진 <b>탑다운 대시보드</b>는 <b>'공군'</b>입니다. 하늘 높은 곳에서 전체 전장(시장)을 보며 "지금 공격하기 좋은 날씨인가(🟢)?"를 알려주는 전략 지도입니다.</p>
+                <p>하지만 '공격하라!'는 공군의 명령이 떨어졌을 때, 어떤 부대를 보내야 할까요? 아무 부대나 보내면 안 됩니다. 우리는 가장 날카롭고, 가장 강력하며, 현재 컨디션이 최상인 <b>'최정예 특수부대'</b>를 투입해야 합니다.</p>
+                <p>이 <b>바텀업 스코어카드</b>가 바로 그 최정예 요원을 선발하는 <b>'특수부대 선발 시스템'</b>입니다.</p>
+                <div class="info-box">
+                    <p><b>탑다운 (공군):</b> "언제(When)" 싸울지를 결정합니다. (타이밍의 문제)</p>
+                    <p><b>바텀업 (특수부대):</b> "누구(Who)"를 내보낼지를 결정합니다. (선택의 문제)</p>
+                    <p>이 두 가지가 결합될 때, 비로소 우리의 투자는 감정이 배제된 완벽한 시스템이 됩니다.</p>
+                </div>
+            </section>
+
+            <section id="design">
+                <h2>2. 어떻게 요원을 선발하는가? (스코어카드 설계도)</h2>
+                <p>대표님께서 RSI만 보신다고 하셨죠. 그것은 마치 자동차의 '속도계'만 보는 것과 같습니다. 하지만 우리는 속도계뿐만 아니라, <b>'엔진 상태(펀더멘탈)'</b>와 <b>'연료 효율(밸류에이션)'</b>까지 모두 체크하여 최고의 차를 고를 것입니다.</p>
+                <p>우리 선발 시스템은 각 빅테크 요원을 세 가지 기준으로 평가합니다.</p>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>평가 기준</th>
+                            <th>질문</th>
+                            <th>핵심 지표</th>
+                            <th>비유</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><b>1. 모멘텀 (40%)</b></td>
+                            <td>지금 힘차게 달리고 있는가?</td>
+                            <td>RSI, 200일 이동평균선</td>
+                            <td><b>달리는 말에 올라타라</b></td>
+                        </tr>
+                        <tr>
+                            <td><b>2. 펀더멘탈 (40%)</b></td>
+                            <td>뼈대가 튼튼하고 건강한가?</td>
+                            <td>매출/이익 성장률</td>
+                            <td><b>엔진이 강력한가?</b></td>
+                        </tr>
+                        <tr>
+                            <td><b>3. 밸류에이션 (20%)</b></td>
+                            <td>가격이 너무 비싸지는 않은가?</td>
+                            <td>Forward PER</td>
+                            <td><b>바겐세일인가, 거품인가?</b></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <section id="deep-dive">
+                <h2>3. 평가 기준 상세 분석 (A to Z)</h2>
+                <h3>1) 모멘텀 스코어: "지금 가장 뜨거운 요원은 누구인가?"</h3>
+                <p><b>왜 중요한가?</b> 주식 시장에서는 '추세'가 가장 중요합니다. 이미 상승 흐름을 타고 있는 주식이 계속해서 더 오를 확률이 높습니다. 우리는 멈춰있는 요원이 아니라, 지금 당장 전장을 향해 달려 나가고 있는 요원을 원합니다.</p>
+                <p><b>어떻게 평가하나?</b></p>
+                <ul>
+                    <li><b>RSI > 50:</b> 단기적인 힘이 '매수 우위'에 있는가?</li>
+                    <li><b>주가 > 200일선:</b> 장기적인 생명선(추세)이 살아있는가?</li>
+                </ul>
+                <p><b>점수:</b></p>
+                <ul>
+                    <li><b>+1점:</b> 위 두 조건을 모두 만족할 때 (단기, 장기 추세 모두 강력)</li>
+                    <li><b>-1점:</b> RSI < 50 이고, 주가가 200일선 아래일 때 (완벽한 하락 추세)</li>
+                    <li><b>0점:</b> 그 외 모든 경우 (방향성이 애매함)</li>
+                </ul>
+                <div class="example-box">
+                    <strong>예시:</strong><br>
+                    <p><b>엔비디아:</b> RSI=68, 주가 > 200일선 → <b>+1점</b> (최고의 돌격대장)</p>
+                    <p><b>페이팔:</b> RSI=42, 주가 < 200일선 → <b>-1점</b> (후퇴 중인 병사)</p>
+                </div>
+
+                <h3>2) 펀더멘탈 스코어: "가장 건강하고 힘센 요원은 누구인가?"</h3>
+                <p><b>왜 중요한가?</b> 아무리 잘 달려도, 체력이 약하면 금방 지칩니다. 회사가 실제로 돈을 폭발적으로 벌어들이고 있어야만 그 상승세가 '진짜'라고 믿을 수 있습니다.</p>
+                <p><b>어떻게 평가하나? (최신 분기 실적 기준)</b></p>
+                <ul>
+                    <li><b>매출 성장률 > 15%:</b> 덩치가 빠르게 커지고 있는가?</li>
+                    <li><b>영업이익 성장률 > 15%:</b> 실속 있게 돈을 잘 벌고 있는가?</li>
+                </ul>
+                <p><b>점수:</b></p>
+                <ul>
+                    <li><b>+1점:</b> 위 두 조건을 모두 만족할 때 (성장성과 수익성 모두 폭발적)</li>
+                    <li><b>-1점:</b> 둘 중 하나라도 마이너스(-) 성장일 때 (건강에 적신호)</li>
+                    <li><b>0점:</b> 그 외 모든 경우 (안정적이지만, 폭발적이진 않음)</li>
+                </ul>
+                <div class="example-box">
+                    <strong>예시:</strong><br>
+                    <p><b>엔비디아:</b> 매출 +80%, 이익 +120% → <b>+1점</b> (근육질의 특수부대원)</p>
+                    <p><b>애플:</b> 매출 +5%, 이익 +8% → <b>0점</b> (건강한 일반 병사)</p>
+                </div>
+
+                <h3>3) 밸류에이션 스코어: "몸값이 합리적인 요원인가?"</h3>
+                <p><b>왜 중요한가?</b> 아무리 뛰어난 요원이라도, 터무니없는 연봉을 주고 데려올 수는 없습니다. 우리는 '가성비'를 따져야 합니다.</p>
+                <p><b>어떻게 평가하나?</b></p>
+                <ul>
+                    <li><b>현재 Forward PER vs 과거 5년 평균 PER:</b> "이 요원의 현재 연봉이, 과거 평균 연봉에 비해 어떤 수준인가?"</li>
+                </ul>
+                <p><b>점수:</b></p>
+                <ul>
+                    <li><b>+1점:</b> 현재 연봉이 과거 평균보다 <b>10% 이상 저렴할 때</b> (바겐세일!)</li>
+                    <li><b>-1점:</b> 현재 연봉이 과거 평균보다 <b>20% 이상 비쌀 때</b> (거품 위험!)</li>
+                    <li><b>0점:</b> 그 사이 (적정 몸값)</li>
+                </ul>
+                <div class="example-box">
+                    <strong>예시:</strong><br>
+                    <p><b>구글:</b> 현재 PER 20배, 과거 평균 25배 → <b>+1점</b> (능력에 비해 저렴한 A급 요원)</p>
+                    <p><b>아마존:</b> 현재 PER 70배, 과거 평균 55배 → <b>-1점</b> (너무 비싸서 지금 영입하기엔 부담스러운 S급 요원)</p>
+                </div>
+            </section>
+
+            <section id="workflow">
+                <h2>4. 실전 워크플로우: "오늘 밤, 우리는 이렇게 움직인다"</h2>
+                <p><b>상황:</b> 오늘 밤 10시 30분, 당신은 투자를 위해 컴퓨터 앞에 앉았습니다.</p>
+                <div class="info-box">
+                    <h4>1단계: 공군의 출격 허가 확인 (탑다운)</h4>
+                    <p>가장 먼저 <b>`top.html`</b>을 켭니다. 신호등을 확인합니다. <b>"오! 3일간의 검증을 마치고 🟢GREEN 신호가 켜졌다!"</b><br>
+                    <b>결정:</b> "좋아, 오늘은 투자를 집행하는 날이다. 이제 어떤 녀석을 보낼지 결정하자."</p>
+                    
+                    <h4>2단계: 최정예 요원 선발 (바텀업)</h4>
+                    <p>이제 <b>`bottom-up.html`</b>로 이동합니다. 페이지가 열리면, 시스템이 자동으로 최신 데이터를 분석하여 스코어카드를 보여줍니다. 오늘의 스코어카드는 다음과 같습니다.</p>
+                    <table style="background-color: white;">
+                        <thead><tr><th>순위</th><th>종목</th><th>모멘텀</th><th>펀더멘탈</th><th>밸류에이션</th><th><b>최종 스코어</b></th></tr></thead>
+                        <tbody>
+                            <tr><td>🥇</td><td><b>엔비디아</b></td><td>+1</td><td>+1</td><td>-1</td><td><b>+0.6점</b></td></tr>
+                            <tr><td>🥈</td><td><b>마이크로소프트</b></td><td>+1</td><td>0</td><td>0</td><td><b>+0.4점</b></td></tr>
+                            <tr><td>🥉</td><td><b>애플</b></td><td>0</td><td>0</td><td>+1</td><td><b>+0.2점</b></td></tr>
+                            <tr><td>4</td><td><b>구글</b></td><td>0</td><td>0</td><td>+1</td><td><b>+0.2점</b></td></tr>
+                            <tr><td>5</td><td><b>아마존</b></td><td>+1</td><td>-1</td><td>0</td><td><b>0.0점</b></td></tr>
+                            <tr><td>6</td><td><b>메타</b></td><td>-1</td><td>0</td><td>+1</td><td><b>-0.2점</b></td></tr>
+                            <tr><td>7</td><td><b>테슬라</b></td><td>-1</td><td>-1</td><td>0</td><td><b>-0.8점</b></td></tr>
+                        </tbody>
+                    </table>
+
+                    <h4>3단계: 최종 명령 및 임무 수행</h4>
+                    <p><b>결정:</b> "스코어카드를 보니, 지금 전반적인 컨디션이 가장 좋은 최정예 요원은 단연 <b>엔비디아</b>로군. 이번 투자의 주인공은 너다."<br>
+                    <b>행동:</b> '행동강령 1부'에 따라, 밤 11시 35분에 증권사 앱을 켜고, 계획한 1차 매수 금액만큼 <b>엔비디아 주식</b>을 매수합니다.</p>
+                </div>
+            </section>
+
+            <section id="faq">
+                <h2>5. 비상 상황 대처법 (FAQ)</h2>
+                <div class="rule-card yellow">
+                    <h3>Q: 만약 1등과 2등의 점수가 똑같으면 어떡하죠?</h3>
+                    <ul>
+                        <li><b>A:</b> 그럴 때는 <b>'모멘텀 점수'가 더 높은 요원</b>을 선발합니다. 우리는 '달리는 말'을 더 선호하기 때문입니다. 만약 모멘텀 점수까지 같다면, <b>'펀더멘탈 점수'가 높은 요원</b>을 선발합니다.</li>
+                    </ul>
+                </div>
+                <div class="rule-card red">
+                    <h3>Q: "데이터 로딩 실패"가 뜨면 어떡하죠?</h3>
+                    <ul>
+                        <li><b>A:</b> 당황하지 말고, <b>브라우저 새로고침(F5)</b>을 한두 번 눌러줍니다. 우리 심부름꾼이 잠시 길을 잃었던 것뿐입니다. 대부분의 경우, 재시도하면 성공합니다.</li>
+                    </ul>
+                </div>
+                <div class="rule-card">
+                    <h3>Q: 저는 2등인 마이크로소프트가 더 좋은데, 1등인 엔비디아를 꼭 사야 하나요?</h3>
+                    <ul>
+                        <li><b>A: 네, 반드시 1등을 사야 합니다.</b> 이 시스템의 존재 이유는 <b>당신의 '감'과 '선호'를 배제하기 위함</b>입니다. 시스템을 믿기로 했다면, 그 결과를 100% 따라야 합니다. 이것이 원칙입니다.</li>
+                    </ul>
+                </div>
+            </section>
+            
+            <section id="conclusion">
+                <h2>6. 결론: 당신은 이제 사령관입니다</h2>
+                <p>이제 당신은 공군과 특수부대를 모두 거느린, 완벽한 투자 사령관이 되었습니다. 이 강령을 믿고, 시스템을 믿고, 원칙을 지키십시오. 승리는 우리의 것입니다.</p>
+            </section>
+        </main>
+    </div>
+
+</body>
+</html>

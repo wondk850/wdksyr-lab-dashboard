@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<!-- Chosen Palette: Calm Harmony (Slate, White, Emerald, Amber, Red) -->
+<!-- v3.1: EWMA Smoothing, Context Tie-breaker, Circuit Breaker, 3-day rule implemented. -->
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WDK LAB 투자 의사결정 대시보드 v3.1</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@1.4.0"></script>
+    <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .traffic-light { transition: all 0.3s ease-in-out; }
+        .skeleton { animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+        @keyframes pulse { 50% { opacity: .5; } }
+        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        .spinning { animation: spin 1s linear infinite; }
+        .chart-container { position: relative; height: 120px; width: 100%; }
+        
+        .glow-green { box-shadow: 0 0 15px 5px rgba(16, 185, 129, 0.6); }
+        .glow-yellow { box-shadow: 0 0 15px 5px rgba(245, 158, 11, 0.6); }
+        .glow-red { box-shadow: 0 0 15px 5px rgba(239, 68, 68, 0.6); }
+
+        .tooltip-container { position: relative; display: inline-block; }
+        .tooltip-text { visibility: hidden; width: 220px; background-color: #1f2937; color: #fff; text-align: left; border-radius: 6px; padding: 8px; position: absolute; z-index: 1; bottom: 125%; left: 50%; margin-left: -110px; opacity: 0; transition: opacity 0.3s; font-size: 12px; font-weight: normal; }
+        .tooltip-container:hover .tooltip-text { visibility: visible; opacity: 1; }
+        
+        .modal-overlay { transition: opacity 0.3s ease-in-out; }
+        .modal-content { transition: transform 0.3s ease-in-out; }
+    </style>
+</head>
+<body class="bg-slate-100 dark:bg-slate-900 text-slate-800 dark:text-slate-200">
+
+    <!-- Settings Modal -->
+    <div id="settings-modal" class="modal-overlay fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 invisible opacity-0">
+        <div class="modal-content bg-white dark:bg-slate-800 rounded-lg shadow-xl p-6 w-full max-w-md transform scale-95">
+            <h2 class="text-xl font-bold mb-4">설정 (v3.1)</h2>
+            <div class="space-y-4">
+                <div>
+                    <h3 class="font-semibold mb-2">가중치 (합계 100%)</h3>
+                    <div class="grid grid-cols-3 gap-2">
+                        <div><label for="weight-fed" class="text-sm">연준 (%)</label><input type="number" id="weight-fed" class="w-full p-2 border rounded dark:bg-slate-700 dark:border-slate-600"></div>
+                        <div><label for="weight-inflation" class="text-sm">인플레이션 (%)</label><input type="number" id="weight-inflation" class="w-full p-2 border rounded dark:bg-slate-700 dark:border-slate-600"></div>
+                        <div><label for="weight-context" class="text-sm">경기/리스크 (%)</label><input type="number" id="weight-context" class="w-full p-2 border rounded dark:bg-slate-700 dark:border-slate-600"></div>
+                    </div>
+                </div>
+                <div>
+                    <h3 class="font-semibold mb-2">임계값 (v3.1)</h3>
+                    <div class="grid grid-cols-2 gap-2">
+                         <div><label for="threshold-king" class="text-sm">King (20D Δ, bp)</label><input type="number" step="1" id="threshold-king" class="w-full p-2 border rounded dark:bg-slate-700 dark:border-slate-600"></div>
+                         <div><label for="threshold-pce-yoy" class="text-sm">Queen (PCE YoY ≤)</label><input type="number" step="0.1" id="threshold-pce-yoy" class="w-full p-2 border rounded dark:bg-slate-700 dark:border-slate-600"></div>
+                         <div><label for="threshold-pce-3m" class="text-sm">Queen (PCE 3M Ann ≤)</label><input type="number" step="0.1" id="threshold-pce-3m" class="w-full p-2 border rounded dark:bg-slate-700 dark:border-slate-600"></div>
+                         <div><label for="threshold-vix" class="text-sm">Context (VIX ≤)</label><input type="number" id="threshold-vix" class="w-full p-2 border rounded dark:bg-slate-700 dark:border-slate-600"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-6 flex justify-between">
+                <button id="reset-settings-button" class="px-4 py-2 bg-slate-200 dark:bg-slate-700 rounded hover:bg-slate-300 dark:hover:bg-slate-600">기본값 복원</button>
+                <div>
+                    <button id="cancel-settings-button" class="px-4 py-2 mr-2">취소</button>
+                    <button id="save-settings-button" class="px-4 py-2 bg-emerald-500 text-white rounded hover:bg-emerald-600">저장</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container mx-auto p-4 sm:p-6 lg:p-8">
+        <header class="text-center mb-8">
+            <h1 class="text-3xl sm:text-4xl font-bold text-slate-900 dark:text-white">WDK LAB 투자 의사결정 대시보드 v3.1</h1>
+            <div class="flex justify-center items-center space-x-2 text-slate-500 dark:text-slate-400 mt-2">
+                <p>정량화된 탑다운 지표를 바탕으로 현재 시장의 신호등을 확인하세요.</p>
+                <button id="settings-open-button" class="p-2 rounded-full hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors" title="설정">⚙️</button>
+                <button id="reset-overrides-button" class="p-2 rounded-full hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors hidden" title="수동 입력값 초기화">🗑️</button>
+                <button id="refresh-button" class="p-2 rounded-full hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors" title="새로고침">
+                    <span id="refresh-icon">🔄</span>
+                </button>
+            </div>
+             <p class="text-xs text-slate-400 mt-1">Last Updated: <span id="last-updated">-</span> <span id="data-age"></span></p>
+            <div class="mt-4">
+                <a href="./bottom-up.html" class="text-emerald-500 hover:text-emerald-600 transition-colors">→ 바텀업 스코어카드로 이동하기</a>
+            </div>
+        </header>
+
+        <section id="final-decision" class="mb-10">
+            <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-lg p-6 text-center">
+                <h2 class="text-lg font-semibold text-slate-500 dark:text-slate-400 mb-2">현재 투자 신호등</h2>
+                <div class="mb-4">
+                    <p class="text-sm text-slate-500">
+                        Composite Score: <span id="composite-score" class="font-bold">-</span>
+                        (EWMA: <span id="ewma-score" class="font-bold">-</span>)
+                    </p>
+                </div>
+                <div class="flex justify-center items-center space-x-4 mb-4">
+                    <div id="light-red" class="traffic-light w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-slate-200 dark:bg-slate-700"></div>
+                    <div id="light-yellow" class="traffic-light w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-slate-200 dark:bg-slate-700"></div>
+                    <div id="light-green" class="traffic-light w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-slate-200 dark:bg-slate-700"></div>
+                </div>
+                <div id="decision-text" class="h-12 flex items-center justify-center">
+                    <div class="h-8 w-64 bg-slate-200 dark:bg-slate-700 rounded skeleton"></div>
+                </div>
+            </div>
+        </section>
+        
+        <section id="analysis-and-rules" class="mb-10">
+             <div id="analysis-container" class="bg-white dark:bg-slate-800 rounded-2xl shadow-lg p-6">
+                <div class="flex items-center justify-center h-48">
+                    <div class="h-8 w-full bg-slate-200 dark:bg-slate-700 rounded skeleton"></div>
+                </div>
+             </div>
+        </section>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <section id="priority-1" class="bg-white dark:bg-slate-800 rounded-2xl shadow-lg p-6 space-y-4">
+                <h3 class="text-xl font-bold text-slate-900 dark:text-white flex items-center space-x-2">
+                    <span>👑 1순위: The King (연준 정책)</span>
+                    <div class="tooltip-container">
+                        <span class="text-xs text-slate-400 border border-slate-400 rounded-full w-4 h-4 flex items-center justify-center cursor-pointer">ⓘ</span>
+                        <span class="tooltip-text">2년물 국채금리의 20영업일 변화량을 통해 시장의 금리 인하/인상 기대감을 측정합니다. 금리 하락 시 완화 기대로 GOOD 신호가 됩니다.</span>
+                    </div>
+                </h3>
+                <p class="text-sm text-slate-500 dark:text-slate-400">가중치: <span id="fed-weight-display"></span>%</p>
+                <div id="fed-signal" class="text-center font-bold text-2xl h-8"></div>
+                <div id="fed-metric" class="text-center text-sm text-slate-500 dark:text-slate-400 h-10"></div>
+            </section>
+
+            <section id="priority-2" class="bg-white dark:bg-slate-800 rounded-2xl shadow-lg p-6 space-y-4">
+                <h3 class="text-xl font-bold text-slate-900 dark:text-white flex items-center space-x-2">
+                    <span>👸 2순위: The Queen (인플레이션)</span>
+                    <div class="tooltip-container">
+                        <span class="text-xs text-slate-400 border border-slate-400 rounded-full w-4 h-4 flex items-center justify-center cursor-pointer">ⓘ</span>
+                        <span class="tooltip-text">Core PCE YoY와 3개월 연율화 추세를 함께 봅니다. 두 지표가 모두 안정적인 기준을 충족할 때 GOOD 신호가 됩니다.</span>
+                    </div>
+                </h3>
+                 <p class="text-sm text-slate-500 dark:text-slate-400">가중치: <span id="inflation-weight-display"></span>%</p>
+                <div id="inflation-signal" class="text-center font-bold text-2xl h-8"></div>
+                <div id="inflation-metric" class="text-center text-sm text-slate-500 dark:text-slate-400 h-10"></div>
+                <div class="chart-container" id="pceChart-container"><canvas id="pceChart"></canvas></div>
+            </section>
+
+            <section id="priority-3" class="bg-white dark:bg-slate-800 rounded-2xl shadow-lg p-6 space-y-4">
+                <h3 class="text-xl font-bold text-slate-900 dark:text-white flex items-center space-x-2">
+                    <span>🛡️ 3순위: The Context (경기/리스크)</span>
+                     <div class="tooltip-container">
+                        <span class="text-xs text-slate-400 border border-slate-400 rounded-full w-4 h-4 flex items-center justify-center cursor-pointer">ⓘ</span>
+                        <span class="tooltip-text">장단기 금리차, VIX 등 5개 리스크 지표를 종합하여 점수를 매깁니다. 시장이 안정적일수록 GOOD 신호가 됩니다.</span>
+                    </div>
+                </h3>
+                 <p class="text-sm text-slate-500 dark:text-slate-400">가중치: <span id="context-weight-display"></span>%</p>
+                <div id="context-signal" class="text-center font-bold text-2xl h-8"></div>
+                <div id="context-metric" class="text-center text-sm text-slate-500 dark:text-slate-400 h-10"></div>
+                <div class="chart-container" id="spreadChart-container"><canvas id="spreadChart"></canvas></div>
+            </section>
+        </div>
+        
+        <section id="history-log" class="mt-10">
+            <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-lg p-6">
+                <h3 class="text-xl font-bold mb-4">신호 기록 (Signal History)</h3>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm text-left">
+                        <thead class="text-xs text-slate-700 dark:text-slate-400 uppercase bg-slate-50 dark:bg-slate-700">
+                            <tr>
+                                <th class="px-4 py-2">시간</th>
+                                <th class="px-4 py-2 text-center">EWMA</th>
+                                <th class="px-4 py-2 text-center">연준</th>
+                                <th class="px-4 py-2 text-center">인플레</th>
+                                <th class="px-4 py-2 text-center">경기</th>
+                                <th class="px-4 py-2 text-center">신호등</th>
+                            </tr>
+                        </thead>
+                        <tbody id="log-body">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+    </div>
+
+<script>
+if (window['chartjsPluginAnnotation']) {
+  try { Chart.register(window['chartjsPluginAnnotation']); } catch(e){ console.warn('Annotation plugin registration failed', e); }
+}
+
+const defaultSettings = {
+    weights: { fed: 50, inflation: 30, context: 20 },
+    thresholds: { king: 15, pce_yoy: 2.6, pce_3m: 2.2, vix: 18 }
+};
+
+const state = {
+    data: {},
+    overrides: {},
+    charts: {},
+    settings: JSON.parse(localStorage.getItem('dashboard_settings_v31')) || { ...defaultSettings },
+    dataIsStale: false,
+    previousSignal: null,
+    ewmaScore: null
+};
+
+const refreshButton = document.getElementById('refresh-button');
+const refreshIcon = document.getElementById('refresh-icon');
+const lastUpdatedEl = document.getElementById('last-updated');
+const dataAgeEl = document.getElementById('data-age');
+const settingsModal = document.getElementById('settings-modal');
+const settingsOpenButton = document.getElementById('settings-open-button');
+const resetOverridesButton = document.getElementById('reset-overrides-button');
+
+function getLogs() {
+    return JSON.parse(localStorage.getItem('signal_log_v31') || '[]');
+}
+
+function readCached(seriesId, maxAgeMinutes = 360) {
+    const raw = localStorage.getItem(`fred_${seriesId}`);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    const ageMinutes = (Date.now() - parsed.ts) / 60000;
+    if (ageMinutes > maxAgeMinutes) {
+        console.warn(`Cached data for ${seriesId} is stale.`);
+        return null;
+    }
+    return { data: parsed.data, ageMinutes };
+}
+
+async function fetchFredSeries(seriesId, points = 252) { // Fetch more for rolling calcs
+    const proxyUrl = 'https://asia-northeast3-my-dashboard-proxy.cloudfunctions.net/fredProxy';
+    const requestUrl = `${proxyUrl}?seriesId=${encodeURIComponent(seriesId)}`;
+    try {
+        const resp = await fetch(requestUrl, { method:'GET' });
+        if (!resp.ok) throw new Error(`proxy status ${resp.status}`);
+        let csvText = await resp.text();
+
+        const parsed = Papa.parse(csvText, { header:true, dynamicTyping:true, skipEmptyLines:true });
+        
+        const fields = (parsed.meta && parsed.meta.fields && parsed.meta.fields.length>=2) ? parsed.meta.fields : (parsed.data[0] ? Object.keys(parsed.data[0]) : []);
+        if (!fields || fields.length < 2) {
+          console.warn('[WARN] Unable to detect CSV fields for', seriesId);
+          const cached = readCached(seriesId);
+          if (cached) return { data: cached.data.slice(-points), ageMinutes: cached.ageMinutes, fromCache:true };
+          return { data:null, ageMinutes:Infinity, fromCache:false };
+        }
+        const dateKey = fields[0];
+        const valueKey = fields[1];
+
+        const rows = parsed.data.filter(r => {
+          if (!r) return false;
+          const v = r[valueKey];
+          if (v === '.' || v === '' || v === null || typeof v === 'undefined') return false;
+          const num = Number(v);
+          return Number.isFinite(num);
+        });
+
+        const data = rows.map(r => {
+          const rawDate = r[dateKey];
+          const dt = new Date(rawDate);
+          const dateIso = isNaN(dt.getTime()) ? String(rawDate) : dt.toISOString();
+          return { date: dateIso, value: Number(r[valueKey]) };
+        });
+
+        if (data.length > 0) {
+          try { localStorage.setItem(`fred_${seriesId}`, JSON.stringify({ ts: Date.now(), data })); } catch(e){ console.warn('localStorage set fail', e); }
+          return { data: data.slice(-points), ageMinutes:0, fromCache:false };
+        } else {
+          console.warn(`[WARN] ${seriesId} parsed but no usable numeric rows after filter.`);
+          const cached = readCached(seriesId);
+          if (cached) return { data: cached.data.slice(-points), ageMinutes: cached.ageMinutes, fromCache:true };
+          return { data:null, ageMinutes:Infinity, fromCache:false };
+        }
+    } catch(err){
+        console.error(`[ERROR] fetchFredSeries ${seriesId}`, err);
+        const cached = readCached(seriesId);
+        if (cached) { console.warn(`[DEBUG] using cached for ${seriesId}`); return { data: cached.data.slice(-points), ageMinutes: cached.ageMinutes, fromCache:true }; }
+        return { data:null, ageMinutes:Infinity, fromCache:false };
+    }
+}
+
+function createOrUpdateChart(chartId, labels, data, datasetLabel, yAxisLabel, threshold) {
+    let canvas = document.getElementById(chartId);
+    if (!canvas) {
+        const container = document.getElementById(`${chartId}-container`);
+        if (container) {
+            container.innerHTML = `<canvas id="${chartId}"></canvas>`;
+            canvas = document.getElementById(chartId);
+        } else {
+            console.error('Chart container not found for', chartId);
+            return;
+        }
+    }
+    const ctx = canvas.getContext('2d');
+    
+    if (state.charts[chartId]) {
+        state.charts[chartId].destroy();
+    }
+
+    const chartData = {
+        labels: labels.map(d => new Date(d)),
+        datasets: [{
+            label: datasetLabel,
+            data: data,
+            borderColor: '#64748b',
+            borderWidth: 2,
+            pointRadius: 0,
+            tension: 0.1
+        }]
+    };
+    const chartOptions = {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+            x: { 
+                display: true,
+                type: 'time',
+                time: { unit: 'month' },
+                ticks: { font: { size: 9 }, maxRotation: 0, autoSkip: true, maxTicksLimit: 6 }
+            },
+            y: {
+                ticks: { font: { size: 10 } },
+                title: { display: true, text: yAxisLabel, font: { size: 10 } }
+            }
+        },
+        plugins: {
+            legend: { display: false },
+            tooltip: { mode: 'index', intersect: false },
+            annotation: {
+                annotations: {
+                    thresholdLine: {
+                        type: 'line',
+                        yMin: threshold,
+                        yMax: threshold,
+                        borderColor: 'rgba(239, 68, 68, 0.5)',
+                        borderWidth: 2,
+                        borderDash: [6, 6],
+                        label: {
+                            content: `임계값: ${threshold}`,
+                            enabled: true,
+                            position: 'start',
+                            font: { size: 10 }
+                        }
+                    }
+                }
+            }
+        }
+    };
+
+    state.charts[chartId] = new Chart(ctx, { type: 'line', data: chartData, options: chartOptions });
+}
+
+function showLoadingState() {
+    refreshIcon.classList.add('spinning');
+    refreshButton.disabled = true;
+    document.querySelectorAll('.skeleton').forEach(el => el.style.display = 'block');
+    ['decision-text', 'analysis-container', 'fed-signal', 'inflation-signal', 'context-signal', 'fed-metric', 'inflation-metric', 'context-metric'].forEach(id => {
+        const el = document.getElementById(id);
+        if(el) el.innerHTML = `<div class="h-8 w-full bg-slate-200 dark:bg-slate-700 rounded skeleton"></div>`;
+    });
+    document.getElementById('composite-score').textContent = '-';
+    document.getElementById('ewma-score').textContent = '-';
+}
+
+async function updateDashboard() {
+    showLoadingState();
+
+    const seriesToFetch = {
+        'DGS10': 252, 'DGS2': 252, 'PCEPILFE': 36, 'UNRATE': 13,
+        'VIXCLS': 252 * 3, 'BAA': 252, 'DTWEXBGS': 252 * 3
+    };
+    
+    const fetchPromises = Object.entries(seriesToFetch).map(([id, points]) => 
+        fetchFredSeries(id, points).then(result => ({ id, ...result }))
+    );
+    const results = await Promise.all(fetchPromises);
+
+    let maxDataAge = 0;
+    results.forEach(result => {
+        state.data[result.id] = result.data;
+        if (result.ageMinutes > maxDataAge) maxDataAge = result.ageMinutes;
+    });
+    
+    dataAgeEl.textContent = `(Data age: ${Math.round(maxDataAge)} mins)`;
+    if (maxDataAge > 60) dataAgeEl.classList.add('text-amber-500');
+    else dataAgeEl.classList.remove('text-amber-500');
+
+    renderUI();
+    
+    lastUpdatedEl.textContent = new Date().toLocaleString('ko-KR');
+    refreshIcon.classList.remove('spinning');
+    refreshButton.disabled = false;
+}
+
+function calculateContextScore(latest, data) {
+    const scores = {};
+
+    // 1. Yield Curve
+    const spread10y2y = latest.DGS10 - latest.DGS2;
+    if (spread10y2y >= 0.5) scores.spread = 1;
+    else if (spread10y2y <= -0.5) scores.spread = -1;
+    else scores.spread = 0;
+
+    // 2. Credit Spread
+    const baaSpread = latest.BAA - latest.DGS10;
+    if (baaSpread <= 1.8) scores.credit = 1;
+    else if (baaSpread >= 2.8) scores.credit = -1;
+    else scores.credit = 0;
+
+    // 3. VIX
+    if (latest.VIXCLS <= 18) scores.vix = 1;
+    else if (latest.VIXCLS >= 25) scores.vix = -1;
+    else scores.vix = 0;
+
+    // 4. Unemployment (Sahm Rule)
+    const unrate3m = data.UNRATE.slice(-3).reduce((a, b) => a + b.value, 0) / 3;
+    const unrate12mMin = Math.min(...data.UNRATE.slice(-12).map(d => d.value));
+    if (unrate3m - unrate12mMin >= 0.5) scores.unrate = -1;
+    else if (latest.UNRATE <= 4.5) scores.unrate = 1;
+    else scores.unrate = 0;
+
+    // 5. DXY (3y percentile)
+    const dxyValues = data.DTWEXBGS.map(d => d.value);
+    const sortedDxy = [...dxyValues].sort((a, b) => a - b);
+    const p25 = sortedDxy[Math.floor(sortedDxy.length * 0.25)];
+    const p75 = sortedDxy[Math.floor(sortedDxy.length * 0.75)];
+    if (latest.DTWEXBGS <= p25) scores.dxy = 1;
+    else if (latest.DTWEXBGS >= p75) scores.dxy = -1;
+    else scores.dxy = 0;
+
+    const scoreValues = Object.values(scores);
+    const sum = scoreValues.reduce((a, b) => a + b, 0);
+    const mean = sum / scoreValues.length;
+    
+    const positives = scoreValues.filter(s => s === 1).length;
+    const negatives = scoreValues.filter(s => s === -1).length;
+
+    let finalScore = 0;
+    if (positives >= 4) finalScore = 1;
+    else if (negatives >= 4) finalScore = -1;
+    else { // Tie-breaker
+        if (mean >= 0.6) finalScore = 1;
+        else if (mean <= -0.6) finalScore = -1;
+        else finalScore = 0;
+    }
+    
+    return { finalScore, mean, spread10y2y };
+}
+
+function determineFinalSignal(currentSignal, ewma, logs) {
+    const wasGreen = currentSignal === 'green';
+    const wasRed = currentSignal === 'red';
+
+    const isGreenCandidate = logs.slice(0, 3).every(log => log.ewma >= 0.45) && logs.length >= 3;
+    const isRedCandidate = logs.slice(0, 3).every(log => log.ewma <= -0.45) && logs.length >= 3;
+
+    if (wasGreen) {
+        return ewma >= 0.35 ? 'green' : 'yellow';
+    }
+    if (wasRed) {
+        return ewma <= -0.35 ? 'red' : 'yellow';
+    }
+    
+    // Was Yellow
+    if (isGreenCandidate) return 'green';
+    if (isRedCandidate) return 'red';
+    return 'yellow';
+}
+
+function checkCircuitBreaker(latest, logs) {
+    const lastTwoLogs = logs.slice(0, 2);
+    if (lastTwoLogs.length < 2) return false;
+
+    const vixHigh = lastTwoLogs.every(log => log.vix > 30);
+    const creditSpreadHigh = lastTwoLogs.every(log => (log.baa - log.dgs10) >= 2.5);
+    
+    if (vixHigh || creditSpreadHigh) {
+        console.warn("CIRCUIT BREAKER TRIPPED!", {vixHigh, creditSpreadHigh});
+        return true;
+    }
+    return false;
+}
+
+
+function renderUI() {
+    const data = state.data;
+    let failedFetches = [];
+    Object.entries(data).forEach(([key, value]) => {
+        if (value === null || value.length === 0) {
+            failedFetches.push(key);
+        }
+    });
+
+    state.dataIsStale = failedFetches.length > 0;
+    if (state.dataIsStale) {
+        document.getElementById('decision-text').innerHTML = `<span class="text-red-600 text-sm font-semibold">데이터 소스 불안정: ${failedFetches.join(', ')}. 자동 거래가 비활성화됩니다.</span>`;
+    }
+
+    const latest = {};
+    for (const key in data) {
+        if (data[key] && data[key].length > 0) {
+            latest[key] = data[key].slice(-1)[0].value;
+        } else {
+            latest[key] = state.overrides[key] || 0;
+        }
+    }
+    
+    for (const key in state.overrides) {
+        latest[key] = state.overrides[key];
+    }
+
+    function updateSignalUI(elementId, signal) {
+        const el = document.getElementById(elementId);
+        if (signal === 1) el.innerHTML = `<span class="text-emerald-500">GOOD (+1)</span>`;
+        else if (signal === -1) el.innerHTML = `<span class="text-red-500">BAD (-1)</span>`;
+        else el.innerHTML = `<span class="text-slate-500">NEUTRAL (0)</span>`;
+    }
+
+    // 1. King
+    const dgs2_20d_ago_index = Math.max(0, (data.DGS2 ? data.DGS2.length : 0) - 21);
+    const dgs2_20d_ago = data.DGS2 && data.DGS2[dgs2_20d_ago_index] ? data.DGS2[dgs2_20d_ago_index].value : latest.DGS2;
+    const dgs2_20d_change_bp = (latest.DGS2 - dgs2_20d_ago) * 100;
+    let fedSignal = 0;
+    if (dgs2_20d_change_bp <= -state.settings.thresholds.king) fedSignal = 1;
+    else if (dgs2_20d_change_bp >= state.settings.thresholds.king) fedSignal = -1;
+
+    // 2. Queen
+    const pce_12m_ago_index = Math.max(0, (data.PCEPILFE ? data.PCEPILFE.length : 0) - 13);
+    const pce_12m_ago = data.PCEPILFE && data.PCEPILFE[pce_12m_ago_index] ? data.PCEPILFE[pce_12m_ago_index].value : latest.PCEPILFE;
+    const pceYoY = ((latest.PCEPILFE / pce_12m_ago) - 1) * 100;
+    
+    const pce_3m_ago_index = Math.max(0, (data.PCEPILFE ? data.PCEPILFE.length : 0) - 4);
+    const pce_3m_ago = data.PCEPILFE && data.PCEPILFE[pce_3m_ago_index] ? data.PCEPILFE[pce_3m_ago_index].value : latest.PCEPILFE;
+    const pce3mAnn = (Math.pow(latest.PCEPILFE / pce_3m_ago, 4) - 1) * 100;
+    
+    let inflationSignal = 0;
+    if (pceYoY <= state.settings.thresholds.pce_yoy && pce3mAnn <= state.settings.thresholds.pce_3m) inflationSignal = 1;
+    else if (pceYoY > state.settings.thresholds.pce_yoy + 0.4 && pce3mAnn > state.settings.thresholds.pce_3m + 0.6) inflationSignal = -1;
+
+    // 3. Context
+    const { finalScore: contextSignal, mean: contextMean, spread10y2y } = calculateContextScore(latest, data);
+
+    const w = state.settings.weights;
+    const compositeScore = ((w.fed/100) * fedSignal) + ((w.inflation/100) * inflationSignal) + ((w.context/100) * contextSignal);
+    
+    const logs = getLogs();
+    const prevEWMA = logs.length > 0 ? logs[0].ewma : compositeScore;
+    const ewmaScore = (0.33 * compositeScore) + (0.67 * prevEWMA);
+    state.ewmaScore = ewmaScore;
+
+    let finalSignal = determineFinalSignal(state.previousSignal, ewmaScore, logs);
+    
+    const circuitBreakerTripped = checkCircuitBreaker(latest, logs);
+    if (circuitBreakerTripped) {
+        finalSignal = 'red';
+    }
+
+    let signalChanged = state.previousSignal !== null && state.previousSignal !== finalSignal;
+    state.previousSignal = finalSignal;
+
+    document.getElementById('composite-score').textContent = compositeScore.toFixed(2);
+    document.getElementById('ewma-score').textContent = ewmaScore.toFixed(2);
+
+    updateSignalUI('fed-signal', fedSignal);
+    document.getElementById('fed-metric').innerHTML = `2년물 20일 변화: ${dgs2_20d_change_bp.toFixed(0)}bp <span class="cursor-pointer" onclick="overrideValue('DGS2', ${latest.DGS2})">✏️</span>`;
+    
+    updateSignalUI('inflation-signal', inflationSignal);
+    document.getElementById('inflation-metric').innerHTML = `PCE YoY: ${pceYoY.toFixed(1)}%, 3M Ann: ${pce3mAnn.toFixed(1)}% <span class="cursor-pointer" onclick="overrideValue('PCEPILFE', ${latest.PCEPILFE})">✏️</span>`;
+    
+    updateSignalUI('context-signal', contextSignal);
+    document.getElementById('context-metric').innerHTML = `10-2Y Spread: ${spread10y2y.toFixed(2)}% (Mean: ${contextMean.toFixed(2)}) <span class="cursor-pointer" onclick="overrideValue('VIXCLS', ${latest.VIXCLS})">✏️</span>`;
+
+    const decisionTextEl = document.getElementById('decision-text');
+    const analysisContainerEl = document.getElementById('analysis-container');
+    
+    document.getElementById('light-red').className = 'traffic-light w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-slate-200 dark:bg-slate-700';
+    document.getElementById('light-yellow').className = 'traffic-light w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-slate-200 dark:bg-slate-700';
+    document.getElementById('light-green').className = 'traffic-light w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-slate-200 dark:bg-slate-700';
+
+    let signalColorClass, signalText, rulesHTML, signalChangeText = '';
+    if (signalChanged) {
+        signalChangeText = `<p class="text-sm font-bold text-indigo-400 mb-2 animate-pulse">신호 변경 감지: ${state.previousSignal.toUpperCase()} → ${finalSignal.toUpperCase()}</p>`;
+    }
+    if (circuitBreakerTripped) {
+        signalChangeText += `<p class="text-sm font-bold text-red-500 mb-2 animate-pulse">🚨 서킷브레이커 발동! RED 신호로 강제 전환합니다.</p>`;
+    }
+
+    if (finalSignal === 'green') {
+        document.getElementById('light-green').className += ' bg-emerald-500 glow-green';
+        signalColorClass = "text-emerald-600 dark:text-emerald-400";
+        signalText = "🟢 풀 악셀: 비중 확대";
+        rulesHTML = `<h3 class="font-bold text-lg mb-2 ${signalColorClass}">실전 액션 룰: GREEN</h3><ul class="list-disc list-inside text-sm space-y-1"><li><b>총 목표 익스포저:</b> 48%</li><li><b>분할 진입:</b> T0: 24%, T+5d: 24% (VIX ≤ 20 조건)</li><li><b>레버리지 최대:</b> 1.2×</li></ul>`;
+    } else if (finalSignal === 'yellow') {
+        document.getElementById('light-yellow').className += ' bg-amber-500 glow-yellow';
+        signalColorClass = "text-amber-600 dark:text-amber-400";
+        signalText = "🟡 조심 운전: 비중 유지";
+        rulesHTML = `<h3 class="font-bold text-lg mb-2 ${signalColorClass}">실전 액션 룰: YELLOW</h3><ul class="list-disc list-inside text-sm space-y-1"><li><b>기본 스탠스:</b> 현금 유지, 신규 진입 보류</li><li><b>DIP 매수:</b> 지수 -5% 하락 시 현금의 10% × 최대 3회 분할 매수</li><li><b>트레일링 스탑:</b> max(18%, 3×ATR)</li></ul>`;
+    } else {
+        document.getElementById('light-red').className += ' bg-red-500 glow-red';
+        signalColorClass = "text-red-600 dark:text-red-400";
+        signalText = "🔴 일단 정지: 비중 축소";
+        rulesHTML = `<h3 class="font-bold text-lg mb-2 ${signalColorClass}">실전 액션 룰: RED</h3><ul class="list-disc list-inside text-sm space-y-1"><li><b>총 노출:</b> ≤ 20%</li><li><b>레버리지 금지</b></li><li><b>현금 운용:</b> 단기국채(SHY, BIL) 비중 확대</li></ul>`;
+    }
+    
+    if (!state.dataIsStale) {
+        decisionTextEl.innerHTML = `<span class="text-2xl font-bold ${signalColorClass}">${signalText}</span>`;
+    }
+    
+    analysisContainerEl.innerHTML = `<div class="space-y-4"><div><h3 class="font-bold text-lg mb-2 text-slate-700 dark:text-slate-200">상세 분석 및 동적 운영 지침 (v3.1)</h3>${signalChangeText}<p class="text-sm text-slate-500 dark:text-slate-400">각 지표의 신호 점수와 가중치를 종합하여 최종 투자 신호등이 결정되었습니다.</p></div><div class="p-4 bg-slate-50 dark:bg-slate-700/50 rounded-lg text-sm space-y-2"><p><b>👑 King (연준):</b> 2년물 20일 변화가 <b class="${fedSignal !== 0 ? (fedSignal > 0 ? 'text-emerald-500' : 'text-red-500') : ''}">${dgs2_20d_change_bp.toFixed(0)}bp</b> 이므로, 신호는 <b class="${fedSignal !== 0 ? (fedSignal > 0 ? 'text-emerald-500' : 'text-red-500') : ''}">${fedSignal}</b>점 입니다.</p><p><b>👸 Queen (인플레):</b> PCE YoY가 <b class="${inflationSignal !== 0 ? (inflationSignal > 0 ? 'text-emerald-500' : 'text-red-500') : ''}">${pceYoY.toFixed(1)}%</b>, 3개월 연율화 추세가 <b class="${inflationSignal !== 0 ? (inflationSignal > 0 ? 'text-emerald-500' : 'text-red-500') : ''}">${pce3mAnn.toFixed(1)}%</b> 이므로, 신호는 <b class="${inflationSignal !== 0 ? (inflationSignal > 0 ? 'text-emerald-500' : 'text-red-500') : ''}">${inflationSignal}</b>점 입니다.</p><p><b>🛡️ Context (경기/리스크):</b> 5개 지표 종합 신호는 <b>${contextSignal}</b>점 (평균값: ${contextMean.toFixed(2)}) 입니다.</p><hr class="border-slate-300 dark:border-slate-600 my-2"><p class="font-semibold"><b>종합 점수:</b> (<b>${fedSignal}</b>*${w.fed}%) + (<b>${inflationSignal}</b>*${w.inflation}%) + (<b>${contextSignal}</b>*${w.context}%) = <b class="${signalColorClass}">${compositeScore.toFixed(2)}</b> → EWMA: <b class="${signalColorClass}">${ewmaScore.toFixed(2)}</b></p></div><div class="mt-4">${rulesHTML}</div></div>`;
+
+    if (data.PCEPILFE && data.PCEPILFE.length > 12) {
+        const pceYoYLabels = [];
+        const pceYoYValues = [];
+        for (let i = 12; i < data.PCEPILFE.length; i++) {
+            pceYoYLabels.push(data.PCEPILFE[i].date);
+            pceYoYValues.push(((data.PCEPILFE[i].value / data.PCEPILFE[i-12].value) - 1) * 100);
+        }
+        createOrUpdateChart('pceChart', pceYoYLabels, pceYoYValues, 'PCE YoY (%)', '%', state.settings.thresholds.pce_yoy);
+    } else {
+        document.getElementById('pceChart-container').innerHTML = `<div class="flex items-center justify-center h-full text-xs text-slate-400">PCE 데이터 로딩 실패</div>`;
+    }
+    if (data.DGS10 && data.DGS2 && data.DGS10.length > 1 && data.DGS2.length > 1) {
+        const spreadData = data.DGS10.map((d10, i) => {
+            const d2 = data.DGS2.find(d => d.date === d10.date);
+            return d2 ? { date: d10.date, value: d10.value - d2.value } : null;
+        }).filter(Boolean);
+        createOrUpdateChart('spreadChart', spreadData.map(d=>d.date), spreadData.map(d=>d.value), '10Y-2Y Spread', '%', 0);
+    } else {
+        document.getElementById('spreadChart-container').innerHTML = `<div class="flex items-center justify-center h-full text-xs text-slate-400">금리 데이터 로딩 실패</div>`;
+    }
+    
+    appendLog({
+        ts: Date.now(),
+        ewma: ewmaScore,
+        score: compositeScore,
+        signals: { fed: fedSignal, inflation: inflationSignal, context: contextSignal },
+        final: finalSignal,
+        vix: latest.VIXCLS,
+        baa: latest.BAA,
+        dgs10: latest.DGS10
+    });
+    updateLogTable();
+}
+
+function overrideValue(key, currentValue) {
+    const newValue = prompt(`새로운 ${key} 값을 입력하세요:`, currentValue);
+    if (newValue !== null && !isNaN(parseFloat(newValue))) {
+        state.overrides[key] = parseFloat(newValue);
+        resetOverridesButton.classList.remove('hidden');
+        renderUI();
+    }
+}
+
+function appendLog(record) {
+    if (!Number.isFinite(record.score)) record.score = null;
+    let logs = getLogs();
+    logs.unshift(record);
+    if (logs.length > 200) logs = logs.slice(0, 200);
+    localStorage.setItem('signal_log_v31', JSON.stringify(logs));
+}
+
+function updateLogTable() {
+    const logs = getLogs();
+    const logBody = document.getElementById('log-body');
+    logBody.innerHTML = logs.slice(0, 5).map(log => {
+        const signalEmoji = log.final === 'green' ? '🟢' : (log.final === 'yellow' ? '🟡' : '🔴');
+        const scoreText = (log.ewma === null || log.ewma === undefined) ? 'N/A' : Number(log.ewma).toFixed(2);
+        return `
+            <tr class="bg-white dark:bg-slate-800 border-b dark:border-slate-700">
+                <td class="px-4 py-2">${new Date(log.ts).toLocaleString('ko-KR')}</td>
+                <td class="px-4 py-2 text-center font-mono">${scoreText}</td>
+                <td class="px-4 py-2 text-center">${log.signals.fed}</td>
+                <td class="px-4 py-2 text-center">${log.signals.inflation}</td>
+                <td class="px-4 py-2 text-center">${log.signals.context}</td>
+                <td class="px-4 py-2 text-center">${signalEmoji}</td>
+            </tr>
+        `;
+    }).join('');
+}
+
+function setupSettingsModal() {
+    const { weights, thresholds } = state.settings;
+    document.getElementById('weight-fed').value = weights.fed;
+    document.getElementById('weight-inflation').value = weights.inflation;
+    document.getElementById('weight-context').value = weights.context;
+    document.getElementById('threshold-king').value = thresholds.king;
+    document.getElementById('threshold-pce-yoy').value = thresholds.pce_yoy;
+    document.getElementById('threshold-pce-3m').value = thresholds.pce_3m;
+    document.getElementById('threshold-vix').value = thresholds.vix;
+    
+    ['fed-weight-display', 'inflation-weight-display', 'context-weight-display'].forEach(id => {
+        document.getElementById(id).textContent = state.settings.weights[id.split('-')[0]];
+    });
+}
+
+settingsOpenButton.addEventListener('click', () => {
+    setupSettingsModal();
+    settingsModal.classList.remove('invisible', 'opacity-0');
+    settingsModal.querySelector('.modal-content').classList.remove('scale-95');
+});
+
+document.getElementById('cancel-settings-button').addEventListener('click', () => {
+    settingsModal.classList.add('invisible', 'opacity-0');
+    settingsModal.querySelector('.modal-content').classList.add('scale-95');
+});
+
+document.getElementById('reset-settings-button').addEventListener('click', () => {
+    state.settings = { ...defaultSettings };
+    localStorage.setItem('dashboard_settings_v31', JSON.stringify(state.settings));
+    setupSettingsModal();
+});
+
+document.getElementById('save-settings-button').addEventListener('click', () => {
+    const newWeights = {
+        fed: parseInt(document.getElementById('weight-fed').value),
+        inflation: parseInt(document.getElementById('weight-inflation').value),
+        context: parseInt(document.getElementById('weight-context').value)
+    };
+    if(newWeights.fed + newWeights.inflation + newWeights.context !== 100) {
+        alert('가중치의 합은 100이 되어야 합니다.');
+        return;
+    }
+    state.settings.weights = newWeights;
+    state.settings.thresholds = {
+        king: parseFloat(document.getElementById('threshold-king').value),
+        pce_yoy: parseFloat(document.getElementById('threshold-pce-yoy').value),
+        pce_3m: parseFloat(document.getElementById('threshold-pce-3m').value),
+        vix: parseFloat(document.getElementById('threshold-vix').value)
+    };
+    localStorage.setItem('dashboard_settings_v31', JSON.stringify(state.settings));
+    settingsModal.classList.add('invisible', 'opacity-0');
+    settingsModal.querySelector('.modal-content').classList.add('scale-95');
+    renderUI();
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+    const logs = getLogs();
+    if (logs.length > 0) {
+        state.previousSignal = logs[0].final;
+    }
+    setupSettingsModal();
+    updateDashboard();
+    refreshButton.addEventListener('click', () => {
+        updateDashboard();
+    });
+    resetOverridesButton.addEventListener('click', () => {
+        state.overrides = {};
+        resetOverridesButton.classList.add('hidden');
+        renderUI();
+    });
+    setInterval(updateDashboard, 5 * 60 * 1000);
+});
+</script>
+</body>
+</html>
