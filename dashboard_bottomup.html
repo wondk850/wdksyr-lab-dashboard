@@ -3,32 +3,47 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WDK LAB 바텀업 스코어카드 v3.0</title>
+    <title>WDK LAB 바텀업 스코어카드 v3.1</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Inter', sans-serif; }
         .skeleton { animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
         @keyframes pulse { 50% { opacity: .5; } }
-        .rank-gold { background-color: #fffbeb; }
-        .rank-silver { background-color: #f8fafc; }
-        .rank-bronze { background-color: #fdf8f6; }
         .score-positive { color: #16a34a; }
         .score-negative { color: #dc2626; }
         .score-neutral { color: #64748b; }
-        .tooltip-container { position: relative; display: inline-block; cursor: help; }
-        .tooltip-text { visibility: hidden; width: 160px; background-color: #1f2937; color: #fff; text-align: center; border-radius: 6px; padding: 5px 0; position: absolute; z-index: 1; bottom: 125%; left: 50%; margin-left: -80px; opacity: 0; transition: opacity 0.3s; font-size: 12px; }
-        .tooltip-container:hover .tooltip-text { visibility: visible; opacity: 1; }
+        .tooltip { position: relative; display: inline-block; cursor: help; }
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 250px;
+            background-color: #2d3748;
+            color: #fff;
+            text-align: left;
+            border-radius: 6px;
+            padding: 8px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -125px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-size: 12px;
+            line-height: 1.5;
+            white-space: pre-wrap;
+        }
+        .tooltip:hover .tooltiptext { visibility: visible; opacity: 1; }
     </style>
 </head>
 <body class="bg-slate-100 dark:bg-slate-900 text-slate-800 dark:text-slate-200">
 
     <div class="container mx-auto p-4 sm:p-6 lg:p-8">
         <header class="text-center mb-8">
-            <h1 class="text-3xl sm:text-4xl font-bold text-slate-900 dark:text-white">WDK LAB 바텀업 스코어카드</h1>
-            <p class="text-slate-500 dark:text-slate-400 mt-2">최정예 빅테크 요원 선발 시스템 (v3.0)</p>
+            <h1 class="text-3xl sm:text-4xl font-bold text-slate-900 dark:text-white">WDK LAB 바텀업 스코어카드 v3.1</h1>
+            <p class="text-slate-500 dark:text-slate-400 mt-2">정량적 연속형 점수 기반 최정예 요원 선발 시스템</p>
             <div class="mt-4">
-                <a href="./index.html" class="text-emerald-500 hover:text-emerald-600 transition-colors">← 홈 (탑다운 대시보드)으로 돌아가기</a>
+                <a href="./dashboard_topdown.html" class="text-emerald-500 hover:text-emerald-600 transition-colors">← 탑다운 대시보드로 돌아가기</a>
             </div>
         </header>
 
@@ -40,14 +55,15 @@
                             <tr>
                                 <th class="px-4 py-3">순위</th>
                                 <th class="px-4 py-3">종목</th>
-                                <th class="px-4 py-3 text-center">모멘텀 (40%)</th>
-                                <th class="px-4 py-3 text-center">펀더멘탈 (40%)</th>
+                                <th class="px-4 py-3 text-center">모멘텀 (45%)</th>
+                                <th class="px-4 py-3 text-center">펀더멘탈 (35%)</th>
                                 <th class="px-4 py-3 text-center">밸류에이션 (20%)</th>
                                 <th class="px-4 py-3 text-center">최종 점수</th>
                             </tr>
                         </thead>
                         <tbody id="scoreboard-body">
-                            </tbody>
+                            <!-- Skeleton loading rows -->
+                        </tbody>
                     </table>
                 </div>
                  <p class="text-xs text-slate-400 mt-4 text-right">Last Updated: <span id="last-updated">-</span></p>
@@ -57,238 +73,263 @@
 
 <script>
 const PROXY_URL = 'https://api.allorigins.win/get?url=';
-const TICKERS = ['NVDA', 'MSFT', 'AAPL', 'GOOGL', 'AMZN', 'META', 'TSLA'];
+const TICKERS = [
+    'MSFT', 'AAPL', 'GOOGL', 'AMZN', 'META', 'TSLA', // Big Tech
+    'NVDA', 'TSM', 'ASML',                           // Semiconductors
+    'LLY',                                          // Healthcare
+    'JPM', 'V',                                     // Financials
+    'XOM',                                          // Energy
+    'WMT', 'COST',                                  // Consumer Staples
+    'GE', 'CAT'                                     // Industrials
+];
 
 const scoreboardBody = document.getElementById('scoreboard-body');
 const lastUpdatedEl = document.getElementById('last-updated');
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
-const CLAMP = (v, a, b) => Math.max(a, Math.min(b, v));
 
-function robustParseNumber(raw) {
-    if (raw == null) return null;
-    let s = String(raw).trim();
-    if (s === '-' || /^n\/a$/i.test(s) || s.length === 0) return null;
-
-    let negative = false;
-    if (s.startsWith('(') && s.endsWith(')')) {
-        negative = true;
-        s = s.slice(1, -1).trim();
-    }
-
-    s = s.replace(/,/g, '').replace(/\s+/g, '');
-    const isPercent = s.endsWith('%');
-    if (isPercent) s = s.slice(0, -1);
-
-    const m = s.match(/^([+-]?\d*\.?\d+)([KMBT])?$/i);
-    if (!m) {
-        const v = parseFloat(s);
-        return Number.isFinite(v) ? (negative ? -v : v) : null;
-    }
-    let num = parseFloat(m[1]);
-    const suf = m[2] ? m[2].toUpperCase() : null;
-    if (suf) {
-        if (suf === 'K') num *= 1e3;
-        else if (suf === 'M') num *= 1e6;
-        else if (suf === 'B') num *= 1e9;
-        else if (suf === 'T') num *= 1e12;
-    }
-    return negative ? -num : num;
-}
-
-function getField(data, variants) {
-    const keys = Object.keys(data || {});
-    for (const v of variants) {
-        const exact = keys.find(k => k.trim().toLowerCase() === v.trim().toLowerCase());
-        if (exact && data[exact] !== undefined) return data[exact];
-    }
-    for (const v of variants) {
-        const found = keys.find(k => k.toLowerCase().includes(v.trim().toLowerCase()));
-        if (found && data[found] !== undefined) return data[found];
-    }
-    return undefined;
+function showInitialSkeleton() {
+    let skeletonHTML = '';
+    TICKERS.forEach(ticker => {
+        skeletonHTML += `
+            <tr id="row-${ticker}" class="border-b dark:border-slate-700">
+                <td class="px-4 py-4 text-center align-middle"><div class="h-4 w-4 bg-slate-200 dark:bg-slate-700 rounded skeleton"></div></td>
+                <td class="px-4 py-4 font-bold align-middle">${ticker}</td>
+                <td id="status-cell-${ticker}" colspan="4" class="px-4 py-4 text-center align-middle">
+                    <div class="h-4 w-full bg-slate-200 dark:bg-slate-700 rounded skeleton"></div>
+                </td>
+            </tr>
+        `;
+    });
+    scoreboardBody.innerHTML = skeletonHTML;
 }
 
 async function fetchTickerData(ticker, retries = 2) {
     const finvizUrl = `https://finviz.com/quote.ashx?t=${ticker}`;
     const requestUrl = `${PROXY_URL}${encodeURIComponent(finvizUrl)}`;
-    
-    for (let attempt = 0; attempt <= retries; attempt++) {
+    for (let i = 0; i <= retries; i++) {
         try {
             const response = await fetch(requestUrl);
-            if (!response.ok) throw new Error(`Proxy status ${response.status}`);
+            if (!response.ok) throw new Error(`Proxy fetch failed: ${response.status}`);
             const json = await response.json();
             const htmlText = json.contents;
-            if (!htmlText) throw new Error('No html content from proxy');
-
+            if (!htmlText) throw new Error('HTML content not found');
             const parser = new DOMParser();
             const doc = parser.parseFromString(htmlText, 'text/html');
-            
-            const table = doc.querySelector('.snapshot-table2');
-            if (!table) throw new Error('Data table not found in HTML');
-
-            const cells = Array.from(table.querySelectorAll('td'));
             const data = {};
-            for (let i = 0; i < cells.length; i += 2) {
-                const key = (cells[i].textContent || '').trim();
-                const value = (cells[i + 1] && cells[i + 1].textContent) ? cells[i + 1].textContent.trim() : '';
-                if (key) data[key] = value;
+            const table = doc.querySelector('.snapshot-table2');
+            if (!table) throw new Error('Data table not found');
+            const cells = table.querySelectorAll('td');
+            for (let j = 0; j < cells.length; j += 2) {
+                const key = cells[j].textContent.trim();
+                const value = cells[j + 1].textContent.trim();
+                data[key] = value;
             }
-            console.debug(`[${ticker}] parsed keys:`, Object.keys(data));
             return { ticker, data };
-        } catch (err) {
-            console.warn(`fetch ${ticker} attempt ${attempt+1} failed:`, err);
-            if (attempt === retries) return { ticker, error: err.message || String(err) };
-            await sleep(500 * Math.pow(2, attempt));
+        } catch (error) {
+            console.warn(`Attempt ${i + 1} for ${ticker} failed:`, error);
+            if (i === retries) return { ticker, error: error.message };
+            await sleep(1000);
         }
     }
 }
 
-function calculateScoresNormalized(rawResults) {
-    const metrics = rawResults.map(r => {
+function robustNum(raw) {
+    if (raw == null) return null;
+    let s = String(raw).trim();
+    if (!s || s === '-' || /^n\/a$/i.test(s)) return null;
+    let neg = false;
+    if (s.startsWith('(') && s.endsWith(')')) { neg = true; s = s.slice(1, -1); }
+    s = s.replace(/,/g, '').trim();
+    const isPct = s.endsWith('%');
+    if (isPct) s = s.slice(0, -1);
+    const m = s.match(/^([+-]?\d*\.?\d+)([KMBT])?$/i);
+    let v = m ? parseFloat(m[1]) : parseFloat(s);
+    if (!isFinite(v)) return null;
+    if (m && m[2]) {
+        const u = m[2].toUpperCase();
+        v *= (u === 'K' ? 1e3 : u === 'M' ? 1e6 : u === 'B' ? 1e9 : 1e12);
+    }
+    if (neg) v = -v;
+    return v;
+}
+
+function getField(obj, variants) {
+    const keys = Object.keys(obj || {});
+    for (const v of variants) {
+        const k = keys.find(kk => kk.trim().toLowerCase() === v.trim().toLowerCase());
+        if (k) return obj[k];
+    }
+    return undefined;
+}
+
+function minMax(vals) {
+    const a = vals.filter(v => v != null && isFinite(v));
+    if (!a.length) return null;
+    return { min: Math.min(...a), max: Math.max(...a) };
+}
+
+function mmNorm(v, st) {
+    if (v == null || !st || st.min === st.max) return 0;
+    const t = (v - st.min) / (st.max - st.min);
+    return Math.max(-1, Math.min(1, t * 2 - 1));
+}
+
+function buildMetrics(items) {
+    return items.map(r => {
         const d = r.data || {};
+        const perfW = robustNum(getField(d, ['Perf Week']));
+        const perfM = robustNum(getField(d, ['Perf Month']));
+        const perfQ = robustNum(getField(d, ['Perf Quarter']));
+        const perfH = robustNum(getField(d, ['Perf Half Y']));
+        const perfY = robustNum(getField(d, ['Perf Year']));
+        const RSI = robustNum(getField(d, ['RSI (14)']));
+        const sma200Text = getField(d, ['SMA200']);
+        const smaBump = !sma200Text ? 0 : /above/i.test(sma200Text) ? 0.2 : (/below/i.test(sma200Text) ? -0.2 : 0);
+        const epsQQ = robustNum(getField(d, ['EPS Q/Q']));
+        const salesQQ = robustNum(getField(d, ['Sales Q/Q']));
+        const epsNextY = robustNum(getField(d, ['EPS next Y']));
+        const gross = robustNum(getField(d, ['Gross Margin']));
+        const opmar = robustNum(getField(d, ['Operating Margin']));
+        const roe = robustNum(getField(d, ['ROE']));
+        const roa = robustNum(getField(d, ['ROA']));
+        const pe = robustNum(getField(d, ['P/E']));
+        const pfcf = robustNum(getField(d, ['P/FCF']));
+        const peg = robustNum(getField(d, ['PEG']));
+        const beta = robustNum(getField(d, ['Beta']));
+        const M = (perfW ?? 0) * 0.15 + (perfM ?? 0) * 0.25 + (perfQ ?? 0) * 0.30 + (perfH ?? 0) * 0.15 + (perfY ?? 0) * 0.15;
         return {
-            ticker: r.ticker,
-            error: r.error,
-            rsi: robustParseNumber(getField(d, ['RSI (14)', 'RSI'])),
-            sma200Text: getField(d, ['SMA200']),
-            salesQQ: robustParseNumber(getField(d, ['Sales Q/Q'])),
-            epsQQ: robustParseNumber(getField(d, ['EPS Q/Q'])),
-            pe: robustParseNumber(getField(d, ['P/E'])),
-            epsNext5y: robustParseNumber(getField(d, ['EPS next 5Y']))
+            ticker: r.ticker, error: r.error,
+            M, RSI, smaBump, epsQQ, salesQQ, epsNextY, gross, opmar, roe, roa, pe, pfcf, peg, beta
         };
-    });
-
-    metrics.forEach(m => {
-        m.peg = (m.pe > 0 && m.epsNext5y > 0) ? m.pe / m.epsNext5y : null;
-    });
-
-    const getStats = (key) => {
-        const vals = metrics.map(x => x[key]).filter(v => v != null && isFinite(v));
-        if (vals.length === 0) return { min: 0, max: 0 };
-        return { min: Math.min(...vals), max: Math.max(...vals) };
-    };
-    const stats = {
-        salesQQ: getStats('salesQQ'),
-        epsQQ: getStats('epsQQ'),
-        peg: getStats('peg')
-    };
-
-    const minMaxNorm = (v, key, invert = false) => {
-        const s = stats[key];
-        if (v == null || !s || s.max === s.min) return 0;
-        const scaled = (v - s.min) / (s.max - s.min);
-        const result = CLAMP(scaled * 2 - 1, -1, 1);
-        return invert ? -result : result;
-    };
-
-    return metrics.map(m => {
-        const rsiScore = (m.rsi != null) ? CLAMP((m.rsi - 50) / 50, -1, 1) : 0;
-        const smaSign = m.sma200Text ? (/above/i.test(m.sma200Text) ? 1 : (/below/i.test(m.sma200Text) ? -1 : 0)) : 0;
-        const momentum = CLAMP(0.7 * rsiScore + 0.3 * smaSign, -1, 1);
-
-        const salesN = minMaxNorm(m.salesQQ, 'salesQQ');
-        const epsN = minMaxNorm(m.epsQQ, 'epsQQ');
-        const fundamental = CLAMP(0.4 * salesN + 0.6 * epsN, -1, 1);
-
-        const valuation = minMaxNorm(m.peg, 'peg', true);
-
-        const finalScore = (momentum * 0.4) + (fundamental * 0.4) + (valuation * 0.2);
-
-        return { ticker: m.ticker, error: m.error, scores: { momentum, fundamental, valuation, peg: m.peg }, finalScore };
     });
 }
 
-function renderScoreboard(results) {
-    results.sort((a, b) => b.finalScore - a.finalScore);
-    scoreboardBody.innerHTML = '';
+function scoreAll(items) {
+    const m = buildMetrics(items.filter(item => !item.error));
+    if (m.length === 0) return items;
 
-    results.forEach((r, idx) => {
-        const tr = document.createElement('tr');
-        tr.className = 'border-b dark:border-slate-700';
-        if (idx === 0) tr.classList.add('rank-gold');
-        else if (idx === 1) tr.classList.add('rank-silver');
-        else if (idx === 2) tr.classList.add('rank-bronze');
+    const sM = minMax(m.map(x => x.M));
+    const sEPS = minMax(m.map(x => x.epsQQ));
+    const sSales = minMax(m.map(x => x.salesQQ));
+    const sENY = minMax(m.map(x => x.epsNextY));
+    const sGross = minMax(m.map(x => x.gross));
+    const sOpm = minMax(m.map(x => x.opmar));
+    const sROE = minMax(m.map(x => x.roe));
+    const sROA = minMax(m.map(x => x.roa));
+    const sPE = minMax(m.map(x => x.pe));
+    const sPFCF = minMax(m.map(x => x.pfcf));
+    const sPEG = minMax(m.map(x => x.peg));
 
-        const createCell = (content, className = '') => {
-            const td = document.createElement('td');
-            td.className = `px-4 py-4 ${className}`;
-            if (typeof content === 'string' || typeof content === 'number') {
-                td.textContent = content;
-            } else {
-                td.appendChild(content);
+    return items.map(originalItem => {
+        if (originalItem.error) return { ...originalItem, finalScore: -Infinity };
+        
+        const x = m.find(metric => metric.ticker === originalItem.ticker);
+        if (!x) return { ...originalItem, error: "Metric not found", finalScore: -Infinity };
+
+        const rsiScore = x.RSI == null ? 0 : Math.max(-1, Math.min(1, (x.RSI - 50) / 50));
+        const mom = Math.max(-1, Math.min(1, 0.8 * mmNorm(x.M, sM) + 0.2 * rsiScore + x.smaBump));
+
+        const growth = 0.5 * mmNorm(x.epsQQ, sEPS) + 0.3 * mmNorm(x.salesQQ, sSales) + 0.2 * mmNorm(x.epsNextY, sENY);
+        const qualityMetrics = [sGross && mmNorm(x.gross, sGross), sOpm && mmNorm(x.opmar, sOpm), sROE && mmNorm(x.roe, sROE), sROA && mmNorm(x.roa, sROA)].filter(v => v !== false);
+        const quality = qualityMetrics.length > 0 ? qualityMetrics.reduce((a, b) => a + b, 0) / qualityMetrics.length : 0;
+        const fund = Math.max(-1, Math.min(1, 0.7 * growth + 0.3 * quality));
+
+        const valMetrics = [sPEG && -mmNorm(x.peg, sPEG), sPE && -mmNorm(x.pe, sPE), sPFCF && -mmNorm(x.pfcf, sPFCF)].filter(v => v !== false);
+        const val = valMetrics.length > 0 ? valMetrics.reduce((a, b) => a + b, 0) / valMetrics.length : 0;
+
+        const risk = (x.beta != null && isFinite(x.beta)) ? (x.beta > 1.5 ? 0.2 : (x.beta < 0.8 ? -0.05 : 0)) : 0;
+        const finalScore = Math.max(-1, Math.min(1, 0.45 * mom + 0.35 * fund + 0.20 * val - risk));
+
+        return {
+            ticker: x.ticker,
+            scores: { momentum: mom, fundamental: fund, valuation: val },
+            finalScore,
+            debug: {
+                M: x.M, M_norm: mmNorm(x.M, sM), RSI: x.RSI, rsi_score: rsiScore,
+                sma_bump: x.smaBump,
+                epsQQ: x.epsQQ, epsQQ_norm: mmNorm(x.epsQQ, sEPS), salesQQ: x.salesQQ, salesQQ_norm: mmNorm(x.salesQQ, sSales),
+                peg: x.peg, peg_norm_inv: -mmNorm(x.peg, sPEG), pe: x.pe, pe_norm_inv: -mmNorm(x.pe, sPE),
+                beta: x.beta, risk_penalty: risk
             }
-            return td;
         };
-
-        tr.appendChild(createCell(idx + 1, 'font-bold text-lg'));
-        tr.appendChild(createCell(r.ticker, 'font-bold text-slate-900 dark:text-slate-100'));
-
-        if (r.error || !r.scores) {
-            const tdError = createCell(`데이터 로딩 실패: ${r.error || 'N/A'}`, 'text-center text-red-500');
-            tdError.colSpan = 4;
-            tr.appendChild(tdError);
-        } else {
-            const createScoreCell = (score, tooltipText = '') => {
-                const span = document.createElement('span');
-                span.className = 'font-bold';
-                span.textContent = score.toFixed(2);
-                if (score > 0.1) span.classList.add('score-positive');
-                else if (score < -0.1) span.classList.add('score-negative');
-                else span.classList.add('score-neutral');
-
-                if (tooltipText) {
-                    const container = document.createElement('div');
-                    container.className = 'tooltip-container';
-                    const tip = document.createElement('span');
-                    tip.className = 'tooltip-text';
-                    tip.textContent = tooltipText;
-                    container.append(span, tip);
-                    return createCell(container, 'text-center');
-                }
-                return createCell(span, 'text-center');
-            };
-            
-            tr.appendChild(createScoreCell(r.scores.momentum));
-            tr.appendChild(createScoreCell(r.scores.fundamental));
-            tr.appendChild(createScoreCell(r.scores.valuation, r.scores.peg ? `PEG: ${r.scores.peg.toFixed(2)}` : 'PEG 계산 불가'));
-            tr.appendChild(createScoreCell(r.finalScore));
-        }
-        scoreboardBody.appendChild(tr);
     });
+}
 
+function renderBoard(results) {
+    results.sort((a, b) => b.finalScore - a.finalScore);
+    let finalHtml = '';
+    results.forEach((result, index) => {
+        const rank = index + 1;
+        let rankClass = '';
+        if (rank === 1 && !result.error) rankClass = 'rank-gold';
+        else if (rank <= 3 && !result.error) rankClass = 'rank-silver';
+        else if (rank <= 5 && !result.error) rankClass = 'rank-bronze';
+
+        const getScoreHTML = (score, debugTooltip) => {
+            let scoreClass = 'score-neutral';
+            if (score > 0.3) scoreClass = 'score-positive';
+            else if (score < -0.3) scoreClass = 'score-negative';
+            const scoreText = score === null ? 'N/A' : score.toFixed(2);
+            return `<div class="tooltip font-bold ${scoreClass}">${scoreText}<span class="tooltiptext">${debugTooltip}</span></div>`;
+        };
+        
+        const getFinalScoreHTML = (score) => {
+            let scoreClass = 'text-slate-500';
+            if (score > 0.3) scoreClass = 'score-positive';
+            else if (score < -0.3) scoreClass = 'score-negative';
+            return `<span class="font-bold text-lg ${scoreClass}">${score.toFixed(2)}</span>`;
+        }
+
+        finalHtml += `<tr class="border-b dark:border-slate-700 ${rankClass}">`;
+        finalHtml += `<td class="px-4 py-4 font-bold text-lg text-center align-middle">${rank}</td>`;
+        finalHtml += `<td class="px-4 py-4 font-bold text-slate-900 dark:text-slate-100 align-middle">${result.ticker}</td>`;
+
+        if (result.error || !result.scores) {
+            finalHtml += `<td colspan="4" class="px-4 py-4 text-center text-red-500 align-middle">데이터 로딩 실패: ${result.error || 'N/A'}</td>`;
+        } else {
+            const d = result.debug;
+            const momTooltip = `Perf Comp: ${d.M.toFixed(2)} -> ${d.M_norm.toFixed(2)}
+RSI(${d.RSI}): ${d.rsi_score.toFixed(2)}
+SMA Bump: ${d.sma_bump.toFixed(2)}`;
+            const fundTooltip = `EPS Q/Q(${d.epsQQ}%): ${d.epsQQ_norm.toFixed(2)}
+Sales Q/Q(${d.salesQQ}%): ${d.salesQQ_norm.toFixed(2)}`;
+            const valTooltip = `PEG(${d.peg}): ${d.peg_norm_inv.toFixed(2)}
+P/E(${d.pe}): ${d.pe_norm_inv.toFixed(2)}`;
+            
+            finalHtml += `<td class="px-4 py-4 text-center align-middle">${getScoreHTML(result.scores.momentum, momTooltip)}</td>`;
+            finalHtml += `<td class="px-4 py-4 text-center align-middle">${getScoreHTML(result.scores.fundamental, fundTooltip)}</td>`;
+            finalHtml += `<td class="px-4 py-4 text-center align-middle">${getScoreHTML(result.scores.valuation, valTooltip)}</td>`;
+            finalHtml += `<td class="px-4 py-4 text-center align-middle">${getFinalScoreHTML(result.finalScore)}</td>`;
+        }
+        finalHtml += `</tr>`;
+    });
+    scoreboardBody.innerHTML = finalHtml;
     lastUpdatedEl.textContent = new Date().toLocaleString('ko-KR');
 }
 
 async function main() {
-    scoreboardBody.innerHTML = TICKERS.map(() => `
-        <tr class="border-b dark:border-slate-700">
-            <td class="px-4 py-4"><div class="h-4 w-4 bg-slate-200 dark:bg-slate-700 rounded skeleton"></div></td>
-            <td class="px-4 py-4 font-bold"><div class="h-4 w-16 bg-slate-200 dark:bg-slate-700 rounded skeleton"></div></td>
-            <td class="px-4 py-4 text-center"><div class="h-4 w-12 mx-auto bg-slate-200 dark:bg-slate-700 rounded skeleton"></div></td>
-            <td class="px-4 py-4 text-center"><div class="h-4 w-12 mx-auto bg-slate-200 dark:bg-slate-700 rounded skeleton"></div></td>
-            <td class="px-4 py-4 text-center"><div class="h-4 w-12 mx-auto bg-slate-200 dark:bg-slate-700 rounded skeleton"></div></td>
-            <td class="px-4 py-4 text-center"><div class="h-4 w-12 mx-auto bg-slate-200 dark:bg-slate-700 rounded skeleton"></div></td>
-        </tr>
-    `).join('');
+    showInitialSkeleton();
+    const rawResults = [];
 
-    try {
-        const rawResults = [];
-        for (const ticker of TICKERS) {
-            const result = await fetchTickerData(ticker);
-            rawResults.push(result);
-            const humanLikeDelay = 1000 + Math.random() * 1500;
-            await sleep(humanLikeDelay);
+    for (let i = 0; i < TICKERS.length; i++) {
+        const ticker = TICKERS[i];
+        const statusCell = document.getElementById(`status-cell-${ticker}`);
+        if (statusCell) {
+            statusCell.innerHTML = `<span class="text-sm text-slate-500">(${i + 1}/${TICKERS.length}) 로딩 중...</span>`;
         }
-        const scored = calculateScoresNormalized(rawResults);
-        renderScoreboard(scored);
-    } catch (err) {
-        console.error('main error', err);
-        scoreboardBody.innerHTML = `<tr><td colspan="6" class="px-4 py-4 text-center text-red-500">치명적 오류: ${String(err)}</td></tr>`;
-        lastUpdatedEl.textContent = new Date().toLocaleString('ko-KR');
+
+        const result = await fetchTickerData(ticker);
+        rawResults.push(result);
+        
+        const humanLikeDelay = 1000 + Math.random() * 1000; // 1 to 2 seconds
+        await sleep(humanLikeDelay);
     }
+    
+    const scoredResults = scoreAll(rawResults);
+    renderBoard(scoredResults);
 }
 
 document.addEventListener('DOMContentLoaded', main);
 </script>
-</body>
+    </body>
 </html>
