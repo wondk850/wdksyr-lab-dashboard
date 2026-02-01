@@ -1,19 +1,45 @@
 <!DOCTYPE html>
 <html lang="ko">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WDK LAB 바텀업 스코어카드 v3.1</title>
+    <title>WDK LAB 바텀업 스코어카드 v3.2</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Inter', sans-serif; }
-        .skeleton { animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
-        @keyframes pulse { 50% { opacity: .5; } }
-        .score-positive { color: #16a34a; }
-        .score-negative { color: #dc2626; }
-        .score-neutral { color: #64748b; }
-        .tooltip { position: relative; display: inline-block; cursor: help; }
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        .skeleton {
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+
+        @keyframes pulse {
+            50% {
+                opacity: .5;
+            }
+        }
+
+        .score-positive {
+            color: #16a34a;
+        }
+
+        .score-negative {
+            color: #dc2626;
+        }
+
+        .score-neutral {
+            color: #64748b;
+        }
+
+        .tooltip {
+            position: relative;
+            display: inline-block;
+            cursor: help;
+        }
+
         .tooltip .tooltiptext {
             visibility: hidden;
             width: 250px;
@@ -33,17 +59,42 @@
             line-height: 1.5;
             white-space: pre-wrap;
         }
-        .tooltip:hover .tooltiptext { visibility: visible; opacity: 1; }
+
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        .rank-gold {
+            background-color: rgba(251, 191, 36, 0.1);
+        }
+
+        .rank-silver {
+            background-color: rgba(156, 163, 175, 0.1);
+        }
+
+        .rank-bronze {
+            background-color: rgba(180, 83, 9, 0.05);
+        }
     </style>
 </head>
+
 <body class="bg-slate-100 dark:bg-slate-900 text-slate-800 dark:text-slate-200">
 
     <div class="container mx-auto p-4 sm:p-6 lg:p-8">
         <header class="text-center mb-8">
-            <h1 class="text-3xl sm:text-4xl font-bold text-slate-900 dark:text-white">WDK LAB 바텀업 스코어카드 v3.1</h1>
+            <h1 class="text-3xl sm:text-4xl font-bold text-slate-900 dark:text-white">WDK LAB 바텀업 스코어카드 v3.3</h1>
             <p class="text-slate-500 dark:text-slate-400 mt-2">정량적 연속형 점수 기반 최정예 요원 선발 시스템</p>
-            <div class="mt-4">
-                <a href="./dashboard_topdown.html" class="text-emerald-500 hover:text-emerald-600 transition-colors">← 탑다운 대시보드로 돌아가기</a>
+            <p id="data-status" class="text-xs text-emerald-500 mt-1">📡 데이터 로딩 중...</p>
+            <div class="mt-4 flex justify-center items-center space-x-4">
+                <a href="./dashboard_topdown.html" class="text-emerald-500 hover:text-emerald-600 transition-colors">←
+                    탑다운 대시보드로 돌아가기</a>
+                <button id="refresh-btn"
+                    class="px-3 py-1 bg-blue-500 hover:bg-blue-600 text-white rounded text-sm transition-colors"
+                    title="새로고침">🔄 새로고침</button>
+                <button id="clear-cache-btn"
+                    class="px-3 py-1 bg-red-500 hover:bg-red-600 text-white rounded text-sm transition-colors"
+                    title="캐시 삭제 후 재로딩">🗑️ 캐시 클리어</button>
             </div>
         </header>
 
@@ -51,7 +102,8 @@
             <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-lg p-6">
                 <div class="overflow-x-auto">
                     <table class="w-full text-sm text-left">
-                        <thead class="text-xs text-slate-700 dark:text-slate-400 uppercase bg-slate-50 dark:bg-slate-700">
+                        <thead
+                            class="text-xs text-slate-700 dark:text-slate-400 uppercase bg-slate-50 dark:bg-slate-700">
                             <tr>
                                 <th class="px-4 py-3">순위</th>
                                 <th class="px-4 py-3">종목</th>
@@ -66,31 +118,43 @@
                         </tbody>
                     </table>
                 </div>
-                 <p class="text-xs text-slate-400 mt-4 text-right">Last Updated: <span id="last-updated">-</span></p>
+                <p class="text-xs text-slate-400 mt-4 text-right">Last Updated: <span id="last-updated">-</span></p>
             </div>
         </section>
     </div>
 
-<script>
-const PROXY_URL = 'https://api.allorigins.win/get?url=';
-const TICKERS = [
-    'MSFT', 'AAPL', 'GOOGL', 'AMZN', 'META', 'TSLA', // Big Tech
-    'NVDA', 'TSM', 'ASML',                           // Semiconductors
-    'LLY',                                          // Healthcare
-    'JPM', 'V',                                     // Financials
-    'XOM',                                          // Energy
-    'WMT', 'COST',                                  // Consumer Staples
-    'GE', 'CAT'                                     // Industrials
-];
+    <script>
+        // 티커 목록
+        const TICKERS = [
+            'MSFT', 'AAPL', 'GOOGL', 'AMZN', 'META', 'TSLA', // Big Tech
+            'NVDA', 'TSM', 'ASML',                           // Semiconductors
+            'LLY',                                           // Healthcare
+            'JPM', 'V',                                      // Financials
+            'XOM',                                           // Energy
+            'WMT', 'COST',                                   // Consumer Staples
+            'GE', 'CAT'                                      // Industrials
+        ];
 
-const scoreboardBody = document.getElementById('scoreboard-body');
-const lastUpdatedEl = document.getElementById('last-updated');
-const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
+        // 여러 CORS 프록시를 fallback으로 사용 (더 많은 옵션!)
+        const CORS_PROXIES = [
+            'https://api.allorigins.win/raw?url=',
+            'https://corsproxy.io/?',
+            'https://api.codetabs.com/v1/proxy?quest=',
+            'https://proxy.cors.sh/',
+        ];
 
-function showInitialSkeleton() {
-    let skeletonHTML = '';
-    TICKERS.forEach(ticker => {
-        skeletonHTML += `
+        // 캐시 (세션 스토리지) - 실패한 프록시 건너뛰기용
+        let failedProxies = new Set();
+        let tickerCache = {};
+
+        const scoreboardBody = document.getElementById('scoreboard-body');
+        const lastUpdatedEl = document.getElementById('last-updated');
+        const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+        function showInitialSkeleton() {
+            let skeletonHTML = '';
+            TICKERS.forEach(ticker => {
+                skeletonHTML += `
             <tr id="row-${ticker}" class="border-b dark:border-slate-700">
                 <td class="px-4 py-4 text-center align-middle"><div class="h-4 w-4 bg-slate-200 dark:bg-slate-700 rounded skeleton"></div></td>
                 <td class="px-4 py-4 font-bold align-middle">${ticker}</td>
@@ -99,237 +163,412 @@ function showInitialSkeleton() {
                 </td>
             </tr>
         `;
-    });
-    scoreboardBody.innerHTML = skeletonHTML;
-}
+            });
+            scoreboardBody.innerHTML = skeletonHTML;
+        }
 
-async function fetchTickerData(ticker, retries = 2) {
-    const finvizUrl = `https://finviz.com/quote.ashx?t=${ticker}`;
-    const requestUrl = `${PROXY_URL}${encodeURIComponent(finvizUrl)}`;
-    for (let i = 0; i <= retries; i++) {
-        try {
-            const response = await fetch(requestUrl);
-            if (!response.ok) throw new Error(`Proxy fetch failed: ${response.status}`);
-            const json = await response.json();
-            const htmlText = json.contents;
-            if (!htmlText) throw new Error('HTML content not found');
-            const parser = new DOMParser();
-            const doc = parser.parseFromString(htmlText, 'text/html');
-            const data = {};
-            const table = doc.querySelector('.snapshot-table2');
-            if (!table) throw new Error('Data table not found');
-            const cells = table.querySelectorAll('td');
-            for (let j = 0; j < cells.length; j += 2) {
-                const key = cells[j].textContent.trim();
-                const value = cells[j + 1].textContent.trim();
-                data[key] = value;
+        // Yahoo Finance API를 통해 주식 데이터 가져오기 (강화된 버전)
+        async function fetchTickerData(ticker, retries = 3) {
+            // 캐시 확인
+            if (tickerCache[ticker]) {
+                console.log(`[Cache] Using cached data for ${ticker}`);
+                return tickerCache[ticker];
             }
-            return { ticker, data };
-        } catch (error) {
-            console.warn(`Attempt ${i + 1} for ${ticker} failed:`, error);
-            if (i === retries) return { ticker, error: error.message };
-            await sleep(1000);
-        }
-    }
-}
 
-function robustNum(raw) {
-    if (raw == null) return null;
-    let s = String(raw).trim();
-    if (!s || s === '-' || /^n\/a$/i.test(s)) return null;
-    let neg = false;
-    if (s.startsWith('(') && s.endsWith(')')) { neg = true; s = s.slice(1, -1); }
-    s = s.replace(/,/g, '').trim();
-    const isPct = s.endsWith('%');
-    if (isPct) s = s.slice(0, -1);
-    const m = s.match(/^([+-]?\d*\.?\d+)([KMBT])?$/i);
-    let v = m ? parseFloat(m[1]) : parseFloat(s);
-    if (!isFinite(v)) return null;
-    if (m && m[2]) {
-        const u = m[2].toUpperCase();
-        v *= (u === 'K' ? 1e3 : u === 'M' ? 1e6 : u === 'B' ? 1e9 : 1e12);
-    }
-    if (neg) v = -v;
-    return v;
-}
+            const yahooUrl = `https://query1.finance.yahoo.com/v10/finance/quoteSummary/${ticker}?modules=price,summaryDetail,defaultKeyStatistics,financialData`;
 
-function getField(obj, variants) {
-    const keys = Object.keys(obj || {});
-    for (const v of variants) {
-        const k = keys.find(kk => kk.trim().toLowerCase() === v.trim().toLowerCase());
-        if (k) return obj[k];
-    }
-    return undefined;
-}
+            // 타임아웃 함수
+            const fetchWithTimeout = async (url, timeout = 10000) => {
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), timeout);
 
-function minMax(vals) {
-    const a = vals.filter(v => v != null && isFinite(v));
-    if (!a.length) return null;
-    return { min: Math.min(...a), max: Math.max(...a) };
-}
+                try {
+                    const response = await fetch(url, {
+                        headers: { 'Accept': 'application/json' },
+                        signal: controller.signal
+                    });
+                    clearTimeout(timeoutId);
+                    return response;
+                } catch (error) {
+                    clearTimeout(timeoutId);
+                    throw error;
+                }
+            };
 
-function mmNorm(v, st) {
-    if (v == null || !st || st.min === st.max) return 0;
-    const t = (v - st.min) / (st.max - st.min);
-    return Math.max(-1, Math.min(1, t * 2 - 1));
-}
+            // 각 프록시 순차 시도
+            for (let proxyIndex = 0; proxyIndex < CORS_PROXIES.length; proxyIndex++) {
+                const proxy = CORS_PROXIES[proxyIndex];
 
-function buildMetrics(items) {
-    return items.map(r => {
-        const d = r.data || {};
-        const perfW = robustNum(getField(d, ['Perf Week']));
-        const perfM = robustNum(getField(d, ['Perf Month']));
-        const perfQ = robustNum(getField(d, ['Perf Quarter']));
-        const perfH = robustNum(getField(d, ['Perf Half Y']));
-        const perfY = robustNum(getField(d, ['Perf Year']));
-        const RSI = robustNum(getField(d, ['RSI (14)']));
-        const sma200Text = getField(d, ['SMA200']);
-        const smaBump = !sma200Text ? 0 : /above/i.test(sma200Text) ? 0.2 : (/below/i.test(sma200Text) ? -0.2 : 0);
-        const epsQQ = robustNum(getField(d, ['EPS Q/Q']));
-        const salesQQ = robustNum(getField(d, ['Sales Q/Q']));
-        const epsNextY = robustNum(getField(d, ['EPS next Y']));
-        const gross = robustNum(getField(d, ['Gross Margin']));
-        const opmar = robustNum(getField(d, ['Operating Margin']));
-        const roe = robustNum(getField(d, ['ROE']));
-        const roa = robustNum(getField(d, ['ROA']));
-        const pe = robustNum(getField(d, ['P/E']));
-        const pfcf = robustNum(getField(d, ['P/FCF']));
-        const peg = robustNum(getField(d, ['PEG']));
-        const beta = robustNum(getField(d, ['Beta']));
-        const M = (perfW ?? 0) * 0.15 + (perfM ?? 0) * 0.25 + (perfQ ?? 0) * 0.30 + (perfH ?? 0) * 0.15 + (perfY ?? 0) * 0.15;
-        return {
-            ticker: r.ticker, error: r.error,
-            M, RSI, smaBump, epsQQ, salesQQ, epsNextY, gross, opmar, roe, roa, pe, pfcf, peg, beta
-        };
-    });
-}
+                // 실패한 프록시 건너뛰기
+                if (failedProxies.has(proxy)) {
+                    console.log(`[Skip] Proxy ${proxyIndex + 1} previously failed, skipping`);
+                    continue;
+                }
 
-function scoreAll(items) {
-    const m = buildMetrics(items.filter(item => !item.error));
-    if (m.length === 0) return items;
+                for (let attempt = 0; attempt <= retries; attempt++) {
+                    try {
+                        const requestUrl = `${proxy}${encodeURIComponent(yahooUrl)}`;
+                        console.log(`[Yahoo] ${ticker} - Proxy ${proxyIndex + 1}, Attempt ${attempt + 1}...`);
 
-    const sM = minMax(m.map(x => x.M));
-    const sEPS = minMax(m.map(x => x.epsQQ));
-    const sSales = minMax(m.map(x => x.salesQQ));
-    const sENY = minMax(m.map(x => x.epsNextY));
-    const sGross = minMax(m.map(x => x.gross));
-    const sOpm = minMax(m.map(x => x.opmar));
-    const sROE = minMax(m.map(x => x.roe));
-    const sROA = minMax(m.map(x => x.roa));
-    const sPE = minMax(m.map(x => x.pe));
-    const sPFCF = minMax(m.map(x => x.pfcf));
-    const sPEG = minMax(m.map(x => x.peg));
+                        const response = await fetchWithTimeout(requestUrl, 8000);
 
-    return items.map(originalItem => {
-        if (originalItem.error) return { ...originalItem, finalScore: -Infinity };
-        
-        const x = m.find(metric => metric.ticker === originalItem.ticker);
-        if (!x) return { ...originalItem, error: "Metric not found", finalScore: -Infinity };
+                        if (!response.ok) {
+                            if (response.status === 429) {
+                                // Rate limited - 프록시 마킹하고 다음으로
+                                console.warn(`[Yahoo] Proxy ${proxyIndex + 1} rate limited (429)`);
+                                failedProxies.add(proxy);
+                                break;
+                            }
+                            throw new Error(`HTTP ${response.status}`);
+                        }
 
-        const rsiScore = x.RSI == null ? 0 : Math.max(-1, Math.min(1, (x.RSI - 50) / 50));
-        const mom = Math.max(-1, Math.min(1, 0.8 * mmNorm(x.M, sM) + 0.2 * rsiScore + x.smaBump));
+                        const json = await response.json();
+                        const result = json?.quoteSummary?.result?.[0];
 
-        const growth = 0.5 * mmNorm(x.epsQQ, sEPS) + 0.3 * mmNorm(x.salesQQ, sSales) + 0.2 * mmNorm(x.epsNextY, sENY);
-        const qualityMetrics = [sGross && mmNorm(x.gross, sGross), sOpm && mmNorm(x.opmar, sOpm), sROE && mmNorm(x.roe, sROE), sROA && mmNorm(x.roa, sROA)].filter(v => v !== false);
-        const quality = qualityMetrics.length > 0 ? qualityMetrics.reduce((a, b) => a + b, 0) / qualityMetrics.length : 0;
-        const fund = Math.max(-1, Math.min(1, 0.7 * growth + 0.3 * quality));
+                        if (!result) throw new Error('No data returned');
 
-        const valMetrics = [sPEG && -mmNorm(x.peg, sPEG), sPE && -mmNorm(x.pe, sPE), sPFCF && -mmNorm(x.pfcf, sPFCF)].filter(v => v !== false);
-        const val = valMetrics.length > 0 ? valMetrics.reduce((a, b) => a + b, 0) / valMetrics.length : 0;
+                        const price = result.price || {};
+                        const summary = result.summaryDetail || {};
+                        const keyStats = result.defaultKeyStatistics || {};
+                        const financial = result.financialData || {};
 
-        const risk = (x.beta != null && isFinite(x.beta)) ? (x.beta > 1.5 ? 0.2 : (x.beta < 0.8 ? -0.05 : 0)) : 0;
-        const finalScore = Math.max(-1, Math.min(1, 0.45 * mom + 0.35 * fund + 0.20 * val - risk));
+                        // Yahoo Finance 데이터를 기존 형식으로 변환
+                        const data = {
+                            'Price': price.regularMarketPrice?.fmt || '-',
+                            'Change': price.regularMarketChangePercent?.fmt || '-',
+                            '52W High': summary.fiftyTwoWeekHigh?.fmt || '-',
+                            '52W Low': summary.fiftyTwoWeekLow?.fmt || '-',
+                            'Perf Week': '-',
+                            'Perf Month': '-',
+                            'Perf Quarter': '-',
+                            'Perf Half Y': '-',
+                            'Perf Year': keyStats.fiftyTwoWeekChange?.fmt || '-',
+                            'RSI (14)': '-',
+                            'SMA200': price.regularMarketPrice?.raw > (summary.twoHundredDayAverage?.raw || 0) ? 'above' : 'below',
+                            'Beta': summary.beta?.fmt || keyStats.beta?.fmt || '-',
+                            'EPS Q/Q': keyStats.earningsQuarterlyGrowth?.fmt || '-',
+                            'Sales Q/Q': keyStats.revenueQuarterlyGrowth?.fmt || '-',
+                            'EPS next Y': keyStats.earningsGrowth?.fmt || '-',
+                            'Gross Margin': financial.grossMargins?.fmt || '-',
+                            'Operating Margin': financial.operatingMargins?.fmt || '-',
+                            'Profit Margin': financial.profitMargins?.fmt || '-',
+                            'ROE': financial.returnOnEquity?.fmt || '-',
+                            'ROA': financial.returnOnAssets?.fmt || '-',
+                            'P/E': summary.trailingPE?.fmt || keyStats.trailingPE?.fmt || '-',
+                            'Forward P/E': summary.forwardPE?.fmt || keyStats.forwardPE?.fmt || '-',
+                            'PEG': keyStats.pegRatio?.fmt || '-',
+                            'P/B': keyStats.priceToBook?.fmt || '-',
+                            'P/FCF': '-',
+                            'Dividend': summary.dividendYield?.fmt || '-',
+                        };
 
-        return {
-            ticker: x.ticker,
-            scores: { momentum: mom, fundamental: fund, valuation: val },
-            finalScore,
-            debug: {
-                M: x.M, M_norm: mmNorm(x.M, sM), RSI: x.RSI, rsi_score: rsiScore,
-                sma_bump: x.smaBump,
-                epsQQ: x.epsQQ, epsQQ_norm: mmNorm(x.epsQQ, sEPS), salesQQ: x.salesQQ, salesQQ_norm: mmNorm(x.salesQQ, sSales),
-                peg: x.peg, peg_norm_inv: -mmNorm(x.peg, sPEG), pe: x.pe, pe_norm_inv: -mmNorm(x.pe, sPE),
-                beta: x.beta, risk_penalty: risk
+                        const result_obj = { ticker, data };
+                        tickerCache[ticker] = result_obj; // 캐시에 저장
+                        console.log(`[Yahoo] ✅ ${ticker} loaded successfully`);
+                        return result_obj;
+
+                    } catch (error) {
+                        const isAbort = error.name === 'AbortError';
+                        console.warn(`[Yahoo] ${ticker} - Proxy ${proxyIndex + 1}, Attempt ${attempt + 1} failed: ${isAbort ? 'Timeout' : error.message}`);
+
+                        if (isAbort && attempt === retries) {
+                            // 타임아웃 계속 발생하면 이 프록시 마킹
+                            failedProxies.add(proxy);
+                        }
+
+                        if (attempt < retries) await sleep(300 + Math.random() * 500);
+                    }
+                }
             }
-        };
-    });
-}
 
-function renderBoard(results) {
-    results.sort((a, b) => b.finalScore - a.finalScore);
-    let finalHtml = '';
-    results.forEach((result, index) => {
-        const rank = index + 1;
-        let rankClass = '';
-        if (rank === 1 && !result.error) rankClass = 'rank-gold';
-        else if (rank <= 3 && !result.error) rankClass = 'rank-silver';
-        else if (rank <= 5 && !result.error) rankClass = 'rank-bronze';
-
-        const getScoreHTML = (score, debugTooltip) => {
-            let scoreClass = 'score-neutral';
-            if (score > 0.3) scoreClass = 'score-positive';
-            else if (score < -0.3) scoreClass = 'score-negative';
-            const scoreText = score === null ? 'N/A' : score.toFixed(2);
-            return `<div class="tooltip font-bold ${scoreClass}">${scoreText}<span class="tooltiptext">${debugTooltip}</span></div>`;
-        };
-        
-        const getFinalScoreHTML = (score) => {
-            let scoreClass = 'text-slate-500';
-            if (score > 0.3) scoreClass = 'score-positive';
-            else if (score < -0.3) scoreClass = 'score-negative';
-            return `<span class="font-bold text-lg ${scoreClass}">${score.toFixed(2)}</span>`;
+            console.warn(`[Yahoo] ❌ All proxies failed for ${ticker}, trying Finviz...`);
+            return await fetchFinvizFallback(ticker);
         }
 
-        finalHtml += `<tr class="border-b dark:border-slate-700 ${rankClass}">`;
-        finalHtml += `<td class="px-4 py-4 font-bold text-lg text-center align-middle">${rank}</td>`;
-        finalHtml += `<td class="px-4 py-4 font-bold text-slate-900 dark:text-slate-100 align-middle">${result.ticker}</td>`;
+        // Finviz fallback (여러 프록시 시도)
+        async function fetchFinvizFallback(ticker) {
+            const finvizUrl = `https://finviz.com/quote.ashx?t=${ticker}`;
 
-        if (result.error || !result.scores) {
-            finalHtml += `<td colspan="4" class="px-4 py-4 text-center text-red-500 align-middle">데이터 로딩 실패: ${result.error || 'N/A'}</td>`;
-        } else {
-            const d = result.debug;
-            const momTooltip = `Perf Comp: ${d.M.toFixed(2)} -> ${d.M_norm.toFixed(2)}
-RSI(${d.RSI}): ${d.rsi_score.toFixed(2)}
-SMA Bump: ${d.sma_bump.toFixed(2)}`;
-            const fundTooltip = `EPS Q/Q(${d.epsQQ}%): ${d.epsQQ_norm.toFixed(2)}
-Sales Q/Q(${d.salesQQ}%): ${d.salesQQ_norm.toFixed(2)}`;
-            const valTooltip = `PEG(${d.peg}): ${d.peg_norm_inv.toFixed(2)}
-P/E(${d.pe}): ${d.pe_norm_inv.toFixed(2)}`;
-            
-            finalHtml += `<td class="px-4 py-4 text-center align-middle">${getScoreHTML(result.scores.momentum, momTooltip)}</td>`;
-            finalHtml += `<td class="px-4 py-4 text-center align-middle">${getScoreHTML(result.scores.fundamental, fundTooltip)}</td>`;
-            finalHtml += `<td class="px-4 py-4 text-center align-middle">${getScoreHTML(result.scores.valuation, valTooltip)}</td>`;
-            finalHtml += `<td class="px-4 py-4 text-center align-middle">${getFinalScoreHTML(result.finalScore)}</td>`;
+            for (const proxy of CORS_PROXIES) {
+                if (failedProxies.has(proxy)) continue;
+
+                try {
+                    const requestUrl = `${proxy}${encodeURIComponent(finvizUrl)}`;
+                    console.log(`[Finviz] Trying ${ticker} via ${proxy.split('/')[2]}...`);
+
+                    const controller = new AbortController();
+                    const timeoutId = setTimeout(() => controller.abort(), 8000);
+
+                    const response = await fetch(requestUrl, { signal: controller.signal });
+                    clearTimeout(timeoutId);
+
+                    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+                    let htmlText = await response.text();
+                    if (!htmlText) throw new Error('No HTML content');
+
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(htmlText, 'text/html');
+                    const data = {};
+                    const table = doc.querySelector('.snapshot-table2');
+                    if (!table) throw new Error('Finviz table not found');
+
+                    const cells = table.querySelectorAll('td');
+                    for (let j = 0; j < cells.length; j += 2) {
+                        const key = cells[j].textContent.trim();
+                        const value = cells[j + 1].textContent.trim();
+                        data[key] = value;
+                    }
+
+                    const result = { ticker, data };
+                    tickerCache[ticker] = result;
+                    console.log(`[Finviz] ✅ ${ticker} loaded via fallback`);
+                    return result;
+                } catch (error) {
+                    console.warn(`[Finviz] ${ticker} failed:`, error.message);
+                    continue;
+                }
+            }
+
+            console.error(`[Finviz] ❌ All attempts failed for ${ticker}`);
+            return { ticker, error: 'All data sources failed' };
         }
-        finalHtml += `</tr>`;
-    });
-    scoreboardBody.innerHTML = finalHtml;
-    lastUpdatedEl.textContent = new Date().toLocaleString('ko-KR');
-}
 
-async function main() {
-    showInitialSkeleton();
-    const rawResults = [];
-
-    for (let i = 0; i < TICKERS.length; i++) {
-        const ticker = TICKERS[i];
-        const statusCell = document.getElementById(`status-cell-${ticker}`);
-        if (statusCell) {
-            statusCell.innerHTML = `<span class="text-sm text-slate-500">(${i + 1}/${TICKERS.length}) 로딩 중...</span>`;
+        function robustNum(raw) {
+            if (raw == null) return null;
+            let s = String(raw).trim();
+            if (!s || s === '-' || /^n\/a$/i.test(s)) return null;
+            let neg = false;
+            if (s.startsWith('(') && s.endsWith(')')) { neg = true; s = s.slice(1, -1); }
+            s = s.replace(/,/g, '').trim();
+            const isPct = s.endsWith('%');
+            if (isPct) s = s.slice(0, -1);
+            const m = s.match(/^([+-]?\d*\.?\d+)([KMBT])?$/i);
+            let v = m ? parseFloat(m[1]) : parseFloat(s);
+            if (!isFinite(v)) return null;
+            if (m && m[2]) {
+                const u = m[2].toUpperCase();
+                v *= (u === 'K' ? 1e3 : u === 'M' ? 1e6 : u === 'B' ? 1e9 : 1e12);
+            }
+            if (neg) v = -v;
+            return v;
         }
 
-        const result = await fetchTickerData(ticker);
-        rawResults.push(result);
-        
-        const humanLikeDelay = 1000 + Math.random() * 1000; // 1 to 2 seconds
-        await sleep(humanLikeDelay);
-    }
-    
-    const scoredResults = scoreAll(rawResults);
-    renderBoard(scoredResults);
-}
+        function getField(obj, variants) {
+            const keys = Object.keys(obj || {});
+            for (const v of variants) {
+                const k = keys.find(kk => kk.trim().toLowerCase() === v.trim().toLowerCase());
+                if (k) return obj[k];
+            }
+            return undefined;
+        }
 
-document.addEventListener('DOMContentLoaded', main);
-</script>
-    </body>
+        function minMax(vals) {
+            const a = vals.filter(v => v != null && isFinite(v));
+            if (!a.length) return null;
+            return { min: Math.min(...a), max: Math.max(...a) };
+        }
+
+        function mmNorm(v, st) {
+            if (v == null || !st || st.min === st.max) return 0;
+            const t = (v - st.min) / (st.max - st.min);
+            return Math.max(-1, Math.min(1, t * 2 - 1));
+        }
+
+        function buildMetrics(items) {
+            return items.map(r => {
+                const d = r.data || {};
+                const perfW = robustNum(getField(d, ['Perf Week']));
+                const perfM = robustNum(getField(d, ['Perf Month']));
+                const perfQ = robustNum(getField(d, ['Perf Quarter']));
+                const perfH = robustNum(getField(d, ['Perf Half Y']));
+                const perfY = robustNum(getField(d, ['Perf Year']));
+                const RSI = robustNum(getField(d, ['RSI (14)']));
+                const sma200Text = getField(d, ['SMA200']);
+                const smaBump = !sma200Text ? 0 : /above/i.test(sma200Text) ? 0.2 : (/below/i.test(sma200Text) ? -0.2 : 0);
+                const epsQQ = robustNum(getField(d, ['EPS Q/Q']));
+                const salesQQ = robustNum(getField(d, ['Sales Q/Q']));
+                const epsNextY = robustNum(getField(d, ['EPS next Y']));
+                const gross = robustNum(getField(d, ['Gross Margin']));
+                const opmar = robustNum(getField(d, ['Operating Margin']));
+                const roe = robustNum(getField(d, ['ROE']));
+                const roa = robustNum(getField(d, ['ROA']));
+                const pe = robustNum(getField(d, ['P/E']));
+                const pfcf = robustNum(getField(d, ['P/FCF']));
+                const peg = robustNum(getField(d, ['PEG']));
+                const beta = robustNum(getField(d, ['Beta']));
+                const M = (perfW ?? 0) * 0.15 + (perfM ?? 0) * 0.25 + (perfQ ?? 0) * 0.30 + (perfH ?? 0) * 0.15 + (perfY ?? 0) * 0.15;
+                return {
+                    ticker: r.ticker, error: r.error,
+                    M, RSI, smaBump, epsQQ, salesQQ, epsNextY, gross, opmar, roe, roa, pe, pfcf, peg, beta
+                };
+            });
+        }
+
+        function scoreAll(items) {
+            const m = buildMetrics(items.filter(item => !item.error));
+            if (m.length === 0) return items;
+
+            const sM = minMax(m.map(x => x.M));
+            const sEPS = minMax(m.map(x => x.epsQQ));
+            const sSales = minMax(m.map(x => x.salesQQ));
+            const sENY = minMax(m.map(x => x.epsNextY));
+            const sGross = minMax(m.map(x => x.gross));
+            const sOpm = minMax(m.map(x => x.opmar));
+            const sROE = minMax(m.map(x => x.roe));
+            const sROA = minMax(m.map(x => x.roa));
+            const sPE = minMax(m.map(x => x.pe));
+            const sPFCF = minMax(m.map(x => x.pfcf));
+            const sPEG = minMax(m.map(x => x.peg));
+
+            return items.map(originalItem => {
+                if (originalItem.error) return { ...originalItem, finalScore: -Infinity };
+
+                const x = m.find(metric => metric.ticker === originalItem.ticker);
+                if (!x) return { ...originalItem, error: "Metric not found", finalScore: -Infinity };
+
+                const rsiScore = x.RSI == null ? 0 : Math.max(-1, Math.min(1, (x.RSI - 50) / 50));
+                const mom = Math.max(-1, Math.min(1, 0.8 * mmNorm(x.M, sM) + 0.2 * rsiScore + x.smaBump));
+
+                const growth = 0.5 * mmNorm(x.epsQQ, sEPS) + 0.3 * mmNorm(x.salesQQ, sSales) + 0.2 * mmNorm(x.epsNextY, sENY);
+                const qualityMetrics = [sGross && mmNorm(x.gross, sGross), sOpm && mmNorm(x.opmar, sOpm), sROE && mmNorm(x.roe, sROE), sROA && mmNorm(x.roa, sROA)].filter(v => v !== false);
+                const quality = qualityMetrics.length > 0 ? qualityMetrics.reduce((a, b) => a + b, 0) / qualityMetrics.length : 0;
+                const fund = Math.max(-1, Math.min(1, 0.7 * growth + 0.3 * quality));
+
+                const valMetrics = [sPEG && -mmNorm(x.peg, sPEG), sPE && -mmNorm(x.pe, sPE), sPFCF && -mmNorm(x.pfcf, sPFCF)].filter(v => v !== false);
+                const val = valMetrics.length > 0 ? valMetrics.reduce((a, b) => a + b, 0) / valMetrics.length : 0;
+
+                const risk = (x.beta != null && isFinite(x.beta)) ? (x.beta > 1.5 ? 0.2 : (x.beta < 0.8 ? -0.05 : 0)) : 0;
+                const finalScore = Math.max(-1, Math.min(1, 0.45 * mom + 0.35 * fund + 0.20 * val - risk));
+
+                return {
+                    ticker: x.ticker,
+                    scores: { momentum: mom, fundamental: fund, valuation: val },
+                    finalScore,
+                    debug: {
+                        M: x.M, M_norm: mmNorm(x.M, sM), RSI: x.RSI, rsi_score: rsiScore,
+                        sma_bump: x.smaBump,
+                        epsQQ: x.epsQQ, epsQQ_norm: mmNorm(x.epsQQ, sEPS), salesQQ: x.salesQQ, salesQQ_norm: mmNorm(x.salesQQ, sSales),
+                        peg: x.peg, peg_norm_inv: -mmNorm(x.peg, sPEG), pe: x.pe, pe_norm_inv: -mmNorm(x.pe, sPE),
+                        beta: x.beta, risk_penalty: risk
+                    }
+                };
+            });
+        }
+
+        function renderBoard(results) {
+            results.sort((a, b) => b.finalScore - a.finalScore);
+            let finalHtml = '';
+            results.forEach((result, index) => {
+                const rank = index + 1;
+                let rankClass = '';
+                if (rank === 1 && !result.error) rankClass = 'rank-gold';
+                else if (rank <= 3 && !result.error) rankClass = 'rank-silver';
+                else if (rank <= 5 && !result.error) rankClass = 'rank-bronze';
+
+                const getScoreHTML = (score, debugTooltip) => {
+                    let scoreClass = 'score-neutral';
+                    if (score > 0.3) scoreClass = 'score-positive';
+                    else if (score < -0.3) scoreClass = 'score-negative';
+                    const scoreText = score === null ? 'N/A' : score.toFixed(2);
+                    return `<div class="tooltip font-bold ${scoreClass}">${scoreText}<span class="tooltiptext">${debugTooltip}</span></div>`;
+                };
+
+                const getFinalScoreHTML = (score) => {
+                    let scoreClass = 'text-slate-500';
+                    if (score > 0.3) scoreClass = 'score-positive';
+                    else if (score < -0.3) scoreClass = 'score-negative';
+                    return `<span class="font-bold text-lg ${scoreClass}">${score.toFixed(2)}</span>`;
+                };
+
+                finalHtml += `<tr class="border-b dark:border-slate-700 ${rankClass}">`;
+                finalHtml += `<td class="px-4 py-4 font-bold text-lg text-center align-middle">${rank}</td>`;
+                finalHtml += `<td class="px-4 py-4 font-bold text-slate-900 dark:text-slate-100 align-middle">${result.ticker}</td>`;
+
+                if (result.error || !result.scores) {
+                    finalHtml += `<td colspan="4" class="px-4 py-4 text-center text-red-500 align-middle">데이터 로딩 실패: ${result.error || 'N/A'}</td>`;
+                } else {
+                    const d = result.debug;
+                    const momTooltip = `Perf Comp: ${d.M.toFixed(2)} -> ${d.M_norm.toFixed(2)}\nRSI(${d.RSI}): ${d.rsi_score.toFixed(2)}\nSMA Bump: ${d.sma_bump.toFixed(2)}`;
+                    const fundTooltip = `EPS Q/Q(${d.epsQQ}%): ${d.epsQQ_norm.toFixed(2)}\nSales Q/Q(${d.salesQQ}%): ${d.salesQQ_norm.toFixed(2)}`;
+                    const valTooltip = `PEG(${d.peg}): ${d.peg_norm_inv.toFixed(2)}\nP/E(${d.pe}): ${d.pe_norm_inv.toFixed(2)}`;
+
+                    finalHtml += `<td class="px-4 py-4 text-center align-middle">${getScoreHTML(result.scores.momentum, momTooltip)}</td>`;
+                    finalHtml += `<td class="px-4 py-4 text-center align-middle">${getScoreHTML(result.scores.fundamental, fundTooltip)}</td>`;
+                    finalHtml += `<td class="px-4 py-4 text-center align-middle">${getScoreHTML(result.scores.valuation, valTooltip)}</td>`;
+                    finalHtml += `<td class="px-4 py-4 text-center align-middle">${getFinalScoreHTML(result.finalScore)}</td>`;
+                }
+                finalHtml += `</tr>`;
+            });
+            scoreboardBody.innerHTML = finalHtml;
+            lastUpdatedEl.textContent = new Date().toLocaleString('ko-KR');
+        }
+
+        async function main() {
+            const dataStatus = document.getElementById('data-status');
+            dataStatus.textContent = '📡 데이터 로딩 중...';
+            dataStatus.className = 'text-xs text-blue-500 mt-1';
+
+            showInitialSkeleton();
+            const rawResults = [];
+            let successCount = 0;
+            let failCount = 0;
+
+            for (let i = 0; i < TICKERS.length; i++) {
+                const ticker = TICKERS[i];
+                const statusCell = document.getElementById(`status-cell-${ticker}`);
+                if (statusCell) {
+                    statusCell.innerHTML = `<span class="text-sm text-slate-500">(${i + 1}/${TICKERS.length}) 로딩 중...</span>`;
+                }
+
+                dataStatus.textContent = `📡 로딩 중... (${i + 1}/${TICKERS.length})`;
+
+                const result = await fetchTickerData(ticker);
+                rawResults.push(result);
+
+                if (result.error) {
+                    failCount++;
+                } else {
+                    successCount++;
+                }
+
+                const humanLikeDelay = 500 + Math.random() * 500; // 0.5 to 1 second
+                await sleep(humanLikeDelay);
+            }
+
+            const scoredResults = scoreAll(rawResults);
+            renderBoard(scoredResults);
+
+            // 최종 상태 업데이트
+            if (failCount === 0) {
+                dataStatus.textContent = `✅ 전체 로딩 완료! (${successCount}/${TICKERS.length})`;
+                dataStatus.className = 'text-xs text-emerald-500 mt-1';
+            } else if (successCount > 0) {
+                dataStatus.textContent = `⚠️ 일부 실패 (성공: ${successCount}, 실패: ${failCount})`;
+                dataStatus.className = 'text-xs text-amber-500 mt-1';
+            } else {
+                dataStatus.textContent = `❌ 데이터 로딩 실패`;
+                dataStatus.className = 'text-xs text-red-500 mt-1';
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            main();
+
+            // 새로고침 버튼
+            document.getElementById('refresh-btn').addEventListener('click', () => {
+                main();
+            });
+
+            // 캐시 클리어 버튼
+            document.getElementById('clear-cache-btn').addEventListener('click', () => {
+                tickerCache = {};
+                failedProxies.clear();
+                console.log('[Cache] Cleared all cache');
+                main();
+            });
+        });
+    </script>
+</body>
+
 </html>
