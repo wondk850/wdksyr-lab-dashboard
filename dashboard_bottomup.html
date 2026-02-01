@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WDK LAB 바텀업 스코어카드 v3.4 (2026.02.01)</title>
+    <title>WDK LAB 바텀업 스코어카드 v3.5 (2026.02.01)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
@@ -83,9 +83,10 @@
 
     <div class="container mx-auto p-4 sm:p-6 lg:p-8">
         <header class="text-center mb-8">
-            <h1 class="text-3xl sm:text-4xl font-bold text-slate-900 dark:text-white">WDK LAB 바텀업 스코어카드 v3.4</h1>
+            <h1 class="text-3xl sm:text-4xl font-bold text-slate-900 dark:text-white">WDK LAB 바텀업 스코어카드 v3.5</h1>
             <p class="text-slate-500 dark:text-slate-400 mt-2">정량적 연속형 점수 기반 최정예 요원 선발 시스템</p>
-            <p class="text-xs text-slate-400 dark:text-slate-500 mt-1">📅 마지막 업데이트: 2026.02.01 | FMP API 추가</p>
+            <p class="text-xs text-slate-400 dark:text-slate-500 mt-1">📅 마지막 업데이트: 2026.02.01 | FMP + Alpha Vantage API
+            </p>
             <p id="data-status" class="text-xs text-emerald-500 mt-1">📡 데이터 로딩 중...</p>
             <div class="mt-4 flex justify-center items-center space-x-4">
                 <a href="./dashboard_topdown.html" class="text-emerald-500 hover:text-emerald-600 transition-colors">←
@@ -138,6 +139,9 @@
 
         // ===== FMP API (가장 안정적!) =====
         const FMP_API_KEY = 'I3Z7ojCPBjEuSSkCUjCm6Jq436MUwlML';
+
+        // ===== Alpha Vantage API (추가 백업!) =====
+        const ALPHA_VANTAGE_KEY = 'V3XCM1ZFUIYU1K9P';
 
         // 여러 CORS 프록시를 fallback으로 사용 (FMP 실패 시)
         const CORS_PROXIES = [
@@ -283,7 +287,49 @@
                 }
                 throw new Error('FMP returned empty data');
             } catch (error) {
-                console.warn(`[FMP] ${ticker} failed: ${error.message}, trying Yahoo v8...`);
+                console.warn(`[FMP] ${ticker} failed: ${error.message}, trying Alpha Vantage...`);
+            }
+
+            // ===== 방법 0.5: Alpha Vantage API (FMP 백업!) =====
+            console.log(`[AlphaVantage] Trying ${ticker}...`);
+            try {
+                const avUrl = `https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=${ticker}&apikey=${ALPHA_VANTAGE_KEY}`;
+                const avResponse = await fetchWithTimeout(avUrl, 10000);
+
+                if (avResponse.ok) {
+                    const avData = await avResponse.json();
+                    const quote = avData['Global Quote'];
+
+                    if (quote && quote['05. price']) {
+                        const currentPrice = parseFloat(quote['05. price']) || 0;
+                        const previousClose = parseFloat(quote['08. previous close']) || currentPrice;
+                        const changePercent = quote['10. change percent'] || '0%';
+
+                        const data = {
+                            'Price': currentPrice.toFixed(2),
+                            'Change': changePercent,
+                            '52W High': quote['03. high'] || '-',
+                            '52W Low': quote['04. low'] || '-',
+                            'Perf Year': '-', 'Perf Week': '-', 'Perf Month': '-', 'Perf Quarter': '-', 'Perf Half Y': '-',
+                            'SMA200': '-',
+                            'RSI (14)': '-',
+                            'Beta': '-',
+                            'EPS Q/Q': '-', 'Sales Q/Q': '-', 'EPS next Y': '-',
+                            'Gross Margin': '-', 'Operating Margin': '-', 'Profit Margin': '-',
+                            'ROE': '-', 'ROA': '-',
+                            'P/E': '-', 'Forward P/E': '-', 'PEG': '-', 'P/B': '-', 'P/FCF': '-',
+                            'Dividend': '-',
+                        };
+
+                        const result_obj = { ticker, data };
+                        tickerCache[ticker] = result_obj;
+                        console.log(`[AlphaVantage] ✅ ${ticker} loaded successfully`);
+                        return result_obj;
+                    }
+                }
+                throw new Error('Alpha Vantage returned empty data');
+            } catch (error) {
+                console.warn(`[AlphaVantage] ${ticker} failed: ${error.message}, trying Yahoo v8...`);
             }
 
             // ===== 방법 1: Yahoo Finance v8 (Chart API) =====
