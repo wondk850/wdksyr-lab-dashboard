@@ -135,17 +135,38 @@
             'GE', 'CAT'                                      // Industrials
         ];
 
-        // 여러 CORS 프록시를 fallback으로 사용 (더 많은 옵션!)
+        // 여러 CORS 프록시를 fallback으로 사용 (최대한 많이!)
         const CORS_PROXIES = [
             'https://api.allorigins.win/raw?url=',
             'https://corsproxy.io/?',
             'https://api.codetabs.com/v1/proxy?quest=',
-            'https://proxy.cors.sh/',
+            'https://cors-anywhere.herokuapp.com/',
+            'https://thingproxy.freeboard.io/fetch/',
+            'https://yacdn.org/proxy/',
+        ];
+
+        // 두 번째 Yahoo Finance 엔드포인트 (v8 API - 더 안정적!)
+        const YAHOO_V8_ENDPOINTS = [
+            'https://query1.finance.yahoo.com/v8/finance/chart/',
+            'https://query2.finance.yahoo.com/v8/finance/chart/',
         ];
 
         // 캐시 (세션 스토리지) - 실패한 프록시 건너뛰기용
         let failedProxies = new Set();
         let tickerCache = {};
+
+        // 로컬 스토리지에서 캐시 로드 (24시간 유효)
+        try {
+            const cached = localStorage.getItem('wdk_ticker_cache');
+            const cacheTime = localStorage.getItem('wdk_ticker_cache_time');
+            if (cached && cacheTime) {
+                const age = Date.now() - parseInt(cacheTime);
+                if (age < 24 * 60 * 60 * 1000) { // 24시간 이내
+                    tickerCache = JSON.parse(cached);
+                    console.log('[Cache] Loaded from localStorage');
+                }
+            }
+        } catch (e) { }
 
         const scoreboardBody = document.getElementById('scoreboard-body');
         const lastUpdatedEl = document.getElementById('last-updated');
@@ -167,24 +188,25 @@
             scoreboardBody.innerHTML = skeletonHTML;
         }
 
-        // Yahoo Finance API를 통해 주식 데이터 가져오기 (강화된 버전)
-        async function fetchTickerData(ticker, retries = 3) {
+        // Yahoo Finance API를 통해 주식 데이터 가져오기 (완전 강화 버전!)
+        async function fetchTickerData(ticker, retries = 2) {
             // 캐시 확인
             if (tickerCache[ticker]) {
                 console.log(`[Cache] Using cached data for ${ticker}`);
                 return tickerCache[ticker];
             }
 
-            const yahooUrl = `https://query1.finance.yahoo.com/v10/finance/quoteSummary/${ticker}?modules=price,summaryDetail,defaultKeyStatistics,financialData`;
-
             // 타임아웃 함수
-            const fetchWithTimeout = async (url, timeout = 10000) => {
+            const fetchWithTimeout = async (url, timeout = 8000) => {
                 const controller = new AbortController();
                 const timeoutId = setTimeout(() => controller.abort(), timeout);
 
                 try {
                     const response = await fetch(url, {
-                        headers: { 'Accept': 'application/json' },
+                        headers: {
+                            'Accept': 'application/json',
+                            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+                        },
                         signal: controller.signal
                     });
                     clearTimeout(timeoutId);
@@ -195,27 +217,82 @@
                 }
             };
 
-            // 각 프록시 순차 시도
-            for (let proxyIndex = 0; proxyIndex < CORS_PROXIES.length; proxyIndex++) {
-                const proxy = CORS_PROXIES[proxyIndex];
+            // ===== 방법 1: Yahoo Finance v8 (Chart API - 가장 안정적!) =====
+            console.log(`[Yahoo v8] Trying ${ticker}...`);
+            for (const endpoint of YAHOO_V8_ENDPOINTS) {
+                for (const proxy of CORS_PROXIES) {
+                    if (failedProxies.has(proxy)) continue;
 
-                // 실패한 프록시 건너뛰기
-                if (failedProxies.has(proxy)) {
-                    console.log(`[Skip] Proxy ${proxyIndex + 1} previously failed, skipping`);
-                    continue;
+                    try {
+                        const v8Url = `${endpoint}${ticker}?interval=1d&range=1y`;
+                        const requestUrl = `${proxy}${encodeURIComponent(v8Url)}`;
+
+                        const response = await fetchWithTimeout(requestUrl, 6000);
+                        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+                        const json = await response.json();
+                        const chart = json?.chart?.result?.[0];
+                        if (!chart || !chart.meta) throw new Error('No chart data');
+
+                        const meta = chart.meta;
+                        const quote = chart.indicators?.quote?.[0] || {};
+                        const closes = quote.close || [];
+                        const currentPrice = meta.regularMarketPrice || closes[closes.length - 1] || 0;
+                        const fiftyTwoWeekHigh = meta.fiftyTwoWeekHigh || 0;
+                        const fiftyTwoWeekLow = meta.fiftyTwoWeekLow || 0;
+                        const previousClose = meta.chartPreviousClose || meta.previousClose || currentPrice;
+
+                        // 52주 변동률 계산
+                        const oneYearAgoPrice = closes[0] || currentPrice;
+                        const perfYear = oneYearAgoPrice ? ((currentPrice - oneYearAgoPrice) / oneYearAgoPrice * 100).toFixed(2) + '%' : '-';
+
+                        // 200일 평균 계산
+                        const last200 = closes.slice(-200);
+                        const sma200 = last200.length > 0 ? last200.reduce((a, b) => a + (b || 0), 0) / last200.length : currentPrice;
+
+                        const data = {
+                            'Price': currentPrice.toFixed(2),
+                            'Change': ((currentPrice - previousClose) / previousClose * 100).toFixed(2) + '%',
+                            '52W High': fiftyTwoWeekHigh.toFixed(2),
+                            '52W Low': fiftyTwoWeekLow.toFixed(2),
+                            'Perf Year': perfYear,
+                            'SMA200': currentPrice > sma200 ? 'above' : 'below',
+                            // 기본값 설정
+                            'Perf Week': '-', 'Perf Month': '-', 'Perf Quarter': '-', 'Perf Half Y': '-',
+                            'RSI (14)': '-', 'Beta': '-',
+                            'EPS Q/Q': '-', 'Sales Q/Q': '-', 'EPS next Y': '-',
+                            'Gross Margin': '-', 'Operating Margin': '-', 'Profit Margin': '-',
+                            'ROE': '-', 'ROA': '-',
+                            'P/E': '-', 'Forward P/E': '-', 'PEG': '-', 'P/B': '-', 'P/FCF': '-',
+                            'Dividend': '-',
+                        };
+
+                        const result_obj = { ticker, data };
+                        tickerCache[ticker] = result_obj;
+                        console.log(`[Yahoo v8] ✅ ${ticker} loaded successfully`);
+                        return result_obj;
+
+                    } catch (error) {
+                        console.warn(`[Yahoo v8] ${ticker} failed (${proxy.split('/')[2]}): ${error.message}`);
+                    }
                 }
+            }
+
+            // ===== 방법 2: Yahoo Finance v10 (Summary API) =====
+            const yahooUrl = `https://query1.finance.yahoo.com/v10/finance/quoteSummary/${ticker}?modules=price,summaryDetail,defaultKeyStatistics,financialData`;
+
+            console.log(`[Yahoo v10] Trying ${ticker}...`);
+            for (const proxy of CORS_PROXIES) {
+                if (failedProxies.has(proxy)) continue;
 
                 for (let attempt = 0; attempt <= retries; attempt++) {
                     try {
                         const requestUrl = `${proxy}${encodeURIComponent(yahooUrl)}`;
-                        console.log(`[Yahoo] ${ticker} - Proxy ${proxyIndex + 1}, Attempt ${attempt + 1}...`);
 
                         const response = await fetchWithTimeout(requestUrl, 8000);
 
                         if (!response.ok) {
                             if (response.status === 429) {
-                                // Rate limited - 프록시 마킹하고 다음으로
-                                console.warn(`[Yahoo] Proxy ${proxyIndex + 1} rate limited (429)`);
                                 failedProxies.add(proxy);
                                 break;
                             }
@@ -232,16 +309,12 @@
                         const keyStats = result.defaultKeyStatistics || {};
                         const financial = result.financialData || {};
 
-                        // Yahoo Finance 데이터를 기존 형식으로 변환
                         const data = {
                             'Price': price.regularMarketPrice?.fmt || '-',
                             'Change': price.regularMarketChangePercent?.fmt || '-',
                             '52W High': summary.fiftyTwoWeekHigh?.fmt || '-',
                             '52W Low': summary.fiftyTwoWeekLow?.fmt || '-',
-                            'Perf Week': '-',
-                            'Perf Month': '-',
-                            'Perf Quarter': '-',
-                            'Perf Half Y': '-',
+                            'Perf Week': '-', 'Perf Month': '-', 'Perf Quarter': '-', 'Perf Half Y': '-',
                             'Perf Year': keyStats.fiftyTwoWeekChange?.fmt || '-',
                             'RSI (14)': '-',
                             'SMA200': price.regularMarketPrice?.raw > (summary.twoHundredDayAverage?.raw || 0) ? 'above' : 'below',
@@ -263,25 +336,19 @@
                         };
 
                         const result_obj = { ticker, data };
-                        tickerCache[ticker] = result_obj; // 캐시에 저장
-                        console.log(`[Yahoo] ✅ ${ticker} loaded successfully`);
+                        tickerCache[ticker] = result_obj;
+                        console.log(`[Yahoo v10] ✅ ${ticker} loaded successfully`);
                         return result_obj;
 
                     } catch (error) {
-                        const isAbort = error.name === 'AbortError';
-                        console.warn(`[Yahoo] ${ticker} - Proxy ${proxyIndex + 1}, Attempt ${attempt + 1} failed: ${isAbort ? 'Timeout' : error.message}`);
-
-                        if (isAbort && attempt === retries) {
-                            // 타임아웃 계속 발생하면 이 프록시 마킹
-                            failedProxies.add(proxy);
-                        }
-
-                        if (attempt < retries) await sleep(300 + Math.random() * 500);
+                        console.warn(`[Yahoo v10] ${ticker} attempt ${attempt + 1} failed: ${error.message}`);
+                        if (attempt < retries) await sleep(300);
                     }
                 }
             }
 
-            console.warn(`[Yahoo] ❌ All proxies failed for ${ticker}, trying Finviz...`);
+            // ===== 방법 3: Finviz Fallback =====
+            console.warn(`[Yahoo] ❌ All Yahoo attempts failed for ${ticker}, trying Finviz...`);
             return await fetchFinvizFallback(ticker);
         }
 
@@ -539,6 +606,15 @@
             const scoredResults = scoreAll(rawResults);
             renderBoard(scoredResults);
 
+            // 캐시를 로컬 스토리지에 저장 (24시간 유효)
+            try {
+                localStorage.setItem('wdk_ticker_cache', JSON.stringify(tickerCache));
+                localStorage.setItem('wdk_ticker_cache_time', Date.now().toString());
+                console.log('[Cache] Saved to localStorage');
+            } catch (e) {
+                console.warn('[Cache] Failed to save:', e);
+            }
+
             // 최종 상태 업데이트
             if (failCount === 0) {
                 dataStatus.textContent = `✅ 전체 로딩 완료! (${successCount}/${TICKERS.length})`;
@@ -564,7 +640,9 @@
             document.getElementById('clear-cache-btn').addEventListener('click', () => {
                 tickerCache = {};
                 failedProxies.clear();
-                console.log('[Cache] Cleared all cache');
+                localStorage.removeItem('wdk_ticker_cache');
+                localStorage.removeItem('wdk_ticker_cache_time');
+                console.log('[Cache] Cleared all cache (memory + localStorage)');
                 main();
             });
         });
