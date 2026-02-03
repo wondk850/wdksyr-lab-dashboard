@@ -203,21 +203,17 @@ def main(mode='news'):
                 print(f"    {art['url']}")
         return
     
-    # 새 뉴스가 있으면 알림 발송
+    # 뉴스 알림 발송 (하루 한 번 무조건!)
+    msg = format_news_message(articles_by_keyword)
+    send_telegram(msg)
+    
+    # 발송한 URL 저장
     if new_articles:
-        msg = format_news_message(articles_by_keyword)
-        send_telegram(msg)
-        
-        # 발송한 URL 저장
         for art in new_articles:
             sent_urls.add(art['url'])
-        
         state['sent_urls'] = list(sent_urls)
-    else:
-        print("[NEWS] No new articles to send")
-        # 뉴스 없어도 알림 보내기 (선택사항)
-        # msg = format_news_message({})
-        # send_telegram(msg)
+    
+    print(f"[NEWS] Sent daily news summary ({len(new_articles)} new articles)")
     
     # 상태 저장
     state['last_check'] = datetime.now(timezone.utc).isoformat()
