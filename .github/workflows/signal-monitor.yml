@@ -91,6 +91,20 @@ jobs:
         run: |
           python wdklab_monitor.py ${{ steps.mode.outputs.mode }}
       
+      - name: Generate Bottom-Up Data JSON
+        if: steps.mode.outputs.mode == 'daily' || steps.mode.outputs.mode == 'report'
+        run: |
+          python generate_bottomup_data.py
+      
+      - name: Commit and Push Bottom-Up Data
+        if: steps.mode.outputs.mode == 'daily' || steps.mode.outputs.mode == 'report'
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add bottomup_data.json
+          git diff --staged --quiet || git commit -m "chore: 바텀업 데이터 자동 업데이트 $(date +'%Y-%m-%d %H:%M')"
+          git push
+      
       - name: Download news state
         if: steps.mode.outputs.mode == 'news'
         uses: actions/download-artifact@v4

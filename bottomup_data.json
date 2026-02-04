@@ -1,6 +1,6 @@
 {
-  "updated": "2026-02-04T23:53:19.730597+09:00",
-  "updated_display": "2026. 02. 04. PM 11:53:19",
+  "updated": "2026-02-05T00:10:20.778795+09:00",
+  "updated_display": "2026. 02. 05. AM 12:10:20",
   "count": 17,
   "total": 17,
   "data": [
@@ -13,14 +13,14 @@
         "valuation": 0.47,
         "final": 4.56,
         "raw": {
-          "price": 1081.39,
+          "price": 1078.81,
           "sma200": 855.99005,
           "52w_change": 0,
           "eps_growth": 4.753,
           "profit_margin": 0.30986,
           "roe": 0.9647,
-          "pe": 53.087383,
-          "forward_pe": 32.47562,
+          "pe": 52.960728,
+          "forward_pe": 32.39814,
           "peg": 2
         }
       },
@@ -35,14 +35,14 @@
         "valuation": 0.56,
         "final": 2.01,
         "raw": {
-          "price": 178.549,
+          "price": 177.735,
           "sma200": 168.50285,
           "52w_change": 0,
           "eps_growth": 0.653,
           "profit_margin": 0.53007,
           "roe": 1.07359,
-          "pe": 44.195297,
-          "forward_pe": 23.29753,
+          "pe": 43.993813,
+          "forward_pe": 23.191317,
           "peg": 2
         }
       },
@@ -57,14 +57,14 @@
         "valuation": 0.65,
         "final": 1.72,
         "raw": {
-          "price": 277.9,
+          "price": 276.31,
           "sma200": 237.36736,
           "52w_change": 0,
           "eps_growth": 0.159,
           "profit_margin": 0.27037,
           "roe": 1.5202099,
-          "pe": 35.177216,
-          "forward_pe": 29.940119,
+          "pe": 34.97595,
+          "forward_pe": 29.780432,
           "peg": 2
         }
       },
@@ -79,14 +79,14 @@
         "valuation": 0.68,
         "final": 1.28,
         "raw": {
-          "price": 337.01,
+          "price": 333.14,
           "sma200": 256.6605,
           "52w_change": 0,
           "eps_growth": 0.406,
           "profit_margin": 0.45099998,
           "roe": 0.35224,
-          "pe": 32.157444,
-          "forward_pe": 18.724558,
+          "pe": 31.78817,
+          "forward_pe": 18.509539,
           "peg": 2
         }
       },
@@ -101,14 +101,14 @@
         "valuation": 0.67,
         "final": 1.09,
         "raw": {
-          "price": 338.93,
+          "price": 335.37,
           "sma200": 236.3139,
           "52w_change": 0,
           "eps_growth": 0.33,
           "profit_margin": 0.32233003,
           "roe": 0.3545,
-          "pe": 33.491108,
-          "forward_pe": 30.094341,
+          "pe": 33.139328,
+          "forward_pe": 29.778242,
           "peg": 2
         }
       },
@@ -123,14 +123,14 @@
         "valuation": 0.74,
         "final": 1.08,
         "raw": {
-          "price": 410.51,
+          "price": 414.785,
           "sma200": 486.32684,
           "52w_change": 0,
           "eps_growth": 0.595,
           "profit_margin": 0.39044,
           "roe": 0.34390998,
-          "pe": 25.656876,
-          "forward_pe": 21.718887,
+          "pe": 25.924063,
+          "forward_pe": 21.945066,
           "peg": 2
         }
       },
@@ -145,14 +145,14 @@
         "valuation": 0.69,
         "final": 1.01,
         "raw": {
-          "price": 325.86,
+          "price": 327.09,
           "sma200": 344.89804,
           "52w_change": 0,
           "eps_growth": 0.143,
           "profit_margin": 0.50233,
           "roe": 0.53954,
-          "pe": 30.56848,
-          "forward_pe": 22.455557,
+          "pe": 30.683865,
+          "forward_pe": 22.54032,
           "peg": 2
         }
       },
@@ -167,14 +167,14 @@
         "valuation": 0.62,
         "final": 1.01,
         "raw": {
-          "price": 310.08,
+          "price": 306.92,
           "sma200": 275.23584,
           "52w_change": 0,
           "eps_growth": 0.338,
           "profit_margin": 0.18982,
           "roe": 0.44692,
-          "pe": 38.471462,
-          "forward_pe": 36.666393,
+          "pe": 38.079403,
+          "forward_pe": 36.292732,
           "peg": 2
         }
       },
@@ -189,14 +189,14 @@
         "valuation": 0.52,
         "final": 0.94,
         "raw": {
-          "price": 1396.03,
+          "price": 1389.33,
           "sma200": 915.5227,
           "52w_change": 0,
           "eps_growth": 0.054,
           "profit_margin": 0.29416,
           "roe": 0.50458,
-          "pe": 47.858418,
-          "forward_pe": 32.230453,
+          "pe": 47.628727,
+          "forward_pe": 32.075768,
           "peg": 2
         }
       },
@@ -211,14 +211,14 @@
         "valuation": 0.67,
         "final": 0.82,
         "raw": {
-          "price": 236.845,
+          "price": 235.8116,
           "sma200": 222.42294,
           "52w_change": 0,
           "eps_growth": 0.382,
           "profit_margin": 0.11063,
           "roe": 0.24327,
-          "pe": 33.4055,
-          "forward_pe": 30.19946,
+          "pe": 33.259747,
+          "forward_pe": 30.067694,
           "peg": 2
         }
       },
@@ -233,14 +233,14 @@
         "valuation": 0.84,
         "final": 0.72,
         "raw": {
-          "price": 316.2952,
+          "price": 317.145,
           "sma200": 294.02286,
           "52w_change": 0,
           "eps_growth": -0.07,
           "profit_margin": 0.3391,
           "roe": 0.16134001,
-          "pe": 15.798961,
-          "forward_pe": 13.704867,
+          "pe": 15.841408,
+          "forward_pe": 13.716959,
           "peg": 2
         }
       },
@@ -255,14 +255,14 @@
         "valuation": 0.55,
         "final": 0.68,
         "raw": {
-          "price": 128.66,
+          "price": 127.94,
           "sma200": 103.36475,
           "52w_change": 0,
           "eps_growth": 0.342,
           "profit_margin": 0.03259,
           "roe": 0.23661,
-          "pe": 44.986015,
-          "forward_pe": 43.321182,
+          "pe": 44.73427,
+          "forward_pe": 43.078747,
           "peg": 2
         }
       },
@@ -277,14 +277,14 @@
         "valuation": 0.71,
         "final": 0.6,
         "raw": {
-          "price": 678.185,
+          "price": 672.32,
           "sma200": 683.2798,
           "52w_change": 0,
           "eps_growth": 0.093,
           "profit_margin": 0.30084,
           "roe": 0.30238,
-          "pe": 28.834396,
-          "forward_pe": 19.12867,
+          "pe": 28.585033,
+          "forward_pe": 18.963243,
           "peg": 2
         }
       },
@@ -299,14 +299,14 @@
         "valuation": 0.62,
         "final": 0.6,
         "raw": {
-          "price": 716.485,
+          "price": 714.475,
           "sma200": 470.11285,
           "52w_change": 0,
           "eps_growth": -0.139,
           "profit_margin": 0.13144,
           "roe": 0.43526,
-          "pe": 38.029987,
-          "forward_pe": 26.125479,
+          "pe": 37.9233,
+          "forward_pe": 26.052187,
           "peg": 2
         }
       },
@@ -321,14 +321,14 @@
         "valuation": 0.47,
         "final": 0.55,
         "raw": {
-          "price": 991.96,
+          "price": 990.44,
           "sma200": 951.4063,
           "52w_change": 0,
           "eps_growth": 0.113,
           "profit_margin": 0.02961,
           "roe": 0.30325,
-          "pe": 53.102783,
-          "forward_pe": 44.64198,
+          "pe": 53.02141,
+          "forward_pe": 44.573574,
           "peg": 2
         }
       },
@@ -343,14 +343,14 @@
         "valuation": 0.78,
         "final": 0.36,
         "raw": {
-          "price": 145.5404,
+          "price": 145.175,
           "sma200": 113.8415,
           "52w_change": 0,
           "eps_growth": -0.146,
           "profit_margin": 0.089049995,
           "roe": 0.110810004,
-          "pe": 21.722448,
-          "forward_pe": 17.39838,
+          "pe": 21.667912,
+          "forward_pe": 17.401733,
           "peg": 2
         }
       },
@@ -365,14 +365,14 @@
         "valuation": 0,
         "final": -0.21,
         "raw": {
-          "price": 421.5601,
+          "price": 418.0345,
           "sma200": 378.96326,
           "52w_change": 0,
           "eps_growth": -0.605,
           "profit_margin": 0.040009998,
           "roe": 0.049250003,
-          "pe": 383.23645,
-          "forward_pe": 146.052,
+          "pe": 380.03134,
+          "forward_pe": 144.83054,
           "peg": 2
         }
       },
