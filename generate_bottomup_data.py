@@ -50,6 +50,11 @@ def fetch_stock_data(ticker):
 
 def calculate_scores(info):
     """점수 계산"""
+    
+    def clamp(value, min_val=-1, max_val=1):
+        """값을 min_val ~ max_val 범위로 제한"""
+        return max(min_val, min(max_val, value))
+    
     try:
         # 모멘텀 지표
         perf_52w = safe_get(info, 'fiftyTwoWeekChange', 0) or 0
@@ -67,19 +72,23 @@ def calculate_scores(info):
         forward_pe = safe_get(info, 'forwardPE', 50) or 50
         peg = safe_get(info, 'pegRatio', 2) or 2
         
-        # 정규화된 점수
-        momentum_score = (perf_52w * 2) + (above_sma200 * 0.3)
-        fundamental_score = (eps_growth * 2) + (profit_margin * 3) + (roe * 2)
+        # 점수 계산 (기존 공식)
+        momentum_raw = (perf_52w * 2) + (above_sma200 * 0.3)
+        fundamental_raw = (eps_growth * 2) + (profit_margin * 3) + (roe * 2)
+        valuation_raw = 1 - min(pe / 100, 1)
         
-        # PE가 낮을수록 좋음
-        valuation_score = 1 - min(pe / 100, 1)
+        # ✅ -1 ~ +1 범위로 정규화 (기존 HTML과 동일!)
+        momentum_score = clamp(momentum_raw)
+        fundamental_score = clamp(fundamental_raw)
+        valuation_score = clamp(valuation_raw)
         
-        # 최종 점수
-        final_score = (
+        # 최종 점수 (가중 합계 후 다시 정규화)
+        final_raw = (
             WEIGHTS['momentum'] * momentum_score +
             WEIGHTS['fundamental'] * fundamental_score +
             WEIGHTS['valuation'] * valuation_score
         )
+        final_score = clamp(final_raw)
         
         return {
             'momentum': round(momentum_score, 2),
