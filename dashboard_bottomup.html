@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WDK LAB 바텀업 스코어카드 v3.5 (2026.02.01)</title>
+    <title>WDK LAB 바텀업 스코어카드 v4.0</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
@@ -83,10 +83,9 @@
 
     <div class="container mx-auto p-4 sm:p-6 lg:p-8">
         <header class="text-center mb-8">
-            <h1 class="text-3xl sm:text-4xl font-bold text-slate-900 dark:text-white">WDK LAB 바텀업 스코어카드 v3.5</h1>
+            <h1 class="text-3xl sm:text-4xl font-bold text-slate-900 dark:text-white">WDK LAB 바텀업 스코어카드 v4.0</h1>
             <p class="text-slate-500 dark:text-slate-400 mt-2">정량적 연속형 점수 기반 최정예 요원 선발 시스템</p>
-            <p class="text-xs text-slate-400 dark:text-slate-500 mt-1">📅 마지막 업데이트: 2026.02.01 | FMP + Alpha Vantage API
-            </p>
+            <p class="text-xs text-slate-400 dark:text-slate-500 mt-1">📅 yfinance 기반 데이터 | Python 스크립트로 생성</p>
             <p id="data-status" class="text-xs text-emerald-500 mt-1">📡 데이터 로딩 중...</p>
             <div class="mt-4 flex justify-center items-center space-x-4">
                 <a href="./dashboard_topdown.html" class="text-emerald-500 hover:text-emerald-600 transition-colors">←
@@ -94,10 +93,8 @@
                 <button id="refresh-btn"
                     class="px-3 py-1 bg-blue-500 hover:bg-blue-600 text-white rounded text-sm transition-colors"
                     title="새로고침">🔄 새로고침</button>
-                <button id="clear-cache-btn"
-                    class="px-3 py-1 bg-red-500 hover:bg-red-600 text-white rounded text-sm transition-colors"
-                    title="캐시 삭제 후 재로딩">🗑️ 캐시 클리어</button>
             </div>
+            <p class="text-xs text-amber-500 mt-2">⚠️ 데이터 업데이트: <code>python generate_bottomup_data.py</code> 실행 필요</p>
         </header>
 
         <section id="scoreboard">
@@ -116,7 +113,7 @@
                             </tr>
                         </thead>
                         <tbody id="scoreboard-body">
-                            <!-- Skeleton loading rows -->
+                            <!-- Data will be loaded here -->
                         </tbody>
                     </table>
                 </div>
@@ -126,639 +123,117 @@
     </div>
 
     <script>
-        // 티커 목록
-        const TICKERS = [
-            'MSFT', 'AAPL', 'GOOGL', 'AMZN', 'META', 'TSLA', // Big Tech
-            'NVDA', 'TSM', 'ASML',                           // Semiconductors
-            'LLY',                                           // Healthcare
-            'JPM', 'V',                                      // Financials
-            'XOM',                                           // Energy
-            'WMT', 'COST',                                   // Consumer Staples
-            'GE', 'CAT'                                      // Industrials
-        ];
-
-        // ===== FMP API (가장 안정적!) =====
-        const FMP_API_KEY = 'I3Z7ojCPBjEuSSkCUjCm6Jq436MUwlML';
-
-        // ===== Alpha Vantage API (추가 백업!) =====
-        const ALPHA_VANTAGE_KEY = 'V3XCM1ZFUIYU1K9P';
-
-        // 여러 CORS 프록시를 fallback으로 사용 (FMP 실패 시)
-        const CORS_PROXIES = [
-            'https://api.allorigins.win/raw?url=',
-            'https://corsproxy.io/?',
-            'https://api.codetabs.com/v1/proxy?quest=',
-            'https://cors-anywhere.herokuapp.com/',
-            'https://thingproxy.freeboard.io/fetch/',
-            'https://yacdn.org/proxy/',
-        ];
-
-        // Yahoo Finance 엔드포인트 (FMP 실패 시 fallback)
-        const YAHOO_V8_ENDPOINTS = [
-            'https://query1.finance.yahoo.com/v8/finance/chart/',
-            'https://query2.finance.yahoo.com/v8/finance/chart/',
-        ];
-
-        // 캐시 (세션 스토리지) - 실패한 프록시 건너뛰기용
-        let failedProxies = new Set();
-        let tickerCache = {};
-
-        // 로컬 스토리지에서 캐시 로드 (24시간 유효)
-        try {
-            const cached = localStorage.getItem('wdk_ticker_cache');
-            const cacheTime = localStorage.getItem('wdk_ticker_cache_time');
-            if (cached && cacheTime) {
-                const age = Date.now() - parseInt(cacheTime);
-                if (age < 24 * 60 * 60 * 1000) { // 24시간 이내
-                    tickerCache = JSON.parse(cached);
-                    console.log('[Cache] Loaded from localStorage');
-                }
-            }
-        } catch (e) { }
-
-
         const scoreboardBody = document.getElementById('scoreboard-body');
         const lastUpdatedEl = document.getElementById('last-updated');
-        const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
+        const dataStatus = document.getElementById('data-status');
 
-        function showInitialSkeleton() {
-            let skeletonHTML = '';
-            TICKERS.forEach(ticker => {
-                skeletonHTML += `
-            <tr id="row-${ticker}" class="border-b dark:border-slate-700">
-                <td class="px-4 py-4 text-center align-middle"><div class="h-4 w-4 bg-slate-200 dark:bg-slate-700 rounded skeleton"></div></td>
-                <td class="px-4 py-4 font-bold align-middle">${ticker}</td>
-                <td id="status-cell-${ticker}" colspan="4" class="px-4 py-4 text-center align-middle">
-                    <div class="h-4 w-full bg-slate-200 dark:bg-slate-700 rounded skeleton"></div>
-                </td>
-            </tr>
-        `;
+        function getScoreClass(score) {
+            if (score > 0.3) return 'score-positive';
+            if (score < -0.3) return 'score-negative';
+            return 'score-neutral';
+        }
+
+        function getRankClass(rank) {
+            if (rank === 1) return 'rank-gold';
+            if (rank <= 3) return 'rank-silver';
+            if (rank <= 5) return 'rank-bronze';
+            return '';
+        }
+
+        function formatScore(score) {
+            if (score === null || score === undefined) return 'N/A';
+            return score >= 0 ? `+${score.toFixed(2)}` : score.toFixed(2);
+        }
+
+        function renderBoard(data) {
+            let html = '';
+
+            data.forEach(item => {
+                const rankClass = getRankClass(item.rank);
+
+                if (item.error) {
+                    html += `
+                        <tr class="border-b dark:border-slate-700 ${rankClass}">
+                            <td class="px-4 py-4 font-bold text-lg text-center align-middle">${item.rank}</td>
+                            <td class="px-4 py-4 font-bold text-slate-900 dark:text-slate-100 align-middle">${item.ticker}</td>
+                            <td colspan="4" class="px-4 py-4 text-center text-red-500 align-middle">데이터 로딩 실패</td>
+                        </tr>
+                    `;
+                    return;
+                }
+
+                const s = item.scores;
+                const raw = s.raw || {};
+
+                // Tooltips
+                const momTooltip = `Price: $${raw.price?.toFixed(2) || '-'}\nSMA200: $${raw.sma200?.toFixed(2) || '-'}\n52W Change: ${((raw['52w_change'] || 0) * 100).toFixed(1)}%`;
+                const fundTooltip = `EPS Growth: ${((raw.eps_growth || 0) * 100).toFixed(1)}%\nProfit Margin: ${((raw.profit_margin || 0) * 100).toFixed(1)}%\nROE: ${((raw.roe || 0) * 100).toFixed(1)}%`;
+                const valTooltip = `P/E: ${raw.pe?.toFixed(1) || '-'}\nForward P/E: ${raw.forward_pe?.toFixed(1) || '-'}\nPEG: ${raw.peg?.toFixed(2) || '-'}`;
+
+                html += `
+                    <tr class="border-b dark:border-slate-700 ${rankClass}">
+                        <td class="px-4 py-4 font-bold text-lg text-center align-middle">${item.rank}</td>
+                        <td class="px-4 py-4 font-bold text-slate-900 dark:text-slate-100 align-middle">${item.ticker}</td>
+                        <td class="px-4 py-4 text-center align-middle">
+                            <div class="tooltip font-bold ${getScoreClass(s.momentum)}">${formatScore(s.momentum)}<span class="tooltiptext">${momTooltip}</span></div>
+                        </td>
+                        <td class="px-4 py-4 text-center align-middle">
+                            <div class="tooltip font-bold ${getScoreClass(s.fundamental)}">${formatScore(s.fundamental)}<span class="tooltiptext">${fundTooltip}</span></div>
+                        </td>
+                        <td class="px-4 py-4 text-center align-middle">
+                            <div class="tooltip font-bold ${getScoreClass(s.valuation)}">${formatScore(s.valuation)}<span class="tooltiptext">${valTooltip}</span></div>
+                        </td>
+                        <td class="px-4 py-4 text-center align-middle">
+                            <span class="font-bold text-lg ${getScoreClass(s.final)}">${formatScore(s.final)}</span>
+                        </td>
+                    </tr>
+                `;
             });
-            scoreboardBody.innerHTML = skeletonHTML;
+
+            scoreboardBody.innerHTML = html;
         }
 
-        // 주식 데이터 가져오기 (FMP → Yahoo v8 → Yahoo v10 → Finviz)
-        async function fetchTickerData(ticker, retries = 2) {
-            // 캐시 확인
-            if (tickerCache[ticker]) {
-                console.log(`[Cache] Using cached data for ${ticker}`);
-                return tickerCache[ticker];
-            }
-
-            // 타임아웃 함수
-            const fetchWithTimeout = async (url, timeout = 8000) => {
-                const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), timeout);
-
-                try {
-                    const response = await fetch(url, {
-                        headers: { 'Accept': 'application/json' },
-                        signal: controller.signal
-                    });
-                    clearTimeout(timeoutId);
-                    return response;
-                } catch (error) {
-                    clearTimeout(timeoutId);
-                    throw error;
-                }
-            };
-
-            // ===== 방법 0: FMP API (가장 안정적! 공식 API!) =====
-            console.log(`[FMP] Trying ${ticker}...`);
-            try {
-                const fmpUrl = `https://financialmodelingprep.com/api/v3/profile/${ticker}?apikey=${FMP_API_KEY}`;
-                const fmpQuoteUrl = `https://financialmodelingprep.com/api/v3/quote/${ticker}?apikey=${FMP_API_KEY}`;
-                const fmpRatioUrl = `https://financialmodelingprep.com/api/v3/ratios-ttm/${ticker}?apikey=${FMP_API_KEY}`;
-
-                // 병렬 요청
-                const [profileRes, quoteRes, ratioRes] = await Promise.all([
-                    fetchWithTimeout(fmpUrl, 10000),
-                    fetchWithTimeout(fmpQuoteUrl, 10000),
-                    fetchWithTimeout(fmpRatioUrl, 10000)
-                ]);
-
-                if (profileRes.ok && quoteRes.ok) {
-                    const [profiles, quotes, ratios] = await Promise.all([
-                        profileRes.json(),
-                        quoteRes.json(),
-                        ratioRes.ok ? ratioRes.json() : Promise.resolve([{}])
-                    ]);
-
-                    const profile = profiles[0] || {};
-                    const quote = quotes[0] || {};
-                    const ratio = ratios[0] || {};
-
-                    if (profile.symbol || quote.symbol) {
-                        const currentPrice = quote.price || profile.price || 0;
-                        const previousClose = quote.previousClose || currentPrice;
-                        const changePercent = quote.changesPercentage || ((currentPrice - previousClose) / previousClose * 100);
-
-                        const data = {
-                            'Price': currentPrice.toFixed(2),
-                            'Change': changePercent.toFixed(2) + '%',
-                            '52W High': (quote.yearHigh || 0).toFixed(2),
-                            '52W Low': (quote.yearLow || 0).toFixed(2),
-                            'Perf Year': quote.priceAvg200 ? ((currentPrice / quote.priceAvg200 - 1) * 100).toFixed(2) + '%' : '-',
-                            'SMA200': quote.priceAvg200 ? (currentPrice > quote.priceAvg200 ? 'above' : 'below') : '-',
-                            'Perf Week': '-', 'Perf Month': '-', 'Perf Quarter': '-', 'Perf Half Y': '-',
-                            'RSI (14)': '-',
-                            'Beta': profile.beta ? profile.beta.toFixed(2) : '-',
-                            'EPS Q/Q': '-',
-                            'Sales Q/Q': '-',
-                            'EPS next Y': '-',
-                            'Gross Margin': ratio.grossProfitMarginTTM ? (ratio.grossProfitMarginTTM * 100).toFixed(2) + '%' : '-',
-                            'Operating Margin': ratio.operatingProfitMarginTTM ? (ratio.operatingProfitMarginTTM * 100).toFixed(2) + '%' : '-',
-                            'Profit Margin': ratio.netProfitMarginTTM ? (ratio.netProfitMarginTTM * 100).toFixed(2) + '%' : '-',
-                            'ROE': ratio.returnOnEquityTTM ? (ratio.returnOnEquityTTM * 100).toFixed(2) + '%' : '-',
-                            'ROA': ratio.returnOnAssetsTTM ? (ratio.returnOnAssetsTTM * 100).toFixed(2) + '%' : '-',
-                            'P/E': ratio.peRatioTTM ? ratio.peRatioTTM.toFixed(2) : (quote.pe ? quote.pe.toFixed(2) : '-'),
-                            'Forward P/E': '-',
-                            'PEG': ratio.pegRatioTTM ? ratio.pegRatioTTM.toFixed(2) : '-',
-                            'P/B': ratio.priceToBookRatioTTM ? ratio.priceToBookRatioTTM.toFixed(2) : '-',
-                            'P/FCF': ratio.priceToFreeCashFlowsRatioTTM ? ratio.priceToFreeCashFlowsRatioTTM.toFixed(2) : '-',
-                            'Dividend': ratio.dividendYielTTM ? (ratio.dividendYielTTM * 100).toFixed(2) + '%' : '-',
-                        };
-
-                        const result_obj = { ticker, data };
-                        tickerCache[ticker] = result_obj;
-                        console.log(`[FMP] ✅ ${ticker} loaded successfully`);
-                        return result_obj;
-                    }
-                }
-                throw new Error('FMP returned empty data');
-            } catch (error) {
-                console.warn(`[FMP] ${ticker} failed: ${error.message}, trying Alpha Vantage...`);
-            }
-
-            // ===== 방법 0.5: Alpha Vantage API (FMP 백업!) =====
-            console.log(`[AlphaVantage] Trying ${ticker}...`);
-            try {
-                const avUrl = `https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=${ticker}&apikey=${ALPHA_VANTAGE_KEY}`;
-                const avResponse = await fetchWithTimeout(avUrl, 10000);
-
-                if (avResponse.ok) {
-                    const avData = await avResponse.json();
-                    const quote = avData['Global Quote'];
-
-                    if (quote && quote['05. price']) {
-                        const currentPrice = parseFloat(quote['05. price']) || 0;
-                        const previousClose = parseFloat(quote['08. previous close']) || currentPrice;
-                        const changePercent = quote['10. change percent'] || '0%';
-
-                        const data = {
-                            'Price': currentPrice.toFixed(2),
-                            'Change': changePercent,
-                            '52W High': quote['03. high'] || '-',
-                            '52W Low': quote['04. low'] || '-',
-                            'Perf Year': '-', 'Perf Week': '-', 'Perf Month': '-', 'Perf Quarter': '-', 'Perf Half Y': '-',
-                            'SMA200': '-',
-                            'RSI (14)': '-',
-                            'Beta': '-',
-                            'EPS Q/Q': '-', 'Sales Q/Q': '-', 'EPS next Y': '-',
-                            'Gross Margin': '-', 'Operating Margin': '-', 'Profit Margin': '-',
-                            'ROE': '-', 'ROA': '-',
-                            'P/E': '-', 'Forward P/E': '-', 'PEG': '-', 'P/B': '-', 'P/FCF': '-',
-                            'Dividend': '-',
-                        };
-
-                        const result_obj = { ticker, data };
-                        tickerCache[ticker] = result_obj;
-                        console.log(`[AlphaVantage] ✅ ${ticker} loaded successfully`);
-                        return result_obj;
-                    }
-                }
-                throw new Error('Alpha Vantage returned empty data');
-            } catch (error) {
-                console.warn(`[AlphaVantage] ${ticker} failed: ${error.message}, trying Yahoo v8...`);
-            }
-
-            // ===== 방법 1: Yahoo Finance v8 (Chart API) =====
-            console.log(`[Yahoo v8] Trying ${ticker}...`);
-            for (const endpoint of YAHOO_V8_ENDPOINTS) {
-                for (const proxy of CORS_PROXIES) {
-                    if (failedProxies.has(proxy)) continue;
-
-                    try {
-                        const v8Url = `${endpoint}${ticker}?interval=1d&range=1y`;
-                        const requestUrl = `${proxy}${encodeURIComponent(v8Url)}`;
-
-                        const response = await fetchWithTimeout(requestUrl, 6000);
-                        if (!response.ok) throw new Error(`HTTP ${response.status}`);
-
-                        const json = await response.json();
-                        const chart = json?.chart?.result?.[0];
-                        if (!chart || !chart.meta) throw new Error('No chart data');
-
-                        const meta = chart.meta;
-                        const quote = chart.indicators?.quote?.[0] || {};
-                        const closes = quote.close || [];
-                        const currentPrice = meta.regularMarketPrice || closes[closes.length - 1] || 0;
-                        const fiftyTwoWeekHigh = meta.fiftyTwoWeekHigh || 0;
-                        const fiftyTwoWeekLow = meta.fiftyTwoWeekLow || 0;
-                        const previousClose = meta.chartPreviousClose || meta.previousClose || currentPrice;
-
-                        // 52주 변동률 계산
-                        const oneYearAgoPrice = closes[0] || currentPrice;
-                        const perfYear = oneYearAgoPrice ? ((currentPrice - oneYearAgoPrice) / oneYearAgoPrice * 100).toFixed(2) + '%' : '-';
-
-                        // 200일 평균 계산
-                        const last200 = closes.slice(-200);
-                        const sma200 = last200.length > 0 ? last200.reduce((a, b) => a + (b || 0), 0) / last200.length : currentPrice;
-
-                        const data = {
-                            'Price': currentPrice.toFixed(2),
-                            'Change': ((currentPrice - previousClose) / previousClose * 100).toFixed(2) + '%',
-                            '52W High': fiftyTwoWeekHigh.toFixed(2),
-                            '52W Low': fiftyTwoWeekLow.toFixed(2),
-                            'Perf Year': perfYear,
-                            'SMA200': currentPrice > sma200 ? 'above' : 'below',
-                            // 기본값 설정
-                            'Perf Week': '-', 'Perf Month': '-', 'Perf Quarter': '-', 'Perf Half Y': '-',
-                            'RSI (14)': '-', 'Beta': '-',
-                            'EPS Q/Q': '-', 'Sales Q/Q': '-', 'EPS next Y': '-',
-                            'Gross Margin': '-', 'Operating Margin': '-', 'Profit Margin': '-',
-                            'ROE': '-', 'ROA': '-',
-                            'P/E': '-', 'Forward P/E': '-', 'PEG': '-', 'P/B': '-', 'P/FCF': '-',
-                            'Dividend': '-',
-                        };
-
-                        const result_obj = { ticker, data };
-                        tickerCache[ticker] = result_obj;
-                        console.log(`[Yahoo v8] ✅ ${ticker} loaded successfully`);
-                        return result_obj;
-
-                    } catch (error) {
-                        console.warn(`[Yahoo v8] ${ticker} failed (${proxy.split('/')[2]}): ${error.message}`);
-                    }
-                }
-            }
-
-            // ===== 방법 2: Yahoo Finance v10 (Summary API) =====
-            const yahooUrl = `https://query1.finance.yahoo.com/v10/finance/quoteSummary/${ticker}?modules=price,summaryDetail,defaultKeyStatistics,financialData`;
-
-            console.log(`[Yahoo v10] Trying ${ticker}...`);
-            for (const proxy of CORS_PROXIES) {
-                if (failedProxies.has(proxy)) continue;
-
-                for (let attempt = 0; attempt <= retries; attempt++) {
-                    try {
-                        const requestUrl = `${proxy}${encodeURIComponent(yahooUrl)}`;
-
-                        const response = await fetchWithTimeout(requestUrl, 8000);
-
-                        if (!response.ok) {
-                            if (response.status === 429) {
-                                failedProxies.add(proxy);
-                                break;
-                            }
-                            throw new Error(`HTTP ${response.status}`);
-                        }
-
-                        const json = await response.json();
-                        const result = json?.quoteSummary?.result?.[0];
-
-                        if (!result) throw new Error('No data returned');
-
-                        const price = result.price || {};
-                        const summary = result.summaryDetail || {};
-                        const keyStats = result.defaultKeyStatistics || {};
-                        const financial = result.financialData || {};
-
-                        const data = {
-                            'Price': price.regularMarketPrice?.fmt || '-',
-                            'Change': price.regularMarketChangePercent?.fmt || '-',
-                            '52W High': summary.fiftyTwoWeekHigh?.fmt || '-',
-                            '52W Low': summary.fiftyTwoWeekLow?.fmt || '-',
-                            'Perf Week': '-', 'Perf Month': '-', 'Perf Quarter': '-', 'Perf Half Y': '-',
-                            'Perf Year': keyStats.fiftyTwoWeekChange?.fmt || '-',
-                            'RSI (14)': '-',
-                            'SMA200': price.regularMarketPrice?.raw > (summary.twoHundredDayAverage?.raw || 0) ? 'above' : 'below',
-                            'Beta': summary.beta?.fmt || keyStats.beta?.fmt || '-',
-                            'EPS Q/Q': keyStats.earningsQuarterlyGrowth?.fmt || '-',
-                            'Sales Q/Q': keyStats.revenueQuarterlyGrowth?.fmt || '-',
-                            'EPS next Y': keyStats.earningsGrowth?.fmt || '-',
-                            'Gross Margin': financial.grossMargins?.fmt || '-',
-                            'Operating Margin': financial.operatingMargins?.fmt || '-',
-                            'Profit Margin': financial.profitMargins?.fmt || '-',
-                            'ROE': financial.returnOnEquity?.fmt || '-',
-                            'ROA': financial.returnOnAssets?.fmt || '-',
-                            'P/E': summary.trailingPE?.fmt || keyStats.trailingPE?.fmt || '-',
-                            'Forward P/E': summary.forwardPE?.fmt || keyStats.forwardPE?.fmt || '-',
-                            'PEG': keyStats.pegRatio?.fmt || '-',
-                            'P/B': keyStats.priceToBook?.fmt || '-',
-                            'P/FCF': '-',
-                            'Dividend': summary.dividendYield?.fmt || '-',
-                        };
-
-                        const result_obj = { ticker, data };
-                        tickerCache[ticker] = result_obj;
-                        console.log(`[Yahoo v10] ✅ ${ticker} loaded successfully`);
-                        return result_obj;
-
-                    } catch (error) {
-                        console.warn(`[Yahoo v10] ${ticker} attempt ${attempt + 1} failed: ${error.message}`);
-                        if (attempt < retries) await sleep(300);
-                    }
-                }
-            }
-
-            // ===== 방법 3: Finviz Fallback =====
-            console.warn(`[Yahoo] ❌ All Yahoo attempts failed for ${ticker}, trying Finviz...`);
-            return await fetchFinvizFallback(ticker);
-        }
-
-        // Finviz fallback (여러 프록시 시도)
-        async function fetchFinvizFallback(ticker) {
-            const finvizUrl = `https://finviz.com/quote.ashx?t=${ticker}`;
-
-            for (const proxy of CORS_PROXIES) {
-                if (failedProxies.has(proxy)) continue;
-
-                try {
-                    const requestUrl = `${proxy}${encodeURIComponent(finvizUrl)}`;
-                    console.log(`[Finviz] Trying ${ticker} via ${proxy.split('/')[2]}...`);
-
-                    const controller = new AbortController();
-                    const timeoutId = setTimeout(() => controller.abort(), 8000);
-
-                    const response = await fetch(requestUrl, { signal: controller.signal });
-                    clearTimeout(timeoutId);
-
-                    if (!response.ok) throw new Error(`HTTP ${response.status}`);
-
-                    let htmlText = await response.text();
-                    if (!htmlText) throw new Error('No HTML content');
-
-                    const parser = new DOMParser();
-                    const doc = parser.parseFromString(htmlText, 'text/html');
-                    const data = {};
-                    const table = doc.querySelector('.snapshot-table2');
-                    if (!table) throw new Error('Finviz table not found');
-
-                    const cells = table.querySelectorAll('td');
-                    for (let j = 0; j < cells.length; j += 2) {
-                        const key = cells[j].textContent.trim();
-                        const value = cells[j + 1].textContent.trim();
-                        data[key] = value;
-                    }
-
-                    const result = { ticker, data };
-                    tickerCache[ticker] = result;
-                    console.log(`[Finviz] ✅ ${ticker} loaded via fallback`);
-                    return result;
-                } catch (error) {
-                    console.warn(`[Finviz] ${ticker} failed:`, error.message);
-                    continue;
-                }
-            }
-
-            console.error(`[Finviz] ❌ All attempts failed for ${ticker}`);
-            return { ticker, error: 'All data sources failed' };
-        }
-
-        function robustNum(raw) {
-            if (raw == null) return null;
-            let s = String(raw).trim();
-            if (!s || s === '-' || /^n\/a$/i.test(s)) return null;
-            let neg = false;
-            if (s.startsWith('(') && s.endsWith(')')) { neg = true; s = s.slice(1, -1); }
-            s = s.replace(/,/g, '').trim();
-            const isPct = s.endsWith('%');
-            if (isPct) s = s.slice(0, -1);
-            const m = s.match(/^([+-]?\d*\.?\d+)([KMBT])?$/i);
-            let v = m ? parseFloat(m[1]) : parseFloat(s);
-            if (!isFinite(v)) return null;
-            if (m && m[2]) {
-                const u = m[2].toUpperCase();
-                v *= (u === 'K' ? 1e3 : u === 'M' ? 1e6 : u === 'B' ? 1e9 : 1e12);
-            }
-            if (neg) v = -v;
-            return v;
-        }
-
-        function getField(obj, variants) {
-            const keys = Object.keys(obj || {});
-            for (const v of variants) {
-                const k = keys.find(kk => kk.trim().toLowerCase() === v.trim().toLowerCase());
-                if (k) return obj[k];
-            }
-            return undefined;
-        }
-
-        function minMax(vals) {
-            const a = vals.filter(v => v != null && isFinite(v));
-            if (!a.length) return null;
-            return { min: Math.min(...a), max: Math.max(...a) };
-        }
-
-        function mmNorm(v, st) {
-            if (v == null || !st || st.min === st.max) return 0;
-            const t = (v - st.min) / (st.max - st.min);
-            return Math.max(-1, Math.min(1, t * 2 - 1));
-        }
-
-        function buildMetrics(items) {
-            return items.map(r => {
-                const d = r.data || {};
-                const perfW = robustNum(getField(d, ['Perf Week']));
-                const perfM = robustNum(getField(d, ['Perf Month']));
-                const perfQ = robustNum(getField(d, ['Perf Quarter']));
-                const perfH = robustNum(getField(d, ['Perf Half Y']));
-                const perfY = robustNum(getField(d, ['Perf Year']));
-                const RSI = robustNum(getField(d, ['RSI (14)']));
-                const sma200Text = getField(d, ['SMA200']);
-                const smaBump = !sma200Text ? 0 : /above/i.test(sma200Text) ? 0.2 : (/below/i.test(sma200Text) ? -0.2 : 0);
-                const epsQQ = robustNum(getField(d, ['EPS Q/Q']));
-                const salesQQ = robustNum(getField(d, ['Sales Q/Q']));
-                const epsNextY = robustNum(getField(d, ['EPS next Y']));
-                const gross = robustNum(getField(d, ['Gross Margin']));
-                const opmar = robustNum(getField(d, ['Operating Margin']));
-                const roe = robustNum(getField(d, ['ROE']));
-                const roa = robustNum(getField(d, ['ROA']));
-                const pe = robustNum(getField(d, ['P/E']));
-                const pfcf = robustNum(getField(d, ['P/FCF']));
-                const peg = robustNum(getField(d, ['PEG']));
-                const beta = robustNum(getField(d, ['Beta']));
-                const M = (perfW ?? 0) * 0.15 + (perfM ?? 0) * 0.25 + (perfQ ?? 0) * 0.30 + (perfH ?? 0) * 0.15 + (perfY ?? 0) * 0.15;
-                return {
-                    ticker: r.ticker, error: r.error,
-                    M, RSI, smaBump, epsQQ, salesQQ, epsNextY, gross, opmar, roe, roa, pe, pfcf, peg, beta
-                };
-            });
-        }
-
-        function scoreAll(items) {
-            const m = buildMetrics(items.filter(item => !item.error));
-            if (m.length === 0) return items;
-
-            const sM = minMax(m.map(x => x.M));
-            const sEPS = minMax(m.map(x => x.epsQQ));
-            const sSales = minMax(m.map(x => x.salesQQ));
-            const sENY = minMax(m.map(x => x.epsNextY));
-            const sGross = minMax(m.map(x => x.gross));
-            const sOpm = minMax(m.map(x => x.opmar));
-            const sROE = minMax(m.map(x => x.roe));
-            const sROA = minMax(m.map(x => x.roa));
-            const sPE = minMax(m.map(x => x.pe));
-            const sPFCF = minMax(m.map(x => x.pfcf));
-            const sPEG = minMax(m.map(x => x.peg));
-
-            return items.map(originalItem => {
-                if (originalItem.error) return { ...originalItem, finalScore: -Infinity };
-
-                const x = m.find(metric => metric.ticker === originalItem.ticker);
-                if (!x) return { ...originalItem, error: "Metric not found", finalScore: -Infinity };
-
-                const rsiScore = x.RSI == null ? 0 : Math.max(-1, Math.min(1, (x.RSI - 50) / 50));
-                const mom = Math.max(-1, Math.min(1, 0.8 * mmNorm(x.M, sM) + 0.2 * rsiScore + x.smaBump));
-
-                const growth = 0.5 * mmNorm(x.epsQQ, sEPS) + 0.3 * mmNorm(x.salesQQ, sSales) + 0.2 * mmNorm(x.epsNextY, sENY);
-                const qualityMetrics = [sGross && mmNorm(x.gross, sGross), sOpm && mmNorm(x.opmar, sOpm), sROE && mmNorm(x.roe, sROE), sROA && mmNorm(x.roa, sROA)].filter(v => v !== false);
-                const quality = qualityMetrics.length > 0 ? qualityMetrics.reduce((a, b) => a + b, 0) / qualityMetrics.length : 0;
-                const fund = Math.max(-1, Math.min(1, 0.7 * growth + 0.3 * quality));
-
-                const valMetrics = [sPEG && -mmNorm(x.peg, sPEG), sPE && -mmNorm(x.pe, sPE), sPFCF && -mmNorm(x.pfcf, sPFCF)].filter(v => v !== false);
-                const val = valMetrics.length > 0 ? valMetrics.reduce((a, b) => a + b, 0) / valMetrics.length : 0;
-
-                const risk = (x.beta != null && isFinite(x.beta)) ? (x.beta > 1.5 ? 0.2 : (x.beta < 0.8 ? -0.05 : 0)) : 0;
-                const finalScore = Math.max(-1, Math.min(1, 0.45 * mom + 0.35 * fund + 0.20 * val - risk));
-
-                return {
-                    ticker: x.ticker,
-                    scores: { momentum: mom, fundamental: fund, valuation: val },
-                    finalScore,
-                    debug: {
-                        M: x.M, M_norm: mmNorm(x.M, sM), RSI: x.RSI, rsi_score: rsiScore,
-                        sma_bump: x.smaBump,
-                        epsQQ: x.epsQQ, epsQQ_norm: mmNorm(x.epsQQ, sEPS), salesQQ: x.salesQQ, salesQQ_norm: mmNorm(x.salesQQ, sSales),
-                        peg: x.peg, peg_norm_inv: -mmNorm(x.peg, sPEG), pe: x.pe, pe_norm_inv: -mmNorm(x.pe, sPE),
-                        beta: x.beta, risk_penalty: risk
-                    }
-                };
-            });
-        }
-
-        function renderBoard(results) {
-            results.sort((a, b) => b.finalScore - a.finalScore);
-            let finalHtml = '';
-            results.forEach((result, index) => {
-                const rank = index + 1;
-                let rankClass = '';
-                if (rank === 1 && !result.error) rankClass = 'rank-gold';
-                else if (rank <= 3 && !result.error) rankClass = 'rank-silver';
-                else if (rank <= 5 && !result.error) rankClass = 'rank-bronze';
-
-                const getScoreHTML = (score, debugTooltip) => {
-                    let scoreClass = 'score-neutral';
-                    if (score > 0.3) scoreClass = 'score-positive';
-                    else if (score < -0.3) scoreClass = 'score-negative';
-                    const scoreText = score === null ? 'N/A' : score.toFixed(2);
-                    return `<div class="tooltip font-bold ${scoreClass}">${scoreText}<span class="tooltiptext">${debugTooltip}</span></div>`;
-                };
-
-                const getFinalScoreHTML = (score) => {
-                    let scoreClass = 'text-slate-500';
-                    if (score > 0.3) scoreClass = 'score-positive';
-                    else if (score < -0.3) scoreClass = 'score-negative';
-                    return `<span class="font-bold text-lg ${scoreClass}">${score.toFixed(2)}</span>`;
-                };
-
-                finalHtml += `<tr class="border-b dark:border-slate-700 ${rankClass}">`;
-                finalHtml += `<td class="px-4 py-4 font-bold text-lg text-center align-middle">${rank}</td>`;
-                finalHtml += `<td class="px-4 py-4 font-bold text-slate-900 dark:text-slate-100 align-middle">${result.ticker}</td>`;
-
-                if (result.error || !result.scores) {
-                    finalHtml += `<td colspan="4" class="px-4 py-4 text-center text-red-500 align-middle">데이터 로딩 실패: ${result.error || 'N/A'}</td>`;
-                } else {
-                    const d = result.debug;
-                    const momTooltip = `Perf Comp: ${d.M.toFixed(2)} -> ${d.M_norm.toFixed(2)}\nRSI(${d.RSI}): ${d.rsi_score.toFixed(2)}\nSMA Bump: ${d.sma_bump.toFixed(2)}`;
-                    const fundTooltip = `EPS Q/Q(${d.epsQQ}%): ${d.epsQQ_norm.toFixed(2)}\nSales Q/Q(${d.salesQQ}%): ${d.salesQQ_norm.toFixed(2)}`;
-                    const valTooltip = `PEG(${d.peg}): ${d.peg_norm_inv.toFixed(2)}\nP/E(${d.pe}): ${d.pe_norm_inv.toFixed(2)}`;
-
-                    finalHtml += `<td class="px-4 py-4 text-center align-middle">${getScoreHTML(result.scores.momentum, momTooltip)}</td>`;
-                    finalHtml += `<td class="px-4 py-4 text-center align-middle">${getScoreHTML(result.scores.fundamental, fundTooltip)}</td>`;
-                    finalHtml += `<td class="px-4 py-4 text-center align-middle">${getScoreHTML(result.scores.valuation, valTooltip)}</td>`;
-                    finalHtml += `<td class="px-4 py-4 text-center align-middle">${getFinalScoreHTML(result.finalScore)}</td>`;
-                }
-                finalHtml += `</tr>`;
-            });
-            scoreboardBody.innerHTML = finalHtml;
-            lastUpdatedEl.textContent = new Date().toLocaleString('ko-KR');
-        }
-
-        async function main() {
-            const dataStatus = document.getElementById('data-status');
+        async function loadData() {
             dataStatus.textContent = '📡 데이터 로딩 중...';
             dataStatus.className = 'text-xs text-blue-500 mt-1';
 
-            showInitialSkeleton();
-            const rawResults = [];
-            let successCount = 0;
-            let failCount = 0;
-
-            for (let i = 0; i < TICKERS.length; i++) {
-                const ticker = TICKERS[i];
-                const statusCell = document.getElementById(`status-cell-${ticker}`);
-                if (statusCell) {
-                    statusCell.innerHTML = `<span class="text-sm text-slate-500">(${i + 1}/${TICKERS.length}) 로딩 중...</span>`;
-                }
-
-                dataStatus.textContent = `📡 로딩 중... (${i + 1}/${TICKERS.length})`;
-
-                const result = await fetchTickerData(ticker);
-                rawResults.push(result);
-
-                if (result.error) {
-                    failCount++;
-                } else {
-                    successCount++;
-                }
-
-                const humanLikeDelay = 500 + Math.random() * 500; // 0.5 to 1 second
-                await sleep(humanLikeDelay);
-            }
-
-            const scoredResults = scoreAll(rawResults);
-            renderBoard(scoredResults);
-
-            // 캐시를 로컬 스토리지에 저장 (24시간 유효)
             try {
-                localStorage.setItem('wdk_ticker_cache', JSON.stringify(tickerCache));
-                localStorage.setItem('wdk_ticker_cache_time', Date.now().toString());
-                console.log('[Cache] Saved to localStorage');
-            } catch (e) {
-                console.warn('[Cache] Failed to save:', e);
-            }
+                // JSON 파일 로드 (상대 경로)
+                const response = await fetch('./bottomup_data.json?' + Date.now());
 
-            // 최종 상태 업데이트
-            if (failCount === 0) {
-                dataStatus.textContent = `✅ 전체 로딩 완료! (${successCount}/${TICKERS.length})`;
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+
+                const json = await response.json();
+
+                renderBoard(json.data);
+                lastUpdatedEl.textContent = json.updated_display;
+
+                dataStatus.textContent = `✅ 로딩 완료! (${json.count}/${json.total})`;
                 dataStatus.className = 'text-xs text-emerald-500 mt-1';
-            } else if (successCount > 0) {
-                dataStatus.textContent = `⚠️ 일부 실패 (성공: ${successCount}, 실패: ${failCount})`;
-                dataStatus.className = 'text-xs text-amber-500 mt-1';
-            } else {
-                dataStatus.textContent = `❌ 데이터 로딩 실패`;
+
+            } catch (error) {
+                console.error('Error loading data:', error);
+                dataStatus.textContent = `❌ 데이터 로딩 실패: ${error.message}`;
                 dataStatus.className = 'text-xs text-red-500 mt-1';
+
+                scoreboardBody.innerHTML = `
+                    <tr>
+                        <td colspan="6" class="px-4 py-8 text-center text-red-500">
+                            <p class="text-lg font-bold">데이터 파일을 찾을 수 없습니다</p>
+                            <p class="text-sm mt-2">터미널에서 <code class="bg-slate-200 dark:bg-slate-700 px-2 py-1 rounded">python generate_bottomup_data.py</code> 를 실행해주세요</p>
+                        </td>
+                    </tr>
+                `;
             }
         }
 
         document.addEventListener('DOMContentLoaded', () => {
-            main();
+            loadData();
 
-            // 새로고침 버튼
             document.getElementById('refresh-btn').addEventListener('click', () => {
-                main();
-            });
-
-            // 캐시 클리어 버튼
-            document.getElementById('clear-cache-btn').addEventListener('click', () => {
-                tickerCache = {};
-                failedProxies.clear();
-                localStorage.removeItem('wdk_ticker_cache');
-                localStorage.removeItem('wdk_ticker_cache_time');
-                console.log('[Cache] Cleared all cache (memory + localStorage)');
-                main();
+                loadData();
             });
         });
     </script>
