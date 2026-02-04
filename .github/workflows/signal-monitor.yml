@@ -11,8 +11,11 @@ on:
     # 📊 장 시작 리포트 (KST 23:30 = UTC 14:30) - 월~금
     - cron: '30 14 * * 1-5'
     
-    # 🔄 장 중 체크 - 매 정각 (KST 00:00~05:00) - 월~금
-    - cron: '0 15-20 * * 1-5'
+    # 🔄 장 중 바텀업 업데이트 - 30분마다 (KST 23:30~03:00, 05:00~06:00) - 월~금
+    # UTC 14:30~18:00 (KST 23:30~03:00)
+    - cron: '0,30 15-17 * * 1-5'
+    # UTC 20:00~21:00 (KST 05:00~06:00)  
+    - cron: '0,30 20 * * 1-5'
     
     # 📊 장 마감 리포트 (KST 06:00 = UTC 21:00) - 월~금
     - cron: '0 21 * * 1-5'
@@ -20,15 +23,16 @@ on:
   workflow_dispatch:
     inputs:
       mode:
-        description: 'Run mode (check, daily, report, news)'
+        description: 'Run mode (check, daily, report, news, bottomup)'
         required: true
-        default: 'check'
+        default: 'bottomup'
         type: choice
         options:
           - check
           - daily
           - report
           - news
+          - bottomup
 
 
 jobs:
@@ -65,7 +69,10 @@ jobs:
           # KST 06:00~07:00 (UTC 21:xx) = report (장 마감)
           elif [ "$HOUR" = "21" ]; then
             echo "mode=report" >> $GITHUB_OUTPUT
-          # 그 외 (장 중) = check
+          # 장 중 30분 간격 (UTC 15-17, 20) = bottomup만 업데이트
+          elif [ "$HOUR" = "15" ] || [ "$HOUR" = "16" ] || [ "$HOUR" = "17" ] || [ "$HOUR" = "20" ]; then
+            echo "mode=bottomup" >> $GITHUB_OUTPUT
+          # 그 외 = check
           else
             echo "mode=check" >> $GITHUB_OUTPUT
           fi
@@ -83,7 +90,7 @@ jobs:
         continue-on-error: true
       
       - name: Run WDK LAB Monitor
-        if: steps.mode.outputs.mode != 'news'
+        if: steps.mode.outputs.mode != 'news' && steps.mode.outputs.mode != 'bottomup'
         env:
           FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
@@ -92,12 +99,12 @@ jobs:
           python wdklab_monitor.py ${{ steps.mode.outputs.mode }}
       
       - name: Generate Bottom-Up Data JSON
-        if: steps.mode.outputs.mode == 'daily' || steps.mode.outputs.mode == 'report'
+        if: steps.mode.outputs.mode == 'daily' || steps.mode.outputs.mode == 'report' || steps.mode.outputs.mode == 'bottomup'
         run: |
           python generate_bottomup_data.py
       
       - name: Commit and Push Bottom-Up Data
-        if: steps.mode.outputs.mode == 'daily' || steps.mode.outputs.mode == 'report'
+        if: steps.mode.outputs.mode == 'daily' || steps.mode.outputs.mode == 'report' || steps.mode.outputs.mode == 'bottomup'
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
