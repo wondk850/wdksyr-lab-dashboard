@@ -2,20 +2,19 @@ name: WDK LAB Signal Monitor
 
 on:
   schedule:
+    # 장 시작 전 (KST 23:00 = UTC 14:00)
+    - cron: '0 14 * * 1-5'
+    
+    # 장 중 30분마다 (KST 23:30~06:00 = UTC 14:30~21:00)
+    - cron: '30 14 * * 1-5'
+    - cron: '0,30 15-20 * * 1-5'
+    - cron: '0 21 * * 1-5'
+    
+    # 아침 리포트 (KST 09:00 = UTC 00:00)
+    - cron: '0 0 * * 1-5'
+    
     # 📰 뉴스 알림 (KST 10:00 = UTC 01:00) - 매일!
     - cron: '0 1 * * *'
-    
-    # 📊 장 시작 1시간 전 리포트 (KST 22:30 = UTC 13:30) - 월~금
-    - cron: '30 13 * * 1-5'
-    
-    # 📊 장 시작 리포트 (KST 23:30 = UTC 14:30) - 월~금
-    - cron: '30 14 * * 1-5'
-    
-    # 🔄 장 중 체크 - 매 정각 (KST 00:00~05:00) - 월~금
-    - cron: '0 15-20 * * 1-5'
-    
-    # 📊 장 마감 리포트 (KST 06:00 = UTC 21:00) - 월~금
-    - cron: '0 21 * * 1-5'
     
   workflow_dispatch:
     inputs:
@@ -29,7 +28,6 @@ on:
           - daily
           - report
           - news
-
 
 jobs:
   monitor:
@@ -52,21 +50,17 @@ jobs:
         id: mode
         run: |
           HOUR=$(date -u +%H)
-          MIN=$(date -u +%M)
           
+          # KST 09:00 (UTC 00:00) = daily report
+          if [ "$HOUR" = "00" ]; then
+            echo "mode=daily" >> $GITHUB_OUTPUT
           # KST 10:00 (UTC 01:00) = news
-          if [ "$HOUR" = "01" ]; then
+          elif [ "$HOUR" = "01" ]; then
             echo "mode=news" >> $GITHUB_OUTPUT
-          # KST 22:30 (UTC 13:30) = daily (장 1시간 전)
-          elif [ "$HOUR" = "13" ]; then
-            echo "mode=daily" >> $GITHUB_OUTPUT
-          # KST 23:30 (UTC 14:30) = daily (장 시작)
-          elif [ "$HOUR" = "14" ] && [ "$MIN" = "30" ]; then
-            echo "mode=daily" >> $GITHUB_OUTPUT
-          # KST 06:00 (UTC 21:00) = report (장 마감)
+          # 장 마감 (UTC 21:00) = report
           elif [ "$HOUR" = "21" ]; then
             echo "mode=report" >> $GITHUB_OUTPUT
-          # 그 외 (장 중) = check
+          # 그 외 = check
           else
             echo "mode=check" >> $GITHUB_OUTPUT
           fi

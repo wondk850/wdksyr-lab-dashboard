@@ -502,25 +502,12 @@ def main(mode='check'):
     """메인 함수"""
     print(f"[WDK LAB] Running in {mode} mode...")
     
-    # 이전 상태 로드
-    state = load_state()
-    
-    # === 중복 발송 방지 ===
-    kst = timezone(timedelta(hours=9))
-    now_kst = datetime.now(kst)
-    current_hour = now_kst.strftime('%Y-%m-%d-%H')  # 시간 단위로 체크
-    
-    last_sent = state.get('last_sent', {})
-    last_sent_hour = last_sent.get(mode, '')
-    
-    if mode in ['daily', 'report'] and last_sent_hour == current_hour:
-        print(f"[SKIP] Already sent {mode} at {current_hour}, skipping duplicate...")
-        return
-    
     # 신호 계산
     result = calculate_signal()
     print(f"[Signal] Current: {result['signal']} (score: {result['composite']:.2f})")
     
+    # 이전 상태 로드
+    state = load_state()
     previous_signal = state.get('previous_signal')
     
     # VIX 알림 체크 (공포 구간!)
@@ -532,10 +519,6 @@ def main(mode='check'):
         bottomup_scores = calculate_bottomup_scores()
         msg = format_daily_report(result, bottomup_scores)
         send_telegram(msg)
-        # 발송 시간 기록
-        if 'last_sent' not in state:
-            state['last_sent'] = {}
-        state['last_sent']['daily'] = current_hour
         
     elif mode == 'check':
         # 신호 변경 체크
@@ -552,10 +535,6 @@ def main(mode='check'):
         bottomup_scores = calculate_bottomup_scores()
         msg = format_daily_report(result, bottomup_scores)
         send_telegram(msg)
-        # 발송 시간 기록
-        if 'last_sent' not in state:
-            state['last_sent'] = {}
-        state['last_sent']['report'] = current_hour
     
     # 상태 저장
     state['previous_signal'] = result['signal']
