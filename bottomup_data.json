@@ -1,7 +1,7 @@
 {
   "version": "2.0",
-  "updated": "2026-02-05T02:26:45.013757+09:00",
-  "updated_display": "2026. 02. 05. AM 02:26:45",
+  "updated": "2026-02-05T05:26:04.199606+09:00",
+  "updated_display": "2026. 02. 05. AM 05:26:04",
   "count": 17,
   "total": 17,
   "weights": {
@@ -16,12 +16,12 @@
       "scores": {
         "momentum": 0.3,
         "fundamental": 0.33,
-        "valuation": 0.52,
+        "valuation": 0.51,
         "risk": -0.3,
         "final": 0.36
       },
       "raw": {
-        "price": 1092.115,
+        "price": 1111.0275,
         "sma200": 855.99005,
         "52w_change": 0,
         "eps_growth": 4.753,
@@ -29,8 +29,8 @@
         "profit_margin": 0.30986,
         "roe": 0.9647,
         "fcf_margin": 0.023526248868891507,
-        "pe": 53.61389,
-        "forward_pe": 26.434578,
+        "pe": 54.54234,
+        "forward_pe": 26.892353,
         "peg": 2,
         "beta": 0.394
       },
@@ -42,12 +42,12 @@
       "scores": {
         "momentum": 0.1,
         "fundamental": 0.36,
-        "valuation": 0.56,
+        "valuation": 0.55,
         "risk": -0.5,
         "final": 0.33
       },
       "raw": {
-        "price": 174.03,
+        "price": 175.3798,
         "sma200": 168.50285,
         "52w_change": 0,
         "eps_growth": 0.653,
@@ -55,8 +55,8 @@
         "profit_margin": 0.53007,
         "roe": 1.07359,
         "fcf_margin": 0.2847189531371296,
-        "pe": 43.076733,
-        "forward_pe": 22.707878,
+        "pe": 43.410843,
+        "forward_pe": 22.884005,
         "peg": 2,
         "beta": 2.314
       },
@@ -73,7 +73,7 @@
         "final": 0.13
       },
       "raw": {
-        "price": 275.656,
+        "price": 277.56,
         "sma200": 237.36736,
         "52w_change": 0,
         "eps_growth": 0.159,
@@ -81,8 +81,8 @@
         "profit_margin": 0.27037,
         "roe": 1.5202099,
         "fcf_margin": 0.2440509709059201,
-        "pe": 34.893166,
-        "forward_pe": 29.709946,
+        "pe": 35.13418,
+        "forward_pe": 29.915155,
         "peg": 2,
         "beta": 1.107
       },
@@ -99,7 +99,7 @@
         "final": 0.06
       },
       "raw": {
-        "price": 322.6,
+        "price": 326.545,
         "sma200": 256.6605,
         "52w_change": 0,
         "eps_growth": 0.406,
@@ -107,8 +107,8 @@
         "profit_margin": 0.45099998,
         "roe": 0.35224,
         "fcf_margin": 0.16253106936993011,
-        "pe": 30.782444,
-        "forward_pe": 17.923925,
+        "pe": 31.158876,
+        "forward_pe": 18.143114,
         "peg": 2,
         "beta": 1.272
       },
@@ -125,7 +125,7 @@
         "final": 0.03
       },
       "raw": {
-        "price": 329.22,
+        "price": 329.865,
         "sma200": 344.89804,
         "52w_change": 0,
         "eps_growth": 0.143,
@@ -133,8 +133,8 @@
         "profit_margin": 0.50233,
         "roe": 0.53954,
         "fcf_margin": 0.5322956688247912,
-        "pe": 30.883678,
-        "forward_pe": 22.687101,
+        "pe": 30.944183,
+        "forward_pe": 22.731548,
         "peg": 2,
         "beta": 0.78
       },
@@ -151,7 +151,7 @@
         "final": -0.01
       },
       "raw": {
-        "price": 1336.04,
+        "price": 1338.66,
         "sma200": 915.5227,
         "52w_change": 0,
         "eps_growth": 0.054,
@@ -159,8 +159,8 @@
         "profit_margin": 0.29416,
         "roe": 0.50458,
         "fcf_margin": 0.38833863190818285,
-        "pe": 45.801853,
-        "forward_pe": 30.84545,
+        "pe": 45.89167,
+        "forward_pe": 30.90594,
         "peg": 2,
         "beta": 1.462
       },
@@ -177,7 +177,7 @@
         "final": -0.05
       },
       "raw": {
-        "price": 332.885,
+        "price": 333.37,
         "sma200": 236.3139,
         "52w_change": 0,
         "eps_growth": 0.33,
@@ -185,12 +185,38 @@
         "profit_margin": 0.32233003,
         "roe": 0.3545,
         "fcf_margin": 0.12451553682425925,
-        "pe": 32.893776,
-        "forward_pe": 29.557594,
+        "pe": 32.9417,
+        "forward_pe": 29.600657,
         "peg": 2,
         "beta": 1.086
       },
       "rank": 7
+    },
+    {
+      "ticker": "GE",
+      "error": false,
+      "scores": {
+        "momentum": 0.3,
+        "fundamental": -0.49,
+        "valuation": 0.48,
+        "risk": 0.5,
+        "final": -0.1
+      },
+      "raw": {
+        "price": 307.585,
+        "sma200": 275.23584,
+        "52w_change": 0,
+        "eps_growth": 0.338,
+        "revenue_growth": 0.176,
+        "profit_margin": 0.18982,
+        "roe": 0.44692,
+        "fcf_margin": 0.11364082379847983,
+        "pe": 38.161907,
+        "forward_pe": 36.371365,
+        "peg": 2,
+        "beta": 1.384
+      },
+      "rank": 8
     },
     {
       "ticker": "MSFT",
@@ -203,7 +229,7 @@
         "final": -0.12
       },
       "raw": {
-        "price": 414.46,
+        "price": 415.425,
         "sma200": 486.32684,
         "52w_change": 0,
         "eps_growth": 0.595,
@@ -211,12 +237,12 @@
         "profit_margin": 0.39044,
         "roe": 0.34390998,
         "fcf_margin": 0.17561007740445236,
-        "pe": 25.90375,
-        "forward_pe": 21.92787,
+        "pe": 25.964062,
+        "forward_pe": 21.978926,
         "peg": 2,
         "beta": 1.084
       },
-      "rank": 8
+      "rank": 9
     },
     {
       "ticker": "META",
@@ -229,7 +255,7 @@
         "final": -0.14
       },
       "raw": {
-        "price": 673.5,
+        "price": 671.495,
         "sma200": 683.2798,
         "52w_change": 0,
         "eps_growth": 0.093,
@@ -237,12 +263,12 @@
         "profit_margin": 0.30084,
         "roe": 0.30238,
         "fcf_margin": 0.11659870164587598,
-        "pe": 28.635204,
-        "forward_pe": 18.996527,
+        "pe": 28.549957,
+        "forward_pe": 18.939974,
         "peg": 2,
         "beta": 1.284
       },
-      "rank": 9
+      "rank": 10
     },
     {
       "ticker": "CAT",
@@ -255,7 +281,7 @@
         "final": -0.14
       },
       "raw": {
-        "price": 692.47,
+        "price": 691.5401,
         "sma200": 470.11285,
         "52w_change": 0,
         "eps_growth": -0.139,
@@ -263,12 +289,12 @@
         "profit_margin": 0.13144,
         "roe": 0.43526,
         "fcf_margin": 0.08148145522079851,
-        "pe": 36.755306,
-        "forward_pe": 25.24981,
+        "pe": 36.70595,
+        "forward_pe": 25.215902,
         "peg": 2,
         "beta": 1.554
       },
-      "rank": 10
+      "rank": 11
     },
     {
       "ticker": "JPM",
@@ -281,7 +307,7 @@
         "final": -0.15
       },
       "raw": {
-        "price": 319.23,
+        "price": 318.38,
         "sma200": 294.02286,
         "52w_change": 0,
         "eps_growth": -0.07,
@@ -289,36 +315,10 @@
         "profit_margin": 0.3391,
         "roe": 0.16134001,
         "fcf_margin": 0.0,
-        "pe": 15.945555,
-        "forward_pe": 13.807138,
+        "pe": 15.903097,
+        "forward_pe": 13.770374,
         "peg": 2,
         "beta": 1.053
-      },
-      "rank": 11
-    },
-    {
-      "ticker": "GE",
-      "error": false,
-      "scores": {
-        "momentum": 0.1,
-        "fundamental": -0.49,
-        "valuation": 0.48,
-        "risk": 0.5,
-        "final": -0.15
-      },
-      "raw": {
-        "price": 304.205,
-        "sma200": 275.23584,
-        "52w_change": 0,
-        "eps_growth": 0.338,
-        "revenue_growth": 0.176,
-        "profit_margin": 0.18982,
-        "roe": 0.44692,
-        "fcf_margin": 0.11364082379847983,
-        "pe": 37.742554,
-        "forward_pe": 35.971684,
-        "peg": 2,
-        "beta": 1.384
       },
       "rank": 12
     },
@@ -333,7 +333,7 @@
         "final": -0.19
       },
       "raw": {
-        "price": 234.62,
+        "price": 233.91,
         "sma200": 222.42294,
         "52w_change": 0,
         "eps_growth": 0.382,
@@ -341,8 +341,8 @@
         "profit_margin": 0.11063,
         "roe": 0.24327,
         "fcf_margin": 0.03772438504960584,
-        "pe": 33.09168,
-        "forward_pe": 29.915756,
+        "pe": 32.99154,
+        "forward_pe": 29.825226,
         "peg": 2,
         "beta": 1.385
       },
@@ -359,7 +359,7 @@
         "final": -0.27
       },
       "raw": {
-        "price": 146.66,
+        "price": 147.33,
         "sma200": 113.8415,
         "52w_change": 0,
         "eps_growth": -0.146,
@@ -367,8 +367,8 @@
         "profit_margin": 0.089049995,
         "roe": 0.110810004,
         "fcf_margin": 0.03989981811460752,
-        "pe": 21.889553,
-        "forward_pe": 17.579737,
+        "pe": 21.989553,
+        "forward_pe": 17.660048,
         "peg": 2,
         "beta": 0.358
       },
@@ -380,12 +380,12 @@
       "scores": {
         "momentum": 0.3,
         "fundamental": -0.78,
-        "valuation": 0.4,
+        "valuation": 0.41,
         "risk": 0.5,
         "final": -0.27
       },
       "raw": {
-        "price": 993.2641,
+        "price": 986.195,
         "sma200": 951.4063,
         "52w_change": 0,
         "eps_growth": 0.113,
@@ -393,8 +393,8 @@
         "profit_margin": 0.02961,
         "roe": 0.30325,
         "fcf_margin": 0.025572327385158144,
-        "pe": 53.172596,
-        "forward_pe": 44.70067,
+        "pe": 52.794163,
+        "forward_pe": 44.382534,
         "peg": 2,
         "beta": 1.008
       },
@@ -411,7 +411,7 @@
         "final": -0.28
       },
       "raw": {
-        "price": 129.32,
+        "price": 128.28,
         "sma200": 103.36475,
         "52w_change": 0,
         "eps_growth": 0.342,
@@ -419,8 +419,8 @@
         "profit_margin": 0.03259,
         "roe": 0.23661,
         "fcf_margin": 0.014753699631492173,
-        "pe": 45.21679,
-        "forward_pe": 43.54341,
+        "pe": 44.85315,
+        "forward_pe": 43.19323,
         "peg": 2,
         "beta": 0.671
       },
@@ -437,7 +437,7 @@
         "final": -0.64
       },
       "raw": {
-        "price": 405.03,
+        "price": 406.7277,
         "sma200": 378.96326,
         "52w_change": 0,
         "eps_growth": -0.605,
@@ -445,8 +445,8 @@
         "profit_margin": 0.040009998,
         "roe": 0.049250003,
         "fcf_margin": 0.03936246788708833,
-        "pe": 368.20908,
-        "forward_pe": 140.32504,
+        "pe": 369.75244,
+        "forward_pe": 140.91322,
         "peg": 2,
         "beta": 1.887
       },
