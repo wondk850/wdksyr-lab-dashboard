@@ -1,8 +1,8 @@
 """
-바텀업 데이터 생성기 v2.0 - 장기 투자자용
+바텀업 데이터 생성기 v2.1 - 장기 투자자용
 - Min-Max Normalization (상대 비교)
-- 펀더멘탈 중심 (50%)
-- 리스크 조정
+- 펀더멘탈 중심 (55%) - 실력만 본다!
+- 리스크는 사람이 판단
 """
 
 import json
@@ -26,9 +26,9 @@ TICKERS = [
 # 장기 투자자용 가중치 (펀더멘탈 중심!)
 WEIGHTS = {
     'momentum': 0.25,      # 25% (장기라 단기 추세 덜 중요)
-    'fundamental': 0.50,   # 50% (핵심! 성장성)
-    'valuation': 0.20,     # 20% (유지)
-    'risk': 0.05           # 5% (안정성)
+    'fundamental': 0.55,   # 55% (핵심! 성장성) ← 5% 추가!
+    'valuation': 0.20      # 20% (유지)
+    # risk 제거: 변동성은 사람이 판단!
 }
 
 
@@ -237,12 +237,11 @@ def normalize_and_score(metrics):
         # 리스크 점수
         risk = beta_scores[i]
         
-        # 최종 점수 (가중 합계)
+        # 최종 점수 (가중 합계) - 리스크 제외!
         final = (
             WEIGHTS['momentum'] * momentum +
             WEIGHTS['fundamental'] * fundamental +
-            WEIGHTS['valuation'] * valuation +
-            WEIGHTS['risk'] * risk
+            WEIGHTS['valuation'] * valuation
         )
         final = max(-1, min(1, final))
         
