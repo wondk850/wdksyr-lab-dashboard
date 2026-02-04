@@ -52,18 +52,17 @@ jobs:
         id: mode
         run: |
           HOUR=$(date -u +%H)
-          MIN=$(date -u +%M)
           
-          # KST 10:00 (UTC 01:00) = news
-          if [ "$HOUR" = "01" ]; then
+          # KST 10:00~12:00 (UTC 01:00~03:00) = news (딜레이 대응!)
+          if [ "$HOUR" = "01" ] || [ "$HOUR" = "02" ] || [ "$HOUR" = "03" ]; then
             echo "mode=news" >> $GITHUB_OUTPUT
-          # KST 22:30 (UTC 13:30) = daily (장 1시간 전)
+          # KST 22:30~23:29 (UTC 13:xx) = daily (장 1시간 전)
           elif [ "$HOUR" = "13" ]; then
             echo "mode=daily" >> $GITHUB_OUTPUT
-          # KST 23:30 (UTC 14:30) = daily (장 시작)
-          elif [ "$HOUR" = "14" ] && [ "$MIN" = "30" ]; then
+          # KST 23:30~00:29 (UTC 14:xx) = daily (장 시작)
+          elif [ "$HOUR" = "14" ]; then
             echo "mode=daily" >> $GITHUB_OUTPUT
-          # KST 06:00 (UTC 21:00) = report (장 마감)
+          # KST 06:00~07:00 (UTC 21:xx) = report (장 마감)
           elif [ "$HOUR" = "21" ]; then
             echo "mode=report" >> $GITHUB_OUTPUT
           # 그 외 (장 중) = check

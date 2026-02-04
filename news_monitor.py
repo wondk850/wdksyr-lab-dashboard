@@ -167,6 +167,18 @@ def main(mode='news'):
     
     # 상태 로드
     state = load_news_state()
+    
+    # === 중복 발송 방지 (하루에 한 번만!) ===
+    kst = timezone(timedelta(hours=9))
+    now_kst = datetime.now(kst)
+    today = now_kst.strftime('%Y-%m-%d')
+    
+    last_sent_date = state.get('last_sent_date', '')
+    
+    if last_sent_date == today:
+        print(f"[SKIP] Already sent news today ({today}), skipping duplicate...")
+        return
+    
     sent_urls = set(state.get('sent_urls', []))
     
     # 키워드별 뉴스 검색
@@ -215,8 +227,9 @@ def main(mode='news'):
     
     print(f"[NEWS] Sent daily news summary ({len(new_articles)} new articles)")
     
-    # 상태 저장
+    # 상태 저장 (오늘 날짜 기록!)
     state['last_check'] = datetime.now(timezone.utc).isoformat()
+    state['last_sent_date'] = today
     save_news_state(state)
     
     print("[NEWS MONITOR] Done!")
