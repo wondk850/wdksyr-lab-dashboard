@@ -16,10 +16,13 @@ on:
     # 📰 뉴스 알림 (KST 10:00 = UTC 01:00) - 매일!
     - cron: '0 1 * * *'
     
+    # 🏛️ 나라장터 입찰공고 알림 (KST 11:00 = UTC 02:00) - 매일!
+    - cron: '0 2 * * *'
+    
   workflow_dispatch:
     inputs:
       mode:
-        description: 'Run mode (check, daily, report, news)'
+        description: 'Run mode (check, daily, report, news, bid)'
         required: true
         default: 'check'
         type: choice
@@ -28,6 +31,7 @@ on:
           - daily
           - report
           - news
+          - bid
 
 jobs:
   monitor:
@@ -57,6 +61,9 @@ jobs:
           # KST 10:00 (UTC 01:00) = news
           elif [ "$HOUR" = "01" ]; then
             echo "mode=news" >> $GITHUB_OUTPUT
+          # KST 11:00 (UTC 02:00) = bid (나라장터)
+          elif [ "$HOUR" = "02" ]; then
+            echo "mode=bid" >> $GITHUB_OUTPUT
           # 장 마감 (UTC 21:00) = report
           elif [ "$HOUR" = "21" ]; then
             echo "mode=report" >> $GITHUB_OUTPUT
@@ -78,7 +85,7 @@ jobs:
         continue-on-error: true
       
       - name: Run WDK LAB Monitor
-        if: steps.mode.outputs.mode != 'news'
+        if: steps.mode.outputs.mode != 'news' && steps.mode.outputs.mode != 'bid'
         env:
           FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
@@ -108,6 +115,33 @@ jobs:
         with:
           name: news-state
           path: news_sent.json
+          retention-days: 30
+          overwrite: true
+      
+      # 🏛️ 나라장터 입찰공고 모니터링
+      - name: Download narajangteo state
+        if: steps.mode.outputs.mode == 'bid'
+        uses: actions/download-artifact@v4
+        with:
+          name: narajangteo-state
+          path: .
+        continue-on-error: true
+      
+      - name: Run Narajangteo Monitor
+        if: steps.mode.outputs.mode == 'bid'
+        env:
+          NARAJANGTEO_API_KEY: ${{ secrets.NARAJANGTEO_API_KEY }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_NEWS_CHAT_ID: ${{ secrets.TELEGRAM_NEWS_CHAT_ID }}
+        run: |
+          python narajangteo_monitor.py bid
+      
+      - name: Upload narajangteo state
+        if: steps.mode.outputs.mode == 'bid'
+        uses: actions/upload-artifact@v4
+        with:
+          name: narajangteo-state
+          path: narajangteo_sent.json
           retention-days: 30
           overwrite: true
       
