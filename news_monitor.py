@@ -129,7 +129,7 @@ def send_telegram(message):
 
 
 def format_news_message(articles_by_keyword):
-    """뉴스 메시지 포맷팅"""
+    """뉴스 메시지 포맷팅 (4096자 제한 주의!)"""
     kst = timezone(timedelta(hours=9))
     now_kst = datetime.now(kst).strftime('%Y-%m-%d %H:%M KST')
     
@@ -140,25 +140,39 @@ def format_news_message(articles_by_keyword):
     
     for keyword, articles in articles_by_keyword.items():
         if articles:
+            # 키워드당 최대 2개만! (메시지 길이 제한)
+            limited = articles[:2]
             msg += f"🔍 <b>[{keyword}]</b>\n"
-            for art in articles:
+            for art in limited:
                 title = art['title']
-                if len(title) > 50:
-                    title = title[:47] + '...'
+                if len(title) > 40:
+                    title = title[:37] + '...'
                 msg += f"  • {title}\n"
-                msg += f"    🔗 {art['url']}\n"
                 total_count += 1
+            
+            if len(articles) > 2:
+                msg += f"    (+{len(articles) - 2}건 더)\n"
             msg += "\n"
+            
+            # 3000자 넘으면 중단
+            if len(msg) > 3000:
+                msg += "📌 (나머지 생략...)\n"
+                break
     
     if total_count == 0:
         msg += "오늘은 새 뉴스가 없습니다. 🤷\n"
     else:
         msg += f"━━━━━━━━━━━━━━━━━━━━━\n"
-        msg += f"📊 총 <b>{total_count}건</b>의 새 뉴스\n"
+        msg += f"📊 총 <b>{total_count}건</b> 표시\n"
     
     msg += f"⏰ {now_kst}"
     
+    # 최종 길이 체크
+    if len(msg) > 4000:
+        msg = msg[:3800] + "\n\n📌 (길이 초과로 생략)\n" + f"⏰ {now_kst}"
+    
     return msg
+
 
 
 def main(mode='news'):
