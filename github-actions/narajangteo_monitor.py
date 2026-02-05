@@ -165,6 +165,10 @@ def extract_items(data):
 def filter_by_keywords(items, source_type):
     """키워드로 필터링 + 링크 생성"""
     filtered = []
+    keyword_counts = {kw: 0 for kw in KEYWORDS}
+    
+    print(f"\n[{source_type}] 키워드 필터링 시작 ({len(items)}건 대상)")
+    print(f"  검색 키워드: {', '.join(KEYWORDS[:5])}...")
     
     for item in items:
         # 제목 가져오기 (API마다 필드명 다름)
@@ -181,6 +185,7 @@ def filter_by_keywords(items, source_type):
         for keyword in KEYWORDS:
             if keyword.lower() in title_lower:
                 matched_keyword = keyword
+                keyword_counts[keyword] += 1
                 break
         
         if not matched_keyword:
@@ -213,6 +218,15 @@ def filter_by_keywords(items, source_type):
             'url': detail_url,
             'keyword': matched_keyword
         })
+        
+        print(f"  ✓ [{matched_keyword}] {title[:40]}...")
+    
+    # 키워드별 결과 요약
+    matched = {k: v for k, v in keyword_counts.items() if v > 0}
+    if matched:
+        print(f"  [결과] {', '.join([f'{k}:{v}건' for k, v in matched.items()])}")
+    else:
+        print(f"  [결과] 매칭된 키워드 없음")
     
     return filtered
 

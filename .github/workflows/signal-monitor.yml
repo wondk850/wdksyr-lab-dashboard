@@ -37,6 +37,7 @@ on:
           - news
           - bottomup
           - bid
+          - opengo
 
 
 jobs:
@@ -166,6 +167,14 @@ jobs:
           path: .
         continue-on-error: true
       
+      - name: Download opengo state
+        if: steps.mode.outputs.mode == 'bid' || steps.mode.outputs.mode == 'opengo'
+        uses: actions/download-artifact@v4
+        with:
+          name: opengo-state
+          path: .
+        continue-on-error: true
+      
       - name: Run Narajangteo Monitor
         if: steps.mode.outputs.mode == 'bid'
         env:
@@ -174,6 +183,16 @@ jobs:
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: |
           python github-actions/narajangteo_monitor.py bid
+          
+      - name: Run Open.go.kr Monitor
+        if: steps.mode.outputs.mode == 'bid' || steps.mode.outputs.mode == 'opengo'
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: |
+          pip install playwright
+          playwright install chromium
+          python github-actions/opengo_monitor.py opengo
       
       - name: Upload narajangteo state
         if: steps.mode.outputs.mode == 'bid'
@@ -181,5 +200,14 @@ jobs:
         with:
           name: narajangteo-state
           path: github-actions/narajangteo_sent.json
+          retention-days: 30
+          overwrite: true
+          
+      - name: Upload opengo state
+        if: steps.mode.outputs.mode == 'bid' || steps.mode.outputs.mode == 'opengo'
+        uses: actions/upload-artifact@v4
+        with:
+          name: opengo-state
+          path: github-actions/opengo_sent.json
           retention-days: 30
           overwrite: true
