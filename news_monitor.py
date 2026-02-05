@@ -148,11 +148,13 @@ def format_news_message(articles_by_keyword):
                 if len(title) > 40:
                     title = title[:37] + '...'
                 msg += f"  • {title}\n"
+                msg += f"    🔗 {art['url']}\n"
                 total_count += 1
             
             if len(articles) > 2:
                 msg += f"    (+{len(articles) - 2}건 더)\n"
             msg += "\n"
+
             
             # 3000자 넘으면 중단
             if len(msg) > 3000:
