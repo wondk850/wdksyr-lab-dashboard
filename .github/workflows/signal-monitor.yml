@@ -20,10 +20,13 @@ on:
     # 📊 장 마감 리포트 (KST 06:00 = UTC 21:00) - 월~금
     - cron: '0 21 * * 1-5'
     
+    # 🏛️ 나라장터 입찰공고 알림 (KST 11:00 = UTC 02:00) - 매일!
+    - cron: '0 2 * * *'
+    
   workflow_dispatch:
     inputs:
       mode:
-        description: 'Run mode (check, daily, report, news, bottomup)'
+        description: 'Run mode (check, daily, report, news, bottomup, bid)'
         required: true
         default: 'bottomup'
         type: choice
@@ -33,6 +36,7 @@ on:
           - report
           - news
           - bottomup
+          - bid
 
 
 jobs:
@@ -59,9 +63,15 @@ jobs:
         run: |
           HOUR=$(date -u +%H)
           
-          # KST 10:00~12:00 (UTC 01:00~03:00) = news (딜레이 대응!)
-          if [ "$HOUR" = "01" ] || [ "$HOUR" = "02" ] || [ "$HOUR" = "03" ]; then
+          # KST 10:00 (UTC 01:00) = news
+          if [ "$HOUR" = "01" ]; then
             echo "mode=news" >> $GITHUB_OUTPUT
+          # KST 11:00 (UTC 02:00) = bid (나라장터)
+          elif [ "$HOUR" = "02" ]; then
+            echo "mode=bid" >> $GITHUB_OUTPUT
+          # KST 12:00 (UTC 03:00) = check (기존 news 딜레이 대응 제거)
+          elif [ "$HOUR" = "03" ]; then
+            echo "mode=check" >> $GITHUB_OUTPUT
           # KST 22:30~23:29 (UTC 13:xx) = daily (장 1시간 전)
           elif [ "$HOUR" = "13" ]; then
             echo "mode=daily" >> $GITHUB_OUTPUT
@@ -92,7 +102,7 @@ jobs:
         continue-on-error: true
       
       - name: Run WDK LAB Monitor
-        if: steps.mode.outputs.mode != 'news' && steps.mode.outputs.mode != 'bottomup'
+        if: steps.mode.outputs.mode != 'news' && steps.mode.outputs.mode != 'bottomup' && steps.mode.outputs.mode != 'bid'
         env:
           FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
@@ -144,5 +154,32 @@ jobs:
         with:
           name: signal-state
           path: signal_state.json
+          retention-days: 30
+          overwrite: true
+      
+      # 🏛️ 나라장터 입찰공고 모니터링
+      - name: Download narajangteo state
+        if: steps.mode.outputs.mode == 'bid'
+        uses: actions/download-artifact@v4
+        with:
+          name: narajangteo-state
+          path: .
+        continue-on-error: true
+      
+      - name: Run Narajangteo Monitor
+        if: steps.mode.outputs.mode == 'bid'
+        env:
+          NARAJANGTEO_API_KEY: ${{ secrets.NARAJANGTEO_API_KEY }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_NEWS_CHAT_ID: ${{ secrets.TELEGRAM_NEWS_CHAT_ID }}
+        run: |
+          python github-actions/narajangteo_monitor.py bid
+      
+      - name: Upload narajangteo state
+        if: steps.mode.outputs.mode == 'bid'
+        uses: actions/upload-artifact@v4
+        with:
+          name: narajangteo-state
+          path: github-actions/narajangteo_sent.json
           retention-days: 30
           overwrite: true
