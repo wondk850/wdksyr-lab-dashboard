@@ -9,7 +9,7 @@ API_KEY = os.environ.get('NARAJANGTEO_API_KEY', '')
 
 # 텔레그램 설정
 TELEGRAM_BOT_TOKEN = os.environ.get('TELEGRAM_BOT_TOKEN', '8209005017:AAH1IOr7h49dI3lX2TSBNOrvMsQEIcHCouM')
-TELEGRAM_CHAT_ID = os.environ.get('TELEGRAM_NEWS_CHAT_ID', '-1003586903490')
+TELEGRAM_CHAT_ID = os.environ.get('TELEGRAM_CHAT_ID', '1489387702')
 
 # ===== 키워드 (제목에서 필터링) =====
 KEYWORDS = [
