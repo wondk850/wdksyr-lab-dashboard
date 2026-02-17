@@ -1,7 +1,7 @@
 {
   "version": "2.0",
-  "updated": "2026-02-18T02:10:48.191442+09:00",
-  "updated_display": "2026. 02. 18. AM 02:10:48",
+  "updated": "2026-02-18T05:29:46.375266+09:00",
+  "updated_display": "2026. 02. 18. AM 05:29:46",
   "count": 17,
   "total": 17,
   "weights": {
@@ -14,14 +14,14 @@
       "ticker": "NVDA",
       "error": false,
       "scores": {
-        "momentum": 0.1,
+        "momentum": 0.3,
         "fundamental": 0.74,
         "valuation": 0.54,
         "risk": -0.5,
-        "final": 0.54
+        "final": 0.59
       },
       "raw": {
-        "price": 184.12,
+        "price": 185.3965,
         "sma200": 171.6762,
         "52w_change": 0,
         "eps_growth": 0.653,
@@ -29,8 +29,8 @@
         "profit_margin": 0.53007,
         "roe": 1.07359,
         "fcf_margin": 0.2847189531371296,
-        "pe": 45.574257,
-        "forward_pe": 23.753832,
+        "pe": 45.890224,
+        "forward_pe": 23.92886,
         "peg": 2,
         "beta": 2.314
       },
@@ -47,7 +47,7 @@
         "final": 0.26
       },
       "raw": {
-        "price": 1043.0001,
+        "price": 1040.29,
         "sma200": 863.628,
         "52w_change": 0,
         "eps_growth": 0.505,
@@ -55,8 +55,8 @@
         "profit_margin": 0.31667,
         "roe": 1.01159,
         "fcf_margin": 0.02993295446533058,
-        "pe": 45.3873,
-        "forward_pe": 24.974491,
+        "pe": 45.269367,
+        "forward_pe": 24.909597,
         "peg": 2,
         "beta": 0.394
       },
@@ -73,7 +73,7 @@
         "final": 0.22
       },
       "raw": {
-        "price": 363.0351,
+        "price": 364.06,
         "sma200": 264.4866,
         "52w_change": 0,
         "eps_growth": 0.406,
@@ -81,8 +81,8 @@
         "profit_margin": 0.45099998,
         "roe": 0.35224,
         "fcf_margin": 0.16253106936993011,
-        "pe": 34.410908,
-        "forward_pe": 20.198353,
+        "pe": 34.508057,
+        "forward_pe": 20.255377,
         "peg": 2,
         "beta": 1.272
       },
@@ -99,7 +99,7 @@
         "final": 0.21
       },
       "raw": {
-        "price": 261.62,
+        "price": 264.29,
         "sma200": 240.0591,
         "52w_change": 0,
         "eps_growth": 0.159,
@@ -107,8 +107,8 @@
         "profit_margin": 0.27037,
         "roe": 1.5202099,
         "fcf_margin": 0.2440509709059201,
-        "pe": 33.116455,
-        "forward_pe": 28.181486,
+        "pe": 33.45443,
+        "forward_pe": 28.46784,
         "peg": 2,
         "beta": 1.107
       },
@@ -125,7 +125,7 @@
         "final": 0.16
       },
       "raw": {
-        "price": 319.49,
+        "price": 320.46,
         "sma200": 344.63065,
         "52w_change": 0,
         "eps_growth": 0.143,
@@ -133,8 +133,8 @@
         "profit_margin": 0.50233,
         "roe": 0.53954,
         "fcf_margin": 0.5322956688247912,
-        "pe": 29.999062,
-        "forward_pe": 21.983881,
+        "pe": 30.090141,
+        "forward_pe": 22.053814,
         "peg": 2,
         "beta": 0.78
       },
@@ -151,7 +151,7 @@
         "final": 0.1
       },
       "raw": {
-        "price": 1419.14,
+        "price": 1419.65,
         "sma200": 945.232,
         "52w_change": 0,
         "eps_growth": 0.054,
@@ -159,8 +159,8 @@
         "profit_margin": 0.29416,
         "roe": 0.50458,
         "fcf_margin": 0.38833863190818285,
-        "pe": 48.501026,
-        "forward_pe": 32.10682,
+        "pe": 48.518456,
+        "forward_pe": 32.11836,
         "peg": 2,
         "beta": 1.462
       },
@@ -177,7 +177,7 @@
         "final": 0.08
       },
       "raw": {
-        "price": 397.59,
+        "price": 396.47,
         "sma200": 487.38156,
         "52w_change": 0,
         "eps_growth": 0.595,
@@ -185,8 +185,8 @@
         "profit_margin": 0.39044,
         "roe": 0.34390998,
         "fcf_margin": 0.17561007740445236,
-        "pe": 24.896055,
-        "forward_pe": 21.092766,
+        "pe": 24.825924,
+        "forward_pe": 21.033348,
         "peg": 2,
         "beta": 1.084
       },
@@ -200,10 +200,10 @@
         "fundamental": -0.14,
         "valuation": 0.58,
         "risk": 0.5,
-        "final": 0.06
+        "final": 0.07
       },
       "raw": {
-        "price": 301.42,
+        "price": 301.55,
         "sma200": 242.85425,
         "52w_change": 0,
         "eps_growth": 0.298,
@@ -211,8 +211,8 @@
         "profit_margin": 0.32810003,
         "roe": 0.35705003,
         "fcf_margin": 0.09455057798872078,
-        "pe": 27.857674,
-        "forward_pe": 22.543913,
+        "pe": 27.869686,
+        "forward_pe": 22.56025,
         "peg": 2,
         "beta": 1.086
       },
@@ -229,7 +229,7 @@
         "final": 0.06
       },
       "raw": {
-        "price": 329.3,
+        "price": 325.97,
         "sma200": 280.0889,
         "52w_change": 0,
         "eps_growth": 0.338,
@@ -237,8 +237,8 @@
         "profit_margin": 0.18982,
         "roe": 0.44692,
         "fcf_margin": 0.11364082379847983,
-        "pe": 40.95771,
-        "forward_pe": 38.730194,
+        "pe": 40.543533,
+        "forward_pe": 38.338543,
         "peg": 2,
         "beta": 1.384
       },
@@ -250,12 +250,12 @@
       "scores": {
         "momentum": -0.3,
         "fundamental": -0.21,
-        "valuation": 0.61,
+        "valuation": 0.6,
         "risk": 0.5,
         "final": -0.07
       },
       "raw": {
-        "price": 636.84,
+        "price": 641.065,
         "sma200": 688.8577,
         "52w_change": 0,
         "eps_growth": 0.093,
@@ -263,8 +263,8 @@
         "profit_margin": 0.30084,
         "roe": 0.30238,
         "fcf_margin": 0.11659870164587598,
-        "pe": 27.12266,
-        "forward_pe": 17.86323,
+        "pe": 27.302599,
+        "forward_pe": 17.98199,
         "peg": 2,
         "beta": 1.284
       },
@@ -281,7 +281,7 @@
         "final": -0.07
       },
       "raw": {
-        "price": 764.1951,
+        "price": 765.0,
         "sma200": 487.5859,
         "52w_change": 0,
         "eps_growth": -0.139,
@@ -289,8 +289,8 @@
         "profit_margin": 0.13144,
         "roe": 0.43526,
         "fcf_margin": 0.08638609985285331,
-        "pe": 40.627068,
-        "forward_pe": 27.840727,
+        "pe": 40.669857,
+        "forward_pe": 27.87005,
         "peg": 2,
         "beta": 1.554
       },
@@ -307,7 +307,7 @@
         "final": -0.11
       },
       "raw": {
-        "price": 305.85,
+        "price": 307.12,
         "sma200": 296.9867,
         "52w_change": 0,
         "eps_growth": -0.07,
@@ -315,8 +315,8 @@
         "profit_margin": 0.3391,
         "roe": 0.16134001,
         "fcf_margin": 0.0,
-        "pe": 15.269595,
-        "forward_pe": 13.1837635,
+        "pe": 15.333,
+        "forward_pe": 13.238507,
         "peg": 2,
         "beta": 1.053
       },
@@ -328,12 +328,12 @@
       "scores": {
         "momentum": 0.3,
         "fundamental": -0.51,
-        "valuation": 0.42,
+        "valuation": 0.43,
         "risk": 0.5,
         "final": -0.12
       },
       "raw": {
-        "price": 129.15,
+        "price": 129.0,
         "sma200": 104.7673,
         "52w_change": 0,
         "eps_growth": 0.342,
@@ -341,8 +341,8 @@
         "profit_margin": 0.03259,
         "roe": 0.23661,
         "fcf_margin": 0.014753699631492173,
-        "pe": 45.0,
-        "forward_pe": 43.58008,
+        "pe": 44.94774,
+        "forward_pe": 43.529465,
         "peg": 2,
         "beta": 0.671
       },
@@ -359,7 +359,7 @@
         "final": -0.15
       },
       "raw": {
-        "price": 1013.36,
+        "price": 1011.59,
         "sma200": 951.9207,
         "52w_change": 0,
         "eps_growth": 0.113,
@@ -367,8 +367,8 @@
         "profit_margin": 0.02961,
         "roe": 0.30325,
         "fcf_margin": 0.025572327385158144,
-        "pe": 54.364807,
-        "forward_pe": 45.513954,
+        "pe": 54.26985,
+        "forward_pe": 45.434456,
         "peg": 2,
         "beta": 1.008
       },
@@ -380,12 +380,12 @@
       "scores": {
         "momentum": 0.3,
         "fundamental": -0.72,
-        "valuation": 0.61,
+        "valuation": 0.62,
         "risk": -0.3,
         "final": -0.2
       },
       "raw": {
-        "price": 146.125,
+        "price": 146.05,
         "sma200": 115.52815,
         "52w_change": 0,
         "eps_growth": -0.146,
@@ -393,8 +393,8 @@
         "profit_margin": 0.089049995,
         "roe": 0.110810004,
         "fcf_margin": 0.03989981811460752,
-        "pe": 21.809702,
-        "forward_pe": 17.493044,
+        "pe": 21.798508,
+        "forward_pe": 17.484066,
         "peg": 2,
         "beta": 0.358
       },
@@ -411,7 +411,7 @@
         "final": -0.24
       },
       "raw": {
-        "price": 200.6399,
+        "price": 200.69,
         "sma200": 223.62206,
         "52w_change": 0,
         "eps_growth": 0.059,
@@ -419,8 +419,8 @@
         "profit_margin": 0.108339995,
         "roe": 0.22286,
         "fcf_margin": 0.0331877933663955,
-        "pe": 27.944275,
-        "forward_pe": 21.600893,
+        "pe": 27.951254,
+        "forward_pe": 21.663172,
         "peg": 2,
         "beta": 1.385
       },
@@ -437,7 +437,7 @@
         "final": -0.64
       },
       "raw": {
-        "price": 406.945,
+        "price": 410.5262,
         "sma200": 385.1617,
         "52w_change": 0,
         "eps_growth": -0.605,
@@ -445,8 +445,8 @@
         "profit_margin": 0.040009998,
         "roe": 0.049250003,
         "fcf_margin": 0.03936246788708833,
-        "pe": 373.34402,
-        "forward_pe": 145.1136,
+        "pe": 376.62955,
+        "forward_pe": 146.39064,
         "peg": 2,
         "beta": 1.887
       },
