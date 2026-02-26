@@ -1,7 +1,7 @@
 {
   "version": "2.0",
-  "updated": "2026-02-27T06:03:50.810116+09:00",
-  "updated_display": "2026. 02. 27. AM 06:03:50",
+  "updated": "2026-02-27T06:29:47.511323+09:00",
+  "updated_display": "2026. 02. 27. AM 06:29:47",
   "count": 17,
   "total": 17,
   "weights": {
@@ -22,7 +22,7 @@
       },
       "raw": {
         "price": 184.89,
-        "sma200": 173.57535,
+        "sma200": 174.34525,
         "52w_change": 0,
         "eps_growth": 0.653,
         "revenue_growth": 0.625,
@@ -48,7 +48,7 @@
       },
       "raw": {
         "price": 272.95,
-        "sma200": 241.5141,
+        "sma200": 242.27725,
         "52w_change": 0,
         "eps_growth": 0.159,
         "revenue_growth": 0.157,
@@ -73,16 +73,16 @@
         "final": 0.26
       },
       "raw": {
-        "price": 1021.95,
-        "sma200": 868.8013,
+        "price": 1022.02,
+        "sma200": 871.5153,
         "52w_change": 0,
         "eps_growth": 0.505,
         "revenue_growth": 0.426,
         "profit_margin": 0.31667,
         "roe": 1.01159,
         "fcf_margin": 0.02993295446533058,
-        "pe": 44.548824,
-        "forward_pe": 24.40067,
+        "pe": 44.551876,
+        "forward_pe": 24.40234,
         "peg": 2,
         "beta": 0.394
       },
@@ -99,16 +99,16 @@
         "final": 0.22
       },
       "raw": {
-        "price": 376.8302,
-        "sma200": 269.2869,
+        "price": 376.81,
+        "sma200": 271.4055,
         "52w_change": 0,
         "eps_growth": 0.406,
         "revenue_growth": 0.205,
         "profit_margin": 0.45099998,
         "roe": 0.35224,
         "fcf_margin": 0.16253106936993011,
-        "pe": 35.718502,
-        "forward_pe": 20.965878,
+        "pe": 35.716587,
+        "forward_pe": 20.964754,
         "peg": 2,
         "beta": 1.272
       },
@@ -125,16 +125,16 @@
         "final": 0.16
       },
       "raw": {
-        "price": 316.79,
-        "sma200": 343.9022,
+        "price": 316.7,
+        "sma200": 343.49765,
         "52w_change": 0,
         "eps_growth": 0.143,
         "revenue_growth": 0.146,
         "profit_margin": 0.50233,
         "roe": 0.53954,
         "fcf_margin": 0.5322956688247912,
-        "pe": 29.773497,
-        "forward_pe": 21.798893,
+        "pe": 29.765038,
+        "forward_pe": 21.7927,
         "peg": 2,
         "beta": 0.78
       },
@@ -152,7 +152,7 @@
       },
       "raw": {
         "price": 1463.8,
-        "sma200": 964.8046,
+        "sma200": 972.8841,
         "52w_change": 0,
         "eps_growth": 0.054,
         "revenue_growth": 0.049,
@@ -178,7 +178,7 @@
       },
       "raw": {
         "price": 401.72,
-        "sma200": 486.63754,
+        "sma200": 486.22794,
         "52w_change": 0,
         "eps_growth": 0.595,
         "revenue_growth": 0.167,
@@ -204,7 +204,7 @@
       },
       "raw": {
         "price": 307.38,
-        "sma200": 246.46976,
+        "sma200": 248.06046,
         "52w_change": 0,
         "eps_growth": 0.298,
         "revenue_growth": 0.18,
@@ -229,16 +229,16 @@
         "final": 0.06
       },
       "raw": {
-        "price": 340.98,
-        "sma200": 283.305,
+        "price": 340.84,
+        "sma200": 284.6256,
         "52w_change": 0,
         "eps_growth": 0.338,
         "revenue_growth": 0.176,
         "profit_margin": 0.18982,
         "roe": 0.44692,
         "fcf_margin": 0.11364082379847983,
-        "pe": 42.30521,
-        "forward_pe": 39.985645,
+        "pe": 42.287838,
+        "forward_pe": 39.969227,
         "peg": 2,
         "beta": 1.384
       },
@@ -256,7 +256,7 @@
       },
       "raw": {
         "price": 657.01,
-        "sma200": 690.43463,
+        "sma200": 690.9255,
         "52w_change": 0,
         "eps_growth": 0.093,
         "revenue_growth": 0.238,
@@ -281,16 +281,16 @@
         "final": -0.07
       },
       "raw": {
-        "price": 752.85,
-        "sma200": 498.5987,
+        "price": 752.93,
+        "sma200": 503.0502,
         "52w_change": 0,
         "eps_growth": -0.139,
         "revenue_growth": 0.18,
         "profit_margin": 0.13144,
         "roe": 0.43526,
         "fcf_margin": 0.08638609985285331,
-        "pe": 40.087856,
-        "forward_pe": 27.337723,
+        "pe": 40.092117,
+        "forward_pe": 27.340628,
         "peg": 2,
         "beta": 1.554
       },
@@ -307,16 +307,16 @@
         "final": -0.11
       },
       "raw": {
-        "price": 306.11,
-        "sma200": 298.41965,
+        "price": 306.13,
+        "sma200": 298.90836,
         "52w_change": 0,
         "eps_growth": -0.07,
         "revenue_growth": 0.025,
         "profit_margin": 0.3391,
         "roe": 0.16134001,
         "fcf_margin": 0.0,
-        "pe": 15.290209,
-        "forward_pe": 13.030215,
+        "pe": 15.291208,
+        "forward_pe": 13.031068,
         "peg": 2,
         "beta": 1.053
       },
@@ -334,7 +334,7 @@
       },
       "raw": {
         "price": 986.74,
-        "sma200": 951.6207,
+        "sma200": 951.5124,
         "52w_change": 0,
         "eps_growth": 0.113,
         "revenue_growth": 0.083,
@@ -359,16 +359,16 @@
         "final": -0.2
       },
       "raw": {
-        "price": 148.55,
-        "sma200": 116.62955,
+        "price": 148.54,
+        "sma200": 117.06775,
         "52w_change": 0,
         "eps_growth": -0.146,
         "revenue_growth": -0.013,
         "profit_margin": 0.089049995,
         "roe": 0.110810004,
         "fcf_margin": 0.03775721256665287,
-        "pe": 22.204784,
-        "forward_pe": 17.79076,
+        "pe": 22.203287,
+        "forward_pe": 17.789562,
         "peg": 2,
         "beta": 0.358
       },
@@ -386,7 +386,7 @@
       },
       "raw": {
         "price": 207.92,
-        "sma200": 224.07315,
+        "sma200": 224.2652,
         "52w_change": 0,
         "eps_growth": 0.059,
         "revenue_growth": 0.136,
@@ -412,7 +412,7 @@
       },
       "raw": {
         "price": 124.42,
-        "sma200": 105.45655,
+        "sma200": 105.73775,
         "52w_change": 0,
         "eps_growth": -0.194,
         "revenue_growth": 0.056,
@@ -438,7 +438,7 @@
       },
       "raw": {
         "price": 408.58,
-        "sma200": 388.36075,
+        "sma200": 389.68945,
         "52w_change": 0,
         "eps_growth": -0.605,
         "revenue_growth": -0.031,
