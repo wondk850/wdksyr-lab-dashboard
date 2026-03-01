@@ -1,7 +1,7 @@
 {
   "version": "3.0",
-  "updated": "2026-03-02T01:24:51.531541+09:00",
-  "updated_display": "2026. 03. 02. AM 01:24:51",
+  "updated": "2026-03-02T01:39:22.849637+09:00",
+  "updated_display": "2026. 03. 02. AM 01:39:22",
   "count": 17,
   "total": 17,
   "weights": {
@@ -14,7 +14,7 @@
       "ticker": "NVDA",
       "error": false,
       "scores": {
-        "momentum": -0.45,
+        "momentum": -0.46,
         "fundamental": 0.71,
         "valuation": 0.6,
         "risk": -0.5,
@@ -72,7 +72,7 @@
       "ticker": "LLY",
       "error": false,
       "scores": {
-        "momentum": 0.15,
+        "momentum": 0.16,
         "fundamental": 0.09,
         "valuation": 0.53,
         "risk": -0.3,
@@ -130,7 +130,7 @@
       "ticker": "TSM",
       "error": false,
       "scores": {
-        "momentum": 0.3,
+        "momentum": 0.31,
         "fundamental": -0.07,
         "valuation": 0.57,
         "risk": 0.5,
@@ -159,7 +159,7 @@
       "ticker": "MSFT",
       "error": false,
       "scores": {
-        "momentum": 0.22,
+        "momentum": 0.2,
         "fundamental": -0.06,
         "valuation": 0.59,
         "risk": 0.5,
@@ -188,11 +188,11 @@
       "ticker": "GE",
       "error": false,
       "scores": {
-        "momentum": 0.29,
+        "momentum": 0.31,
         "fundamental": -0.29,
         "valuation": 0.44,
         "risk": 0.5,
-        "final": 0.0
+        "final": 0.01
       },
       "raw": {
         "price": 342.26,
@@ -217,7 +217,7 @@
       "ticker": "GOOGL",
       "error": false,
       "scores": {
-        "momentum": -0.05,
+        "momentum": -0.06,
         "fundamental": -0.23,
         "valuation": 0.57,
         "risk": 0.5,
@@ -246,7 +246,7 @@
       "ticker": "META",
       "error": false,
       "scores": {
-        "momentum": 0.05,
+        "momentum": 0.04,
         "fundamental": -0.29,
         "valuation": 0.6,
         "risk": 0.5,
@@ -275,7 +275,7 @@
       "ticker": "ASML",
       "error": false,
       "scores": {
-        "momentum": -0.11,
+        "momentum": -0.1,
         "fundamental": -0.23,
         "valuation": 0.48,
         "risk": 0.5,
@@ -304,7 +304,7 @@
       "ticker": "AMZN",
       "error": false,
       "scores": {
-        "momentum": 0.26,
+        "momentum": 0.25,
         "fundamental": -0.57,
         "valuation": 0.57,
         "risk": 0.5,
@@ -333,7 +333,7 @@
       "ticker": "JPM",
       "error": false,
       "scores": {
-        "momentum": -0.02,
+        "momentum": -0.03,
         "fundamental": -0.53,
         "valuation": 0.65,
         "risk": 0.5,
@@ -362,7 +362,7 @@
       "ticker": "CAT",
       "error": false,
       "scores": {
-        "momentum": -0.08,
+        "momentum": -0.07,
         "fundamental": -0.51,
         "valuation": 0.53,
         "risk": -0.5,
@@ -391,7 +391,7 @@
       "ticker": "COST",
       "error": false,
       "scores": {
-        "momentum": 0.16,
+        "momentum": 0.18,
         "fundamental": -0.63,
         "valuation": 0.4,
         "risk": 0.5,
@@ -420,11 +420,11 @@
       "ticker": "XOM",
       "error": false,
       "scores": {
-        "momentum": 0.11,
+        "momentum": 0.13,
         "fundamental": -0.76,
         "valuation": 0.61,
         "risk": -0.3,
-        "final": -0.27
+        "final": -0.26
       },
       "raw": {
         "price": 152.5,
@@ -449,7 +449,7 @@
       "ticker": "WMT",
       "error": false,
       "scores": {
-        "momentum": 0.1,
+        "momentum": 0.11,
         "fundamental": -0.77,
         "valuation": 0.45,
         "risk": 0.5,
@@ -478,11 +478,11 @@
       "ticker": "TSLA",
       "error": false,
       "scores": {
-        "momentum": 0.17,
+        "momentum": 0.15,
         "fundamental": -0.97,
         "valuation": -0.65,
         "risk": -0.5,
-        "final": -0.62
+        "final": -0.63
       },
       "raw": {
         "price": 402.51,
