@@ -576,26 +576,32 @@ def format_morning_digest(result, bottomup_scores=None, state=None):
     return msg
 
 
-def format_emergency_alert(result, trigger):
-    """🚨 Emergency Alert: VIX 급등 또는 Composite 급락"""
+def format_emergency_alert(result):
+    """🚨 3단계: Emergency Alert (VIX 급등)"""
     kst = timezone(timedelta(hours=9))
     now_kst = datetime.now(kst)
 
-    if trigger == 'vix':
-        lvl = '🚨 공포' if result['vix'] >= 30 else '⚠️ 경계'
-        msg = f"""{lvl} <b>VIX Alert!</b>
+    lvl = '🚨 공포' if result['vix'] >= 30 else '⚠️ 경계'
+    msg = f"""{lvl} <b>VIX Alert!</b>
 
 <b>VIX: {result['vix']:.1f}</b> {'(시장 공포 구간!)' if result['vix'] >= 30 else '(경계 구간)'}
 📊 Composite: {result['composite']:+.2f} / Signal: {result['signal']}
 
-💡 구엤적으로 편성 치편 시 매수 기회 검토
+💡 구체적으로 편입 가능한 종목 매수 기회 검토
 ⚠️ 하락이 더 올 수 있음!
 
 ⏰ {now_kst.strftime('%H:%M KST')}"""
-    else:  # composite 실패
-        msg = f"""🚨 <b>Signal 변경!</b>
+    return msg
 
-신호: → {result['signal']}
+
+def format_signal_alert(result, previous_signal):
+    """🚨 2단계: Signal Alert (신호 변경 시)"""
+    kst = timezone(timedelta(hours=9))
+    now_kst = datetime.now(kst)
+
+    msg = f"""🚨 <b>Signal 변경!</b>
+
+신호: {previous_signal} → <b>{result['signal']}</b>
 📊 Composite: {result['composite']:+.2f}
 • VIX: {result['vix']:.1f}
 • Spread: {result['spread']:+.2f}%
@@ -645,7 +651,7 @@ def main(mode='check'):
         # 🚨 2단계: Signal Alert (변경시만)
         if previous_signal and previous_signal != result['signal']:
             print(f"[Signal] Changed! {previous_signal} → {result['signal']}")
-            msg = format_emergency_alert(result, trigger='composite')
+            msg = format_signal_alert(result, previous_signal)
             send_telegram(msg)
         else:
             print(f"[Signal] No change ({result['signal']})")
