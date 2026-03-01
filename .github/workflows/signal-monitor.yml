@@ -116,6 +116,7 @@ jobs:
         env:
           GIST_ID: ${{ secrets.GIST_ID }}
           GIST_TOKEN: ${{ secrets.GIST_TOKEN }}
+          FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
         run: |
           python generate_bottomup_data.py
       

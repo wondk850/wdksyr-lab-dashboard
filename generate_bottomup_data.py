@@ -43,6 +43,9 @@ OUTPUT_FILE = 'bottomup_data.json'
 GIST_ID    = os.environ.get('GIST_ID', '')
 GIST_TOKEN = os.environ.get('GIST_TOKEN', '')
 
+# FRED API (탑다운 데이터용 — wdklab_monitor.py와 동일 키)
+FRED_API_KEY = os.environ.get('FRED_API_KEY', 'bd2f35437a05410f3f72fa653ab8935c')
+
 
 # ===== 유틸리티 =====
 
@@ -259,11 +262,11 @@ def normalize_and_score(metrics):
     # RSI 정규화: 30~70이 정상 구간. 70 초과(과매수) → 패널티, 30 미만(과매도) → 보너스
     def rsi_to_score(rsi):
         if rsi >= 70:
-            return -0.5  # 과매수 패널티
+            return -0.8  # 과매수 패널티 (대칭)
         elif rsi <= 30:
             return 0.8   # 과매도 = 반등 기대 보너스
         else:
-            return (rsi - 50) / 20 * 0.5  # 30~70 선형: -0.5 ~ +0.5
+            return (rsi - 50) / 25 * 0.8  # 30~70 선형: -0.64 ~ +0.64
 
     rsi_scores = [rsi_to_score(m['rsi']) for m in valid_metrics]
 
@@ -363,6 +366,69 @@ def normalize_and_score(metrics):
     return results
 
 
+# ===== 탑다운 미니 조회 (Gist 스냅샷용) =====
+
+def fetch_topdown_mini():
+    """
+    FRED에서 VIX + 핵심 지표만 빠르게 조회 → Gist 스냅샷의 td 필드용
+    wdklab_monitor.py의 calculate_signal()과 동일 로직의 축약 버전
+    """
+    try:
+        def fred_latest(series_id):
+            url = 'https://api.stlouisfed.org/fred/series/observations'
+            params = {
+                'series_id': series_id, 'api_key': FRED_API_KEY,
+                'file_type': 'json', 'sort_order': 'desc', 'limit': 30
+            }
+            r = requests.get(url, params=params, timeout=15)
+            r.raise_for_status()
+            for obs in r.json().get('observations', []):
+                if obs['value'] not in ['.', '']:
+                    return float(obs['value'])
+            return None
+
+        vix   = fred_latest('VIXCLS') or 20.0
+        dgs2  = fred_latest('DGS2')  or 0.0
+        dgs10 = fred_latest('DGS10') or 0.0
+        baa   = fred_latest('BAMLC0A0CM') or 2.0
+
+        # === Context 계산 ===
+        context_scores = []
+        # VIX
+        if vix <= 18:    context_scores.append(1)
+        elif vix >= 30:  context_scores.append(-1)
+        else:            context_scores.append(0)
+        # 10Y-2Y 스프레드
+        spread = dgs10 - dgs2
+        if spread >= 0.25:   context_scores.append(1)
+        elif spread <= -0.25: context_scores.append(-1)
+        else:                 context_scores.append(0)
+        # BAA
+        if baa <= 2.0:   context_scores.append(1)
+        elif baa >= 3.0: context_scores.append(-1)
+        else:            context_scores.append(0)
+
+        context_mean = sum(context_scores) / len(context_scores)
+        context_signal = 1 if context_mean > 0.33 else (-1 if context_mean < -0.33 else 0)
+
+        # Composite (context만 사용 — FRED King/Queen은 월 단위라 daily에서 변동 없음)
+        # 장중 업데이트에선 context(VIX/스프레드)가 의미있는 변동 반영
+        comp = round(context_signal * 0.2 + (1 - vix / 50) * 0.3, 2)  # -1~+1 범위
+        comp = max(-1.0, min(1.0, comp))
+
+        print(f"[TOPDOWN] VIX:{vix:.1f} Spread:{spread:.2f} BAA:{baa:.2f} → Comp:{comp}")
+        return {
+            'comp': comp,
+            'vix': round(vix, 1),
+            'spread': round(spread, 2),
+            'baa': round(baa, 2)
+        }
+
+    except Exception as e:
+        print(f"[TOPDOWN] ❌ FRED 조회 실패: {e}")
+        return None
+
+
 # ===== Gist 히스토리 업데이트 =====
 
 def push_to_gist(snapshot):
@@ -448,7 +514,11 @@ def main():
         json.dump(output, f, ensure_ascii=False, indent=2)
     print(f"\n✅ {OUTPUT_FILE} 저장 완료")
 
-    # 7. Gist 히스토리 업데이트 (Phase 2)
+    # 7. 탑다운 미니 데이터 조회
+    print("\n🚦 탑다운 데이터 조회 중...")
+    td = fetch_topdown_mini()
+
+    # 8. Gist 히스토리 업데이트 (Phase 2)
     valid_bu = [r for r in results if not r.get('error', False)]
     snapshot = {
         'd': today_str,
@@ -462,6 +532,8 @@ def main():
             for r in valid_bu
         ]
     }
+    if td:
+        snapshot['td'] = td
     push_to_gist(snapshot)
 
     # 8. 결과 출력
