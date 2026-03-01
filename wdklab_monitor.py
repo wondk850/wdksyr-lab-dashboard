@@ -504,7 +504,7 @@ def get_economic_calendar():
 
 
 def format_morning_digest(result, bottomup_scores=None, state=None):
-    """🌅 Morning Digest: Composite Δ, 탑다운, 바텐업 TOP5, 경제캘린더"""
+    """🌅 Morning Digest: Composite Δ, 탑다운, 바텀업 TOP5, 경제캘린더"""
     signal_emoji = {'GREEN': '🟢 GREEN — 비중 확대',
                     'YELLOW': '🟡 YELLOW — 비중 유지',
                     'RED': '🔴 RED — 비중 축소'}
@@ -565,7 +565,7 @@ def format_morning_digest(result, bottomup_scores=None, state=None):
 🚦 <b>Today's Signal:</b>
 {sig_text}
 
-<b>📊 핑다운 지표:</b>
+<b>📊 탑다운 지표:</b>
 • Composite: {curr_comp:+.2f}{delta_str}
 • VIX: {result['vix']:.1f}
 • 10Y-2Y Spread: {result['spread']:+.2f}%
@@ -655,8 +655,8 @@ def main(mode='check'):
         state['last_vix_alert'] = vix_alert_status
 
     elif mode == 'bottomup':
-        # 바텐업 전용 맰 (알람 없음, generate_bottomup_data.py가 따로 실행됨)
-        print("[bottomup mode] 바텐업 스크립트 분리 실행 중 — 신호 재계산만")
+        # 바텀업 전용 런 (알람 없음, generate_bottomup_data.py가 따로 실행됨)
+        print("[bottomup mode] 바텀업 스크립트 분리 실행 중 — 신호 재계산만")
         pass
 
     # 상태 저장
