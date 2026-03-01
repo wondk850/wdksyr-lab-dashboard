@@ -13,6 +13,7 @@ from datetime import datetime, timezone, timedelta
 FRED_API_KEY = os.environ.get('FRED_API_KEY', 'bd2f35437a05410f3f72fa653ab8935c')
 TELEGRAM_BOT_TOKEN = os.environ.get('TELEGRAM_BOT_TOKEN', '8209005017:AAH1IOr7h49dI3lX2TSBNOrvMsQEIcHCouM')
 TELEGRAM_CHAT_ID = os.environ.get('TELEGRAM_CHAT_ID', '1489387702')
+FINNHUB_TOKEN = os.environ.get('FINNHUB_TOKEN', '')
 
 # FRED 시리즈 ID
 FRED_SERIES = {
@@ -446,123 +447,222 @@ def format_signal_message(result, is_change=False):
     return msg
 
 
-def format_daily_report(result, bottomup_scores=None):
-    """일일 리포트 포맷팅 (바텀업 포함)"""
-    signal_emoji = {
-        'GREEN': '🟢 GREEN - 비중 확대',
-        'YELLOW': '🟡 YELLOW - 비중 유지',
-        'RED': '🔴 RED - 비중 축소'
-    }
-    
+def get_economic_calendar():
+    """
+    주요 경제 이벤트 D-N 카운트다운
+    Finnhub 성공 시 실제 이벤트, 실패 시 하드코딩 fallback
+    """
     kst = timezone(timedelta(hours=9))
-    now_kst = datetime.now(kst)
-    date_str = now_kst.strftime('%Y년 %m월 %d일 %A')
-    
-    msg = f"""📋 <b>WDK LAB Daily Report</b>
-{date_str}
+    today = datetime.now(kst).date()
+
+    events = []
+
+    # Finnhub 시도
+    if FINNHUB_TOKEN:
+        try:
+            from_date = today.strftime('%Y-%m-%d')
+            to_date   = (today + timedelta(days=30)).strftime('%Y-%m-%d')
+            r = requests.get(
+                'https://finnhub.io/api/v1/calendar/economic',
+                params={'token': FINNHUB_TOKEN, 'from': from_date, 'to': to_date},
+                timeout=10
+            )
+            data = r.json().get('economicCalendar', [])
+            keywords = ['FOMC', 'Federal Reserve', 'CPI', 'PCE', 'Nonfarm', 'GDP', 'Unemployment']
+            for ev in data:
+                name = ev.get('event', '')
+                if any(k.lower() in name.lower() for k in keywords):
+                    ev_date = datetime.strptime(ev['time'][:10], '%Y-%m-%d').date()
+                    diff = (ev_date - today).days
+                    if 0 <= diff <= 30:
+                        events.append({'name': name[:30], 'days': diff})
+            events.sort(key=lambda x: x['days'])
+            events = events[:4]
+            if events:
+                print(f"[CAL] Finnhub 성공: {len(events)}개 이벤트")
+                return events
+        except Exception as e:
+            print(f"[CAL] Finnhub 실패: {e} — fallback 사용")
+
+    # Fallback: 하드코딩 주요 이벤트 (2026년)
+    hardcoded = [
+        {'name': 'FOMC 결정',  'date': '2026-04-30'},
+        {'name': 'FOMC 결정',  'date': '2026-06-18'},
+        {'name': 'CPI 발표',   'date': '2026-03-12'},
+        {'name': 'PCE 발표',   'date': '2026-03-28'},
+        {'name': 'Nonfarm 고용', 'date': '2026-04-03'},
+        {'name': 'CPI 발표',   'date': '2026-04-10'},
+        {'name': 'PCE 발표',   'date': '2026-04-30'},
+    ]
+    for ev in hardcoded:
+        ev_date = datetime.strptime(ev['date'], '%Y-%m-%d').date()
+        diff = (ev_date - today).days
+        if 0 <= diff <= 30:
+            events.append({'name': ev['name'], 'days': diff})
+    events.sort(key=lambda x: x['days'])
+    return events[:4]
+
+
+def format_morning_digest(result, bottomup_scores=None, state=None):
+    """🌅 Morning Digest: Composite Δ, 탑다운, 바텐업 TOP5, 경제캘린더"""
+    signal_emoji = {'GREEN': '🟢 GREEN — 비중 확대',
+                    'YELLOW': '🟡 YELLOW — 비중 유지',
+                    'RED': '🔴 RED — 비중 축소'}
+    kst = timezone(timedelta(hours=9))
+    now_kst  = datetime.now(kst)
+    date_str = now_kst.strftime('%m/%d (%a)')
+
+    # 신호등 심볼
+    sig_text = signal_emoji.get(result['signal'], result['signal'])
+
+    # 전일比 Composite 변화량
+    prev_comp  = state.get('prev_composite') if state else None
+    curr_comp  = result['composite']
+    if prev_comp is not None:
+        delta = curr_comp - prev_comp
+        delta_str = f" ({'+' if delta >= 0 else ''}{delta:.2f})"
+    else:
+        delta_str = ''
+
+    # 경제 캘린더
+    cal_events = get_economic_calendar()
+    cal_lines  = ''
+    if cal_events:
+        cal_lines = '\n\n📅 <b>예정 이벤트:</b>'
+        for ev in cal_events:
+            if ev['days'] == 0:
+                cal_lines += f'\n• ⚠️ {ev["name"]} — <b>오늘!</b>'
+            elif ev['days'] <= 3:
+                cal_lines += f'\n• 🔔 {ev["name"]} — D-{ev["days"]}'
+            else:
+                cal_lines += f'\n• {ev["name"]} — D-{ev["days"]}'
+
+    # 바텐업 TOP5
+    bu_lines = ''
+    if bottomup_scores and len(bottomup_scores) >= 5:
+        top5  = bottomup_scores[:5]
+        bu_lines = '\n\n🏆 <b>Bottom-Up TOP 5:</b>'
+        for i, s in enumerate(top5, 1):
+            # 전일 순위와 비교
+            prev_rank = (state.get('prev_bottomup_ranks') or {}).get(s['ticker'])
+            if prev_rank and prev_rank != i:
+                rank_arrow = '↑' if prev_rank > i else '↓'
+            else:
+                rank_arrow = ''
+            bu_lines += f'\n{i}. {s["ticker"]} ({s["score"]:+.2f}) {rank_arrow}'
+
+    # 흐름
+    action_hint = ''
+    if result['signal'] == 'GREEN':
+        action_hint = f'\n\n💡 <b>행동:</b> {top5[0]["ticker"] if bottomup_scores else ""} 비중 확대 검토'
+    elif result['signal'] == 'RED':
+        action_hint = '\n\n💡 <b>행동:</b> 신규 매수 자제, 현금 비중 확대'
+    else:
+        action_hint = '\n\n💡 <b>행동:</b> 관망, 분할매수 검토'
+
+    msg = f"""🌅 <b>WDK LAB Morning Digest</b> {date_str}
 
 🚦 <b>Today's Signal:</b>
-{signal_emoji.get(result['signal'], result['signal'])}
+{sig_text}
 
-<b>📊 Key Indicators:</b>
+<b>📊 핑다운 지표:</b>
+• Composite: {curr_comp:+.2f}{delta_str}
 • VIX: {result['vix']:.1f}
-• 10Y-2Y Spread: {result['spread']:.2f}%
+• 10Y-2Y Spread: {result['spread']:+.2f}%
 • PCE YoY: {result['pce_yoy']:.1f}%
-• 2Y Treasury Δ20d: {result['dgs2_change_bp']:.0f}bp
+• 2Y 변화: {result['dgs2_change_bp']:.0f}bp{bu_lines}{cal_lines}{action_hint}
 
-<b>📈 Composite Score:</b> {result['composite']:.2f}"""
-    
-    # 바텀업 추가
-    if bottomup_scores and len(bottomup_scores) >= 5:
-        top5 = bottomup_scores[:5]
-        worst3 = bottomup_scores[-3:]
-        
-        msg += "\n\n<b>🏆 Bottom-Up TOP 5:</b>"
-        for i, s in enumerate(top5, 1):
-            msg += f"\n{i}. {s['ticker']} ({s['score']:+.2f})"
-        
-        msg += "\n\n<b>⚠️ WORST 3:</b>"
-        for i, s in enumerate(reversed(worst3), 1):
-            msg += f"\n{i}. {s['ticker']} ({s['score']:+.2f})"
-        
-        # 추천
-        if result['signal'] == 'GREEN':
-            msg += f"\n\n💡 <b>추천:</b> {top5[0]['ticker']}, {top5[1]['ticker']} 비중 확대 고려"
-        elif result['signal'] == 'RED':
-            msg += f"\n\n💡 <b>추천:</b> 신규 매수 자제, 현금 비중 확대"
-        else:
-            msg += f"\n\n💡 <b>추천:</b> 관망, {top5[0]['ticker']} 분할 매수 고려"
-    
-    msg += "\n\nHave a great trading day! 🚀"
-    
+⏰ {now_kst.strftime('%H:%M KST')}"""
     return msg
+
+
+def format_emergency_alert(result, trigger):
+    """🚨 Emergency Alert: VIX 급등 또는 Composite 급락"""
+    kst = timezone(timedelta(hours=9))
+    now_kst = datetime.now(kst)
+
+    if trigger == 'vix':
+        lvl = '🚨 공포' if result['vix'] >= 30 else '⚠️ 경계'
+        msg = f"""{lvl} <b>VIX Alert!</b>
+
+<b>VIX: {result['vix']:.1f}</b> {'(시장 공포 구간!)' if result['vix'] >= 30 else '(경계 구간)'}
+📊 Composite: {result['composite']:+.2f} / Signal: {result['signal']}
+
+💡 구엤적으로 편성 치편 시 매수 기회 검토
+⚠️ 하락이 더 올 수 있음!
+
+⏰ {now_kst.strftime('%H:%M KST')}"""
+    else:  # composite 실패
+        msg = f"""🚨 <b>Signal 변경!</b>
+
+신호: → {result['signal']}
+📊 Composite: {result['composite']:+.2f}
+• VIX: {result['vix']:.1f}
+• Spread: {result['spread']:+.2f}%
+
+💡 포트폴리오 점검 권고
+
+⏰ {now_kst.strftime('%H:%M KST')}"""
+    return msg
+
 
 
 def main(mode='check'):
     """메인 함수"""
     print(f"[WDK LAB] Running in {mode} mode...")
-    
-    # 이전 상태 로드
+
     state = load_state()
-    
-    # === 중복 발송 방지 ===
     kst = timezone(timedelta(hours=9))
     now_kst = datetime.now(kst)
-    current_hour = now_kst.strftime('%Y-%m-%d-%H')  # 시간 단위로 체크
-    
+    current_hour = now_kst.strftime('%Y-%m-%d-%H')
+
     last_sent = state.get('last_sent', {})
-    last_sent_hour = last_sent.get(mode, '')
-    
-    if mode in ['daily', 'report'] and last_sent_hour == current_hour:
-        print(f"[SKIP] Already sent {mode} at {current_hour}, skipping duplicate...")
+    if mode in ['daily', 'report'] and last_sent.get(mode) == current_hour:
+        print(f"[SKIP] Already sent {mode} at {current_hour}")
         return
-    
+
     # 신호 계산
     result = calculate_signal()
-    print(f"[Signal] Current: {result['signal']} (score: {result['composite']:.2f})")
-    
+    print(f"[Signal] {result['signal']} (score: {result['composite']:.2f})")
     previous_signal = state.get('previous_signal')
-    
-    # VIX 알림 체크 (공포 구간!)
-    vix_alert_status = check_vix_alert(result['vix'], state)
-    state['last_vix_alert'] = vix_alert_status
-    
-    if mode == 'daily':
-        # 일일 리포트 (바텀업 포함!)
+
+    # ===== 향상된 3단계 알람 =====
+
+    if mode in ['daily', 'report']:
+        # 🌅 1단계: Morning Digest
         bottomup_scores = calculate_bottomup_scores()
-        msg = format_daily_report(result, bottomup_scores)
+        msg = format_morning_digest(result, bottomup_scores, state)
         send_telegram(msg)
-        # 발송 시간 기록
-        if 'last_sent' not in state:
-            state['last_sent'] = {}
-        state['last_sent']['daily'] = current_hour
-        
+        if 'last_sent' not in state: state['last_sent'] = {}
+        state['last_sent'][mode] = current_hour
+        # 전일 바텐업 순위 저장
+        state['prev_bottomup_ranks'] = {
+            s['ticker']: i+1 for i, s in enumerate(bottomup_scores)
+        }
+        state['prev_composite'] = result['composite']
+
     elif mode == 'check':
-        # 신호 변경 체크
+        # 🚨 2단계: Signal Alert (변경시만)
         if previous_signal and previous_signal != result['signal']:
             print(f"[Signal] Changed! {previous_signal} → {result['signal']}")
-            msg = format_signal_message(result, is_change=True)
+            msg = format_emergency_alert(result, trigger='composite')
             send_telegram(msg)
         else:
             print(f"[Signal] No change ({result['signal']})")
-            # 변경 없으면 알림 안 보냄 (로그만)
-    
-    elif mode == 'report':
-        # 신호 리포트 (바텀업 포함!)
-        bottomup_scores = calculate_bottomup_scores()
-        msg = format_daily_report(result, bottomup_scores)
-        send_telegram(msg)
-        # 발송 시간 기록
-        if 'last_sent' not in state:
-            state['last_sent'] = {}
-        state['last_sent']['report'] = current_hour
-    
+
+        # 🚨 3단계: Emergency (VIX 25+ 신규)
+        vix_alert_status = check_vix_alert(result['vix'], state)
+        state['last_vix_alert'] = vix_alert_status
+
+    elif mode == 'bottomup':
+        # 바텐업 전용 맰 (알람 없음, generate_bottomup_data.py가 따로 실행됨)
+        print("[bottomup mode] 바텐업 스크립트 분리 실행 중 — 신호 재계산만")
+        pass
+
     # 상태 저장
     state['previous_signal'] = result['signal']
     state['last_check'] = result['timestamp']
     save_state(state)
-    
-    print("[WDK LAB] Done!")
 
 
 if __name__ == '__main__':
