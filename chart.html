@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WDK LAB — 히스토리 차트</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+  <style>
+    :root {
+      --bg:        #0d1117;
+      --surface:   #161b22;
+      --border:    #30363d;
+      --text:      #e6edf3;
+      --muted:     #8b949e;
+      --green:     #3fb950;
+      --yellow:    #d29922;
+      --red:       #f85149;
+      --blue:      #58a6ff;
+      --purple:    #bc8cff;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      min-height: 100vh;
+    }
+
+    header {
+      padding: 20px 32px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--surface);
+    }
+    header h1 { font-size: 1.2rem; font-weight: 600; }
+    header .subtitle { font-size: 0.85rem; color: var(--muted); margin-top: 2px; }
+    header nav a {
+      color: var(--blue);
+      text-decoration: none;
+      font-size: 0.85rem;
+      margin-left: 16px;
+    }
+    header nav a:hover { text-decoration: underline; }
+
+    .status-bar {
+      padding: 10px 32px;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      font-size: 0.8rem;
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .status-bar .dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+    .dot.green { background: var(--green); }
+    .dot.yellow { background: var(--yellow); }
+    .dot.red { background: var(--red); }
+
+    main {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 28px 24px;
+    }
+
+    /* Loading / Error */
+    #loading, #error {
+      text-align: center;
+      padding: 80px 24px;
+      color: var(--muted);
+    }
+    #error { color: var(--red); }
+
+    /* Sections */
+    .section {
+      margin-bottom: 40px;
+    }
+    .section h2 {
+      font-size: 1rem;
+      font-weight: 600;
+      margin-bottom: 16px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border);
+      color: var(--text);
+    }
+    .section .hint {
+      font-size: 0.78rem;
+      color: var(--muted);
+      margin-bottom: 12px;
+    }
+
+    /* Chart cards */
+    .chart-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 20px 24px;
+      margin-bottom: 20px;
+    }
+    .chart-card h3 {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--muted);
+      margin-bottom: 14px;
+    }
+    .chart-wrap {
+      position: relative;
+      height: 240px;
+    }
+    .chart-wrap.tall { height: 320px; }
+
+    /* Ticker filters */
+    #ticker-filters {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+    .ticker-btn {
+      padding: 4px 12px;
+      border-radius: 20px;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--muted);
+      cursor: pointer;
+      font-size: 0.78rem;
+      transition: all 0.15s;
+    }
+    .ticker-btn.active {
+      background: var(--blue);
+      border-color: var(--blue);
+      color: #fff;
+    }
+
+    /* Bump chart grid */
+    #bump-chart {
+      overflow-x: auto;
+      padding-bottom: 8px;
+    }
+    #bump-chart svg {
+      min-width: 600px;
+    }
+
+    /* Memo section */
+    .memo-section {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 20px 24px;
+    }
+    .memo-section h3 { font-size: 0.9rem; font-weight: 600; margin-bottom: 12px; color: var(--muted); }
+    .signal-buttons { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 12px; }
+    .signal-btn {
+      padding: 8px 20px;
+      border-radius: 6px;
+      border: none;
+      cursor: pointer;
+      font-size: 0.85rem;
+      font-weight: 600;
+      transition: opacity 0.15s;
+    }
+    .signal-btn:hover { opacity: 0.85; }
+    .signal-btn.check    { background: #1f6feb; color: #fff; }
+    .signal-btn.watchlist { background: #d29922; color: #000; }
+    .signal-btn.write    { background: #3fb950; color: #000; }
+
+    .memo-input-row { display: flex; gap: 8px; }
+    .memo-input-row input {
+      flex: 1;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 8px 12px;
+      color: var(--text);
+      font-size: 0.85rem;
+    }
+    .memo-input-row input:focus { outline: none; border-color: var(--blue); }
+    .memo-input-row button {
+      padding: 8px 16px;
+      background: var(--blue);
+      border: none;
+      border-radius: 6px;
+      color: #fff;
+      cursor: pointer;
+      font-size: 0.85rem;
+    }
+
+    .memo-list { margin-top: 14px; }
+    .memo-item {
+      display: flex;
+      gap: 12px;
+      padding: 8px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.82rem;
+    }
+    .memo-item:last-child { border-bottom: none; }
+    .memo-date { color: var(--muted); white-space: nowrap; min-width: 90px; }
+    .memo-tag {
+      padding: 1px 8px;
+      border-radius: 10px;
+      font-size: 0.72rem;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .tag-check    { background: #1f6feb33; color: var(--blue); }
+    .tag-watchlist { background: #d2992233; color: var(--yellow); }
+    .tag-write    { background: #3fb95033; color: var(--green); }
+    .memo-text { color: var(--text); flex: 1; }
+    .memo-del { color: var(--muted); cursor: pointer; padding: 0 4px; }
+    .memo-del:hover { color: var(--red); }
+
+    footer {
+      text-align: center;
+      padding: 24px;
+      color: var(--muted);
+      font-size: 0.78rem;
+      border-top: 1px solid var(--border);
+      margin-top: 40px;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>📈 WDK LAB — 히스토리 차트</h1>
+    <div class="subtitle">시계열 추세 및 종목 순위 변동</div>
+  </div>
+  <nav>
+    <a href="dashboard_topdown.html">← 탑다운</a>
+    <a href="dashboard_bottomup.html">바텀업</a>
+    <a href="index.html">홈</a>
+  </nav>
+</header>
+
+<div class="status-bar" id="status-bar">
+  <span id="status-text">⏳ 데이터 로딩 중...</span>
+</div>
+
+<main>
+  <div id="loading">📡 Gist에서 히스토리 데이터를 불러오는 중...</div>
+  <div id="error" style="display:none;"></div>
+
+  <div id="content" style="display:none;">
+
+    <!-- Composite Score 추이 -->
+    <div class="section">
+      <h2>🚦 시장 신호 (Composite Score) 추이</h2>
+      <div class="hint">GREEN ≥ 0.2 / YELLOW -0.2 ~ 0.2 / RED ≤ -0.2</div>
+      <div class="chart-card">
+        <div class="chart-wrap">
+          <canvas id="chart-composite"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- VIX 추이 -->
+    <div class="section">
+      <h2>😨 VIX 추이</h2>
+      <div class="chart-card">
+        <div class="chart-wrap">
+          <canvas id="chart-vix"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- 종목 Final Score 시계열 -->
+    <div class="section">
+      <h2>📊 종목별 Final Score 시계열</h2>
+      <div class="hint">종목 버튼을 클릭해 표시/숨기기</div>
+      <div id="ticker-filters"></div>
+      <div class="chart-card">
+        <div class="chart-wrap tall">
+          <canvas id="chart-scores"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- 순위 변동 -->
+    <div class="section">
+      <h2>🏆 종목 순위 변동</h2>
+      <div class="hint">최근 30일 기준. 위쪽이 높은 순위.</div>
+      <div class="chart-card">
+        <div id="bump-chart"></div>
+      </div>
+    </div>
+
+    <!-- 판단 메모 -->
+    <div class="section">
+      <h2>📝 오늘 할 것 & 판단 기록</h2>
+      <div class="memo-section">
+        <h3>현재 시장 상태를 보고 내 판단을 기록해두세요</h3>
+        <div class="signal-buttons">
+          <button class="signal-btn check"     onclick="quickMemo('포트폴리오 점검')">✅ 포트폴리오 점검</button>
+          <button class="signal-btn watchlist"  onclick="quickMemo('위시리스트 확인')">👀 위시리스트 확인</button>
+          <button class="signal-btn write"      onclick="setTag('기록')">📝 기록 남기기</button>
+        </div>
+        <div class="memo-input-row">
+          <input id="memo-input" type="text" placeholder="판단 메모 입력 (예: NVDA 분할매수 검토)" />
+          <button onclick="saveMemo()">저장</button>
+        </div>
+        <div class="memo-list" id="memo-list"></div>
+      </div>
+    </div>
+
+  </div><!-- /#content -->
+</main>
+
+<footer>
+  WDK LAB | 히스토리 데이터: GitHub Gist | 차트: Chart.js 4.4
+</footer>
+
+<script>
+// ===== 설정 =====
+// GIST_ID를 실제 공개 Gist ID로 교체하세요
+const GIST_RAW_URL = 'https://gist.githubusercontent.com/wondk850/REPLACE_WITH_GIST_ID/raw/history_data.json';
+
+// 종목별 고정 색상
+const TICKER_COLORS = {
+  NVDA:'#76b900', AAPL:'#a2aaad', MSFT:'#00a4ef', GOOGL:'#fbbc04',
+  AMZN:'#ff9900', META:'#0866ff', TSLA:'#cc0000', TSM:'#e60026',
+  ASML:'#005ca9', LLY:'#c8102e',  JPM:'#0a4595',  V:'#1a1f71',
+  XOM:'#e03a3e',  WMT:'#0071ce',  COST:'#005dab',  GE:'#0032a0',
+  CAT:'#ffcd11'
+};
+const DEFAULT_COLOR = '#8b949e';
+
+// ===== 상태 =====
+let historyData = null;
+let scoreChart  = null;
+let activeTickersSet = new Set();
+
+// ===== 데이터 로드 =====
+async function loadHistory() {
+  try {
+    const r = await fetch(GIST_RAW_URL + '?t=' + Date.now()); // cache bust
+    if (!r.ok) throw new Error(`HTTP ${r.status}`);
+    historyData = await r.json();
+    return historyData;
+  } catch(e) {
+    throw new Error('히스토리 데이터를 불러올 수 없습니다. Gist URL 및 공개 여부를 확인해주세요. (' + e.message + ')');
+  }
+}
+
+// ===== Chart.js 공통 옵션 =====
+const BASE_FONT = { color: '#8b949e', size: 11 };
+const BASE_GRID = { color: '#21262d' };
+
+function baseLineOptions(extraOptions = {}) {
+  return {
+    responsive: true,
+    maintainAspectRatio: false,
+    interaction: { mode: 'index', intersect: false },
+    plugins: {
+      legend: { labels: { color: '#e6edf3', font: { size: 11 }, boxWidth: 12 } },
+      tooltip: { backgroundColor: '#161b22', borderColor: '#30363d', borderWidth: 1,
+                 titleColor: '#e6edf3', bodyColor: '#8b949e', padding: 10 }
+    },
+    scales: {
+      x: { ticks: { ...BASE_FONT, maxRotation: 45 }, grid: BASE_GRID },
+      y: { ticks: BASE_FONT, grid: BASE_GRID }
+    },
+    ...extraOptions
+  };
+}
+
+// ===== Composite Score 차트 =====
+function drawCompositeChart(snapshots) {
+  const labels = snapshots.map(s => s.d);
+  const comps  = snapshots.map(s => s.td?.comp ?? null);
+
+  const ctx = document.getElementById('chart-composite').getContext('2d');
+
+  // 배경 밴드 플러그인 (GREEN/YELLOW/RED)
+  const bandPlugin = {
+    id: 'signalBands',
+    beforeDraw(chart) {
+      const {ctx: c, chartArea: a, scales} = chart;
+      if (!a) return;
+      const y = scales.y;
+      const green  = y.getPixelForValue(0.2);
+      const yellow = y.getPixelForValue(-0.2);
+
+      c.save();
+      // GREEN zone
+      c.fillStyle = 'rgba(63,185,80,0.07)';
+      c.fillRect(a.left, a.top, a.width, green - a.top);
+      // YELLOW zone
+      c.fillStyle = 'rgba(210,153,34,0.07)';
+      c.fillRect(a.left, green, a.width, yellow - green);
+      // RED zone
+      c.fillStyle = 'rgba(248,81,73,0.07)';
+      c.fillRect(a.left, yellow, a.width, a.bottom - yellow);
+      c.restore();
+    }
+  };
+
+  new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [{
+        label: 'Composite',
+        data: comps,
+        borderColor: '#58a6ff',
+        backgroundColor: 'rgba(88,166,255,0.1)',
+        fill: true,
+        tension: 0.3,
+        pointRadius: 3,
+        pointHoverRadius: 5
+      }]
+    },
+    options: baseLineOptions({
+      scales: {
+        x: { ticks: { ...BASE_FONT, maxRotation: 45 }, grid: BASE_GRID },
+        y: { min: -1, max: 1, ticks: BASE_FONT, grid: BASE_GRID }
+      }
+    }),
+    plugins: [bandPlugin]
+  });
+}
+
+// ===== VIX 차트 =====
+function drawVixChart(snapshots) {
+  const labels = snapshots.map(s => s.d);
+  const vix    = snapshots.map(s => s.td?.vix ?? null);
+
+  const ctx = document.getElementById('chart-vix').getContext('2d');
+
+  // 수평선 플러그인 (18 / 25 / 30)
+  const hlinePlugin = {
+    id: 'hlines',
+    afterDraw(chart) {
+      const {ctx: c, chartArea: a, scales} = chart;
+      if (!a) return;
+      const lines = [{v:18,color:'#3fb950',label:'18 안전'},{v:25,color:'#d29922',label:'25 경계'},{v:30,color:'#f85149',label:'30 공포'}];
+      lines.forEach(({v,color,label}) => {
+        const y = scales.y.getPixelForValue(v);
+        c.save();
+        c.strokeStyle = color;
+        c.lineWidth = 1;
+        c.setLineDash([4,4]);
+        c.beginPath(); c.moveTo(a.left, y); c.lineTo(a.right, y); c.stroke();
+        c.fillStyle = color;
+        c.font = '10px sans-serif';
+        c.fillText(label, a.right - 60, y - 4);
+        c.restore();
+      });
+    }
+  };
+
+  new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [{
+        label: 'VIX',
+        data: vix,
+        borderColor: '#bc8cff',
+        backgroundColor: 'rgba(188,140,255,0.08)',
+        fill: true,
+        tension: 0.3,
+        pointRadius: 3,
+        pointHoverRadius: 5
+      }]
+    },
+    options: baseLineOptions(),
+    plugins: [hlinePlugin]
+  });
+}
+
+// ===== 종목 Final Score 시계열 =====
+function buildScoreDatasets(snapshots, activeTickers) {
+  const allTickers = [...new Set(snapshots.flatMap(s => (s.bu || []).map(b => b[0])))];
+
+  return allTickers.map(ticker => {
+    const color = TICKER_COLORS[ticker] || DEFAULT_COLOR;
+    const data  = snapshots.map(s => {
+      const found = (s.bu || []).find(b => b[0] === ticker);
+      return found ? found[1] : null;
+    });
+    return {
+      label: ticker,
+      data,
+      borderColor: color,
+      backgroundColor: color + '22',
+      tension: 0.3,
+      pointRadius: 2,
+      pointHoverRadius: 5,
+      hidden: !activeTickers.has(ticker),
+      borderWidth: 2
+    };
+  });
+}
+
+function drawScoreChart(snapshots) {
+  // 기본 TOP 5 활성화
+  const allTickers = [...new Set(snapshots.flatMap(s => (s.bu || []).map(b => b[0])))];
+  const lastSnap   = snapshots[snapshots.length - 1];
+  const top5 = (lastSnap?.bu || []).slice(0, 5).map(b => b[0]);
+  activeTickersSet = new Set(top5.length ? top5 : allTickers.slice(0, 5));
+
+  // 필터 버튼 생성
+  const filterDiv = document.getElementById('ticker-filters');
+  filterDiv.innerHTML = '';
+  allTickers.forEach(t => {
+    const btn = document.createElement('button');
+    btn.className = 'ticker-btn' + (activeTickersSet.has(t) ? ' active' : '');
+    btn.textContent = t;
+    btn.onclick = () => toggleTicker(t, btn);
+    filterDiv.appendChild(btn);
+  });
+
+  const ctx    = document.getElementById('chart-scores').getContext('2d');
+  const labels = snapshots.map(s => s.d);
+
+  scoreChart = new Chart(ctx, {
+    type: 'line',
+    data: { labels, datasets: buildScoreDatasets(snapshots, activeTickersSet) },
+    options: baseLineOptions({
+      scales: {
+        x: { ticks: { ...BASE_FONT, maxRotation: 45 }, grid: BASE_GRID },
+        y: { min: -1, max: 1, ticks: BASE_FONT, grid: BASE_GRID }
+      }
+    })
+  });
+}
+
+function toggleTicker(ticker, btn) {
+  if (activeTickersSet.has(ticker)) {
+    activeTickersSet.delete(ticker);
+    btn.classList.remove('active');
+  } else {
+    activeTickersSet.add(ticker);
+    btn.classList.add('active');
+  }
+  // 차트 업데이트
+  scoreChart.data.datasets.forEach(ds => {
+    ds.hidden = !activeTickersSet.has(ds.label);
+  });
+  scoreChart.update();
+}
+
+// ===== Bump Chart (순위 변동) SVG =====
+function drawBumpChart(snapshots) {
+  const recent = snapshots.slice(-30); // 최근 30일
+  if (recent.length < 2) { document.getElementById('bump-chart').innerText = '데이터 2일 이상 필요'; return; }
+
+  const allTickers = [...new Set(recent.flatMap(s => (s.bu || []).map(b => b[0])))];
+  const W = Math.max(600, recent.length * 48);
+  const H = 320;
+  const PAD = { top: 24, bottom: 48, left: 48, right: 80 };
+  const maxRank = allTickers.length;
+  const dayW  = (W - PAD.left - PAD.right) / (recent.length - 1);
+  const rankH = (H - PAD.top - PAD.bottom) / (maxRank - 1 || 1);
+
+  function x(dayIdx) { return PAD.left + dayIdx * dayW; }
+  function y(rank)   { return PAD.top  + (rank - 1) * rankH; }
+
+  let svgParts = [`<svg width="${W}" height="${H}" xmlns="http://www.w3.org/2000/svg" style="background:#161b22;border-radius:6px">`];
+
+  // 배경 격자선
+  recent.forEach((s, i) => {
+    const xi = x(i);
+    svgParts.push(`<line x1="${xi}" y1="${PAD.top}" x2="${xi}" y2="${H-PAD.bottom}" stroke="#21262d" stroke-width="1"/>`);
+    if (i === 0 || i === recent.length - 1 || i % 5 === 0) {
+      svgParts.push(`<text x="${xi}" y="${H-PAD.bottom+14}" text-anchor="middle" fill="#8b949e" font-size="10">${s.d.slice(5)}</text>`);
+    }
+  });
+
+  // 종목별 라인 + 레이블
+  allTickers.forEach(ticker => {
+    const color = TICKER_COLORS[ticker] || DEFAULT_COLOR;
+    const points = recent.map((s, i) => {
+      const found = (s.bu || []).findIndex(b => b[0] === ticker);
+      const rank  = found >= 0 ? found + 1 : null;
+      return rank !== null ? `${x(i)},${y(rank)}` : null;
+    });
+
+    // 세그먼트 단위로 라인 그리기 (null 건너뜀)
+    let segment = [];
+    points.forEach((p, i) => {
+      if (p) {
+        segment.push(p);
+      } else {
+        if (segment.length > 1) {
+          svgParts.push(`<polyline points="${segment.join(' ')}" fill="none" stroke="${color}" stroke-width="2" opacity="0.8"/>`);
+        }
+        segment = [];
+      }
+    });
+    if (segment.length > 1) {
+      svgParts.push(`<polyline points="${segment.join(' ')}" fill="none" stroke="${color}" stroke-width="2" opacity="0.8"/>`);
+    }
+
+    // 마지막 점 레이블
+    const lastSnap = recent[recent.length - 1];
+    const lastIdx  = (lastSnap.bu || []).findIndex(b => b[0] === ticker);
+    if (lastIdx >= 0) {
+      const rank = lastIdx + 1;
+      svgParts.push(`<circle cx="${x(recent.length-1)}" cy="${y(rank)}" r="4" fill="${color}"/>`);
+      svgParts.push(`<text x="${x(recent.length-1)+8}" y="${y(rank)+4}" fill="${color}" font-size="11" font-weight="600">${ticker}</text>`);
+    }
+  });
+
+  svgParts.push('</svg>');
+  document.getElementById('bump-chart').innerHTML = svgParts.join('');
+}
+
+// ===== 메모 (localStorage) =====
+const MEMO_KEY = 'wdklab_memos';
+let currentTag = '포트폴리오 점검';
+
+function setTag(tag) { currentTag = tag; document.getElementById('memo-input').focus(); }
+
+function quickMemo(tag) {
+  currentTag = tag;
+  saveMemo(tag);
+}
+
+function saveMemo(defaultText) {
+  const input = document.getElementById('memo-input');
+  const text  = defaultText || input.value.trim();
+  if (!text) return;
+
+  const memos = JSON.parse(localStorage.getItem(MEMO_KEY) || '[]');
+  memos.unshift({
+    id:   Date.now(),
+    date: new Date().toLocaleDateString('ko-KR', {month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit'}),
+    tag:  currentTag,
+    text
+  });
+  localStorage.setItem(MEMO_KEY, JSON.stringify(memos.slice(0, 100))); // 최대 100개
+  if (!defaultText) input.value = '';
+  renderMemos();
+}
+
+function deleteMemo(id) {
+  const memos = JSON.parse(localStorage.getItem(MEMO_KEY) || '[]').filter(m => m.id !== id);
+  localStorage.setItem(MEMO_KEY, JSON.stringify(memos));
+  renderMemos();
+}
+
+function tagClass(tag) {
+  if (tag.includes('점검'))    return 'tag-check';
+  if (tag.includes('위시'))    return 'tag-watchlist';
+  return 'tag-write';
+}
+
+function renderMemos() {
+  const memos = JSON.parse(localStorage.getItem(MEMO_KEY) || '[]');
+  const list  = document.getElementById('memo-list');
+  if (!memos.length) { list.innerHTML = '<div style="color:#8b949e;font-size:0.82rem;padding:8px 0">아직 기록이 없습니다</div>'; return; }
+  list.innerHTML = memos.map(m => `
+    <div class="memo-item">
+      <span class="memo-date">${m.date}</span>
+      <span class="memo-tag ${tagClass(m.tag)}">${m.tag}</span>
+      <span class="memo-text">${m.text}</span>
+      <span class="memo-del" onclick="deleteMemo(${m.id})">✕</span>
+    </div>
+  `).join('');
+}
+
+// Enter 키로 저장
+document.getElementById('memo-input')?.addEventListener('keydown', e => { if (e.key === 'Enter') saveMemo(); });
+
+// ===== 진입점 =====
+async function init() {
+  try {
+    const data = await loadHistory();
+    const snaps = data.snapshots || [];
+
+    if (!snaps.length) {
+      document.getElementById('loading').style.display = 'none';
+      document.getElementById('error').style.display = 'block';
+      document.getElementById('error').innerText = '히스토리 데이터가 아직 없습니다. Actions가 최소 1회 실행된 후 데이터가 쌓입니다.';
+      return;
+    }
+
+    // 탑다운이 있는 스냅샷만 (없을 수도 있음 — Phase 4 이후)
+    const withTD = snaps.filter(s => s.td?.comp !== undefined);
+
+    // 상태바 업데이트
+    const last = snaps[snaps.length - 1];
+    document.getElementById('status-text').innerHTML =
+      `📅 마지막 업데이트: <strong>${last.d}</strong> &nbsp;|&nbsp; 총 <strong>${snaps.length}</strong>일 데이터`;
+
+    // 차트 렌더링
+    if (withTD.length > 1) drawCompositeChart(withTD);
+    if (withTD.length > 1) drawVixChart(withTD);
+    drawScoreChart(snaps);
+    drawBumpChart(snaps);
+
+    // 메모
+    renderMemos();
+
+    // 컨텐츠 표시
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('content').style.display = 'block';
+
+  } catch(e) {
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('error').style.display = 'block';
+    document.getElementById('error').innerText = '❌ ' + e.message;
+  }
+}
+
+init();
+</script>
+</body>
+</html>
