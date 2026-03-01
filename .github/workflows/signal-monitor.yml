@@ -57,7 +57,7 @@ jobs:
       
       - name: Install dependencies
         run: |
-          pip install requests yfinance pandas pandas_ta
+          pip install requests yfinance pandas pandas-ta
       
       - name: Determine run mode
         id: mode
