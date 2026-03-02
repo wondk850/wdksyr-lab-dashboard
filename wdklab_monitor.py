@@ -502,16 +502,35 @@ def fetch_portfolio_summary():
             except Exception:
                 continue
 
-        # 당일 수익 기준 정렬 (상위 3, 하위 3)
-        results_sorted = sorted(results, key=lambda x: x['pct'], reverse=True)
-        top_movers = results_sorted[:3] + results_sorted[-3:]
+        # scout/core 분리
+        scout_threshold = pf.get('scout_drop_threshold_pct', 3.0)
+        scout_alerts = []      # 선발대 중 급락한 종목
+        core_results  = []    # 코어 포지션만 top movers 계산
+
+        # holding type 매핑
+        type_map = {h['ticker']: h.get('type', 'core') for h in holdings}
+
+        for r in results:
+            t = r['ticker']
+            if type_map.get(t) == 'scout' and r['pct'] <= -scout_threshold:
+                scout_alerts.append(r)
+            if type_map.get(t) == 'core':
+                core_results.append(r)
+
+        # core 포지션 기준 top movers
+        core_sorted = sorted(core_results, key=lambda x: x['pct'], reverse=True)
+        top_movers  = core_sorted[:3] + core_sorted[-3:]
+        scout_alerts_sorted = sorted(scout_alerts, key=lambda x: x['pct'])
 
         print(f"[PF] ✅ 총 {len(results)}종목, 평가액 ₩{total_krw:,.0f}, 당일 {day_pnl:+,.0f}원")
+        if scout_alerts:
+            print(f"[PF] 🎯 선발대 매수 신호: {[a['ticker'] for a in scout_alerts]}")
         return {
-            'total_krw': round(total_krw),
-            'day_pnl':   round(day_pnl),
-            'day_pct':   round(day_pnl / (total_krw - day_pnl) * 100, 2) if total_krw else 0,
-            'top_movers': top_movers
+            'total_krw':    round(total_krw),
+            'day_pnl':      round(day_pnl),
+            'day_pct':      round(day_pnl / (total_krw - day_pnl) * 100, 2) if total_krw else 0,
+            'top_movers':   top_movers,
+            'scout_alerts': scout_alerts_sorted
         }
 
     except Exception as e:
@@ -647,6 +666,12 @@ def format_morning_digest(result, bottomup_scores=None, state=None, pf_summary=N
                 pf_lines += '\n🔺 ' + '  '.join(f"{m['ticker']}({m['pct']:+.1f}%)" for m in winners)
             if losers:
                 pf_lines += '\n🔻 ' + '  '.join(f"{m['ticker']}({m['pct']:+.1f}%)" for m in losers)
+        # 선발대 매수 기회
+        scouts = pf_summary.get('scout_alerts', [])
+        if scouts:
+            pf_lines += '\n\n🎯 <b>선발대 매수 기회:</b>'
+            for s in scouts:
+                pf_lines += f"\n• {s['ticker']} ({s['pct']:+.1f}%) — 추가매수 검토!"
 
     msg = f"""🌅 <b>WDK LAB Morning Digest</b> {date_str}
 

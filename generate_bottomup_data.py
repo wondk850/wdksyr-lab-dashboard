@@ -371,7 +371,7 @@ def fetch_topdown_snapshot():
     실패해도 None 반환 (Gist 저장 자체를 막지 않음)
     """
     if not FRED_API_KEY:
-        print("[TD] FRED_API_KEY 없음 — td 스냅샷 건너롁")
+        print("[TD] FRED_API_KEY 없음 — td 스냅샷 건너뜀")
         return None
 
     def _fred(series_id, limit=30):
