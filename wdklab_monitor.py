@@ -449,8 +449,9 @@ def format_signal_message(result, is_change=False):
 
 def fetch_portfolio_summary():
     """
-    portfolio.json 읽어서 yfinance로 현재가 조회
-    반환: {'total_krw': ..., 'day_pnl': ..., 'top_movers': [...], 'holdings': [...]}
+    portfolio.json → yfinance 1년치 데이터 → 당일손익 + Sharpe/MDD/Volatility + RSI/MACD
+    반환: {'total_krw', 'day_pnl', 'day_pct', 'sharpe', 'mdd', 'volatility',
+           'top_movers', 'scout_alerts', 'rsi_signals'}
     """
     pf_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'portfolio.json')
     if not os.path.exists(pf_path):
@@ -458,58 +459,116 @@ def fetch_portfolio_summary():
         return None
 
     try:
+        import numpy as np
+        import yfinance as yf
+
         with open(pf_path, encoding='utf-8') as f:
             pf = json.load(f)
 
-        holdings   = pf.get('holdings', [])
-        usd_krw    = pf.get('usd_krw', 1430)
-        tickers    = [h['ticker'] for h in holdings]
+        holdings        = pf.get('holdings', [])
+        usd_krw         = pf.get('usd_krw', 1430)
+        scout_threshold = pf.get('scout_drop_threshold_pct', 3.0)
+        tickers         = [h['ticker'] for h in holdings]
+        shares_map      = {h['ticker']: h['shares'] for h in holdings}
+        type_map        = {h['ticker']: h.get('type', 'core') for h in holdings}
 
         if not tickers:
             return None
 
-        import yfinance as yf
-        data = yf.download(tickers, period='2d', progress=False, auto_adjust=True)
+        # ── 1년치 데이터 다운로드 (Sharpe/MDD/RSI/MACD 모두 여기서 계산) ──
+        data   = yf.download(tickers, period='1y', progress=False, auto_adjust=True)
         closes = data['Close'] if len(tickers) > 1 else data[['Close']]
-        closes.columns = tickers if len(tickers) > 1 else tickers
+        if len(tickers) == 1:
+            closes.columns = tickers
 
+        # ── 현재 평가액 기준 비중 계산 ────────────────────────────────────
+        weights   = {}
+        total_val = 0.0
+        for t in tickers:
+            try:
+                curr = float(closes[t].dropna().iloc[-1])
+                val  = curr * shares_map[t]
+                weights[t] = val
+                total_val += val
+            except Exception:
+                weights[t] = 0.0
+
+        # ── 당일 손익 + 평가액 계산 ───────────────────────────────────────
+        daily_returns_list = []
         results   = []
         total_krw = 0.0
         day_pnl   = 0.0
 
         for h in holdings:
-            t = h['ticker']
+            t      = h['ticker']
             shares = h['shares']
             try:
                 prices = closes[t].dropna()
                 if len(prices) < 2:
                     continue
-                prev  = float(prices.iloc[-2])
-                curr  = float(prices.iloc[-1])
-                val_usd  = curr * shares
-                val_krw  = val_usd * usd_krw
-                pnl_usd  = (curr - prev) * shares
-                pnl_krw  = pnl_usd * usd_krw
+                prev     = float(prices.iloc[-2])
+                curr     = float(prices.iloc[-1])
+                val_krw  = curr * shares * usd_krw
+                pnl_krw  = (curr - prev) * shares * usd_krw
                 pct      = (curr / prev - 1) * 100
                 total_krw += val_krw
                 day_pnl   += pnl_krw
-                results.append({
-                    'ticker': t,
-                    'val_krw': round(val_krw),
-                    'pnl_krw': round(pnl_krw),
-                    'pct': round(pct, 2)
-                })
+                results.append({'ticker': t, 'val_krw': round(val_krw),
+                                'pnl_krw': round(pnl_krw), 'pct': round(pct, 2)})
+                # 비중 반영 일일 수익률
+                w = weights.get(t, 0) / total_val if total_val else 0
+                daily_returns_list.append(prices.pct_change().dropna() * w)
             except Exception:
                 continue
 
-        # scout/core 분리
-        scout_threshold = pf.get('scout_drop_threshold_pct', 3.0)
-        scout_alerts = []      # 선발대 중 급락한 종목
-        core_results  = []    # 코어 포지션만 top movers 계산
+        # ── 리스크 지표 (risk-metrics-calculation 스킬 적용) ──────────────
+        sharpe = mdd = volatility = None
+        try:
+            if daily_returns_list:
+                port_returns = sum(daily_returns_list)
+                ann_ret  = float(port_returns.mean() * 252)
+                ann_vol  = float(port_returns.std() * np.sqrt(252))
+                rf       = 0.04                              # 무위험수익률 4%
+                sharpe     = round((ann_ret - rf) / ann_vol, 2) if ann_vol else None
+                volatility = round(ann_vol * 100, 1)        # %/yr
+                cum  = (1 + port_returns).cumprod()
+                peak = cum.cummax()
+                mdd  = round(float(((cum - peak) / peak).min()) * 100, 1)  # %
+                print(f"[PF] 📐 Sharpe:{sharpe}  MDD:{mdd}%  Volatility:{volatility}%/yr")
+        except Exception as e:
+            print(f"[PF] 리스크 계산 실패: {e}")
 
-        # holding type 매핑
-        type_map = {h['ticker']: h.get('type', 'core') for h in holdings}
+        # ── RSI/MACD 직접 계산 (1y 데이터로 계산, bottomup_data.json 불필요) ─
+        rsi_signals = {'overbought': [], 'oversold': [], 'macd_buy': [], 'macd_sell': []}
+        try:
+            if HAS_PANDAS_TA:
+                import pandas_ta as ta
+                for t in tickers:
+                    try:
+                        s = closes[t].dropna()
+                        if len(s) < 30:
+                            continue
+                        rsi_val = float(ta.rsi(s, length=14).iloc[-1])
+                        macd_df = ta.macd(s)
+                        cross   = 0
+                        if macd_df is not None and len(macd_df.columns) >= 2:
+                            cross = 1 if float(macd_df.iloc[-1, 0]) > float(macd_df.iloc[-1, 1]) else -1
+                        if rsi_val >= 65:
+                            rsi_signals['overbought'].append(f"{t}({rsi_val:.0f})")
+                        elif rsi_val <= 35:
+                            rsi_signals['oversold'].append(f"{t}({rsi_val:.0f})")
+                        if cross == 1:
+                            rsi_signals['macd_buy'].append(t)
+                        elif cross == -1:
+                            rsi_signals['macd_sell'].append(t)
+                    except Exception:
+                        continue
+                print(f"[PF] RSI 과매수:{rsi_signals['overbought']} 과매도:{rsi_signals['oversold']}")
+        except Exception as e:
+            print(f"[PF] RSI/MACD 계산 실패: {e}")
 
+        # ── scout/core 분리 ───────────────────────────────────────────────
+        scout_alerts, core_results = [], []
         for r in results:
             t = r['ticker']
             if type_map.get(t) == 'scout' and r['pct'] <= -scout_threshold:
@@ -517,48 +576,21 @@ def fetch_portfolio_summary():
             if type_map.get(t) == 'core':
                 core_results.append(r)
 
-        # core 포지션 기준 top movers
-        core_sorted = sorted(core_results, key=lambda x: x['pct'], reverse=True)
-        top_movers  = core_sorted[:3] + core_sorted[-3:]
+        core_sorted         = sorted(core_results, key=lambda x: x['pct'], reverse=True)
+        top_movers          = core_sorted[:3] + core_sorted[-3:]
         scout_alerts_sorted = sorted(scout_alerts, key=lambda x: x['pct'])
 
-        print(f"[PF] ✅ 총 {len(results)}종목, 평가액 ₩{total_krw:,.0f}, 당일 {day_pnl:+,.0f}원")
+        print(f"[PF] ✅ 총 {len(results)}종목  ₩{total_krw:,.0f}  당일 {day_pnl:+,.0f}원")
         if scout_alerts:
-            print(f"[PF] 🎯 선발대 매수 신호: {[a['ticker'] for a in scout_alerts]}")
-
-        # ── bottomup_data.json에서 RSI/MACD 신호 재사용 ──────────────────
-        rsi_signals = {'overbought': [], 'oversold': [], 'macd_buy': [], 'macd_sell': []}
-        bu_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'bottomup_data.json')
-        if os.path.exists(bu_path):
-            try:
-                with open(bu_path, encoding='utf-8') as bf:
-                    bu_data = json.load(bf)
-                bu_map = {r['ticker']: r for r in bu_data.get('data', []) if not r.get('error')}
-                held_tickers = set(type_map.keys())
-                for t, entry in bu_map.items():
-                    if t not in held_tickers:
-                        continue
-                    raw = entry.get('raw', {})
-                    rsi = raw.get('rsi')
-                    macd_cross = raw.get('macd_cross')
-                    if rsi is not None:
-                        if rsi >= 65:
-                            rsi_signals['overbought'].append(f"{t}({rsi:.0f})")
-                        elif rsi <= 35:
-                            rsi_signals['oversold'].append(f"{t}({rsi:.0f})")
-                    if macd_cross == 1.0:
-                        rsi_signals['macd_buy'].append(t)
-                    elif macd_cross == -1.0:
-                        rsi_signals['macd_sell'].append(t)
-                print(f"[PF] RSI 과매수:{rsi_signals['overbought']} 과매도:{rsi_signals['oversold']}")
-            except Exception as e:
-                print(f"[PF] bottomup_data.json 로드 실패: {e}")
-        # ─────────────────────────────────────────────────────────────────
+            print(f"[PF] 🎯 선발대: {[a['ticker'] for a in scout_alerts]}")
 
         return {
             'total_krw':    round(total_krw),
             'day_pnl':      round(day_pnl),
             'day_pct':      round(day_pnl / (total_krw - day_pnl) * 100, 2) if total_krw else 0,
+            'sharpe':       sharpe,
+            'mdd':          mdd,
+            'volatility':   volatility,
             'top_movers':   top_movers,
             'scout_alerts': scout_alerts_sorted,
             'rsi_signals':  rsi_signals
@@ -707,6 +739,16 @@ def format_morning_digest(result, bottomup_scores=None, state=None, pf_summary=N
         pf_lines = f"\n\n💼 <b>포트폴리오 (US주식):</b>"
         pf_lines += f"\n• 평가액: ₩{pf_summary['total_krw']:,}"
         pf_lines += f"\n• 당일 손익: {sign}₩{pf_summary['day_pnl']:,} ({sign}{pf_summary['day_pct']:.2f}%)"
+        # 리스크 지표
+        r_parts = []
+        if pf_summary.get('sharpe') is not None:
+            r_parts.append(f"Sharpe {pf_summary['sharpe']:.2f}")
+        if pf_summary.get('mdd') is not None:
+            r_parts.append(f"MDD {pf_summary['mdd']}%")
+        if pf_summary.get('volatility') is not None:
+            r_parts.append(f"변동성 {pf_summary['volatility']}%/yr")
+        if r_parts:
+            pf_lines += '\n• 📐 ' + '  |  '.join(r_parts)
         movers = pf_summary.get('top_movers', [])
         if movers:
             winners = [m for m in movers if m['pct'] >= 0][:3]

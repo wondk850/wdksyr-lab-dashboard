@@ -54,10 +54,10 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+          cache: 'pip'              # 🚀 pip 캐싱 — requirements.txt 변경 시에만 재설치
       
       - name: Install dependencies
-        run: |
-          pip install requests yfinance pandas pandas-ta
+        run: pip install -r requirements.txt
       
       - name: Determine run mode
         id: mode
