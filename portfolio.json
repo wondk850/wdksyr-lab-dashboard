@@ -1,0 +1,21 @@
+{
+  "_comment": "WDK LAB 포트폴리오 — 수동 관리. 주수 업데이트 시 여기만 수정하면 됨.",
+  "updated": "2026-03-02",
+  "usd_krw": 1432,
+  "holdings": [
+    {"ticker": "ASML",  "shares": 1.579306,  "note": "ASML 홀딩(ADR)"},
+    {"ticker": "TSLA",  "shares": 5.151750,  "note": "테슬라"},
+    {"ticker": "AAPL",  "shares": 3.198350,  "note": "애플"},
+    {"ticker": "MSFT",  "shares": 2.095453,  "note": "마이크로소프트"},
+    {"ticker": "GOOGL", "shares": 0.558893,  "note": "알파벳 A"},
+    {"ticker": "NVDA",  "shares": 0.287796,  "note": "엔비디아"},
+    {"ticker": "META",  "shares": 0.060636,  "note": "메타"},
+    {"ticker": "TSM",   "shares": 0.103197,  "note": "TSMC(ADR)"},
+    {"ticker": "AMZN",  "shares": 0.146682,  "note": "아마존"},
+    {"ticker": "JPM",   "shares": 0.002911,  "note": "제이피모건 체이스"},
+    {"ticker": "V",     "shares": 0.002160,  "note": "비자"},
+    {"ticker": "XOM",   "shares": 0.006381,  "note": "엑슨 모빌"},
+    {"ticker": "LLY",   "shares": 0.000901,  "note": "일라이 릴리"},
+    {"ticker": "WMT",   "shares": 0.007275,  "note": "월마트"}
+  ]
+}

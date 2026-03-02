@@ -447,6 +447,78 @@ def format_signal_message(result, is_change=False):
     return msg
 
 
+def fetch_portfolio_summary():
+    """
+    portfolio.json 읽어서 yfinance로 현재가 조회
+    반환: {'total_krw': ..., 'day_pnl': ..., 'top_movers': [...], 'holdings': [...]}
+    """
+    pf_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'portfolio.json')
+    if not os.path.exists(pf_path):
+        print("[PF] portfolio.json 없음 — 건너뜀")
+        return None
+
+    try:
+        with open(pf_path, encoding='utf-8') as f:
+            pf = json.load(f)
+
+        holdings   = pf.get('holdings', [])
+        usd_krw    = pf.get('usd_krw', 1430)
+        tickers    = [h['ticker'] for h in holdings]
+
+        if not tickers:
+            return None
+
+        import yfinance as yf
+        data = yf.download(tickers, period='2d', progress=False, auto_adjust=True)
+        closes = data['Close'] if len(tickers) > 1 else data[['Close']]
+        closes.columns = tickers if len(tickers) > 1 else tickers
+
+        results   = []
+        total_krw = 0.0
+        day_pnl   = 0.0
+
+        for h in holdings:
+            t = h['ticker']
+            shares = h['shares']
+            try:
+                prices = closes[t].dropna()
+                if len(prices) < 2:
+                    continue
+                prev  = float(prices.iloc[-2])
+                curr  = float(prices.iloc[-1])
+                val_usd  = curr * shares
+                val_krw  = val_usd * usd_krw
+                pnl_usd  = (curr - prev) * shares
+                pnl_krw  = pnl_usd * usd_krw
+                pct      = (curr / prev - 1) * 100
+                total_krw += val_krw
+                day_pnl   += pnl_krw
+                results.append({
+                    'ticker': t,
+                    'val_krw': round(val_krw),
+                    'pnl_krw': round(pnl_krw),
+                    'pct': round(pct, 2)
+                })
+            except Exception:
+                continue
+
+        # 당일 수익 기준 정렬 (상위 3, 하위 3)
+        results_sorted = sorted(results, key=lambda x: x['pct'], reverse=True)
+        top_movers = results_sorted[:3] + results_sorted[-3:]
+
+        print(f"[PF] ✅ 총 {len(results)}종목, 평가액 ₩{total_krw:,.0f}, 당일 {day_pnl:+,.0f}원")
+        return {
+            'total_krw': round(total_krw),
+            'day_pnl':   round(day_pnl),
+            'day_pct':   round(day_pnl / (total_krw - day_pnl) * 100, 2) if total_krw else 0,
+            'top_movers': top_movers
+        }
+
+    except Exception as e:
+        print(f"[PF] ❌ 실패: {e}")
+        return None
+
+
 def get_economic_calendar():
     """
     주요 경제 이벤트 D-N 카운트다운
@@ -503,8 +575,8 @@ def get_economic_calendar():
     return events[:4]
 
 
-def format_morning_digest(result, bottomup_scores=None, state=None):
-    """🌅 Morning Digest: Composite Δ, 탑다운, 바텀업 TOP5, 경제캘린더"""
+def format_morning_digest(result, bottomup_scores=None, state=None, pf_summary=None):
+    """🌅 Morning Digest: Composite Δ, 탑다운, 바텀업 TOP5, 경제캘린더, 포트폴리오"""
     signal_emoji = {'GREEN': '🟢 GREEN — 비중 확대',
                     'YELLOW': '🟡 YELLOW — 비중 유지',
                     'RED': '🔴 RED — 비중 축소'}
@@ -560,6 +632,22 @@ def format_morning_digest(result, bottomup_scores=None, state=None):
     else:
         action_hint = '\n\n💡 <b>행동:</b> 관망, 분할매수 검토'
 
+    # 포트폴리오 요약
+    pf_lines = ''
+    if pf_summary:
+        sign = '+' if pf_summary['day_pnl'] >= 0 else ''
+        pf_lines = f"\n\n💼 <b>포트폴리오 (US주식):</b>"
+        pf_lines += f"\n• 평가액: ₩{pf_summary['total_krw']:,}"
+        pf_lines += f"\n• 당일 손익: {sign}₩{pf_summary['day_pnl']:,} ({sign}{pf_summary['day_pct']:.2f}%)"
+        movers = pf_summary.get('top_movers', [])
+        if movers:
+            winners = [m for m in movers if m['pct'] >= 0][:3]
+            losers  = [m for m in movers if m['pct'] <  0][-3:]
+            if winners:
+                pf_lines += '\n🔺 ' + '  '.join(f"{m['ticker']}({m['pct']:+.1f}%)" for m in winners)
+            if losers:
+                pf_lines += '\n🔻 ' + '  '.join(f"{m['ticker']}({m['pct']:+.1f}%)" for m in losers)
+
     msg = f"""🌅 <b>WDK LAB Morning Digest</b> {date_str}
 
 🚦 <b>Today's Signal:</b>
@@ -570,7 +658,7 @@ def format_morning_digest(result, bottomup_scores=None, state=None):
 • VIX: {result['vix']:.1f}
 • 10Y-2Y Spread: {result['spread']:+.2f}%
 • PCE YoY: {result['pce_yoy']:.1f}%
-• 2Y 변화: {result['dgs2_change_bp']:.0f}bp{bu_lines}{cal_lines}{action_hint}
+• 2Y 변화: {result['dgs2_change_bp']:.0f}bp{bu_lines}{pf_lines}{cal_lines}{action_hint}
 
 ⏰ {now_kst.strftime('%H:%M KST')}"""
     return msg
@@ -637,11 +725,12 @@ def main(mode='check'):
     if mode in ['daily', 'report']:
         # 🌅 1단계: Morning Digest
         bottomup_scores = calculate_bottomup_scores()
-        msg = format_morning_digest(result, bottomup_scores, state)
+        pf_summary = fetch_portfolio_summary()
+        msg = format_morning_digest(result, bottomup_scores, state, pf_summary)
         send_telegram(msg)
         if 'last_sent' not in state: state['last_sent'] = {}
         state['last_sent'][mode] = current_hour
-        # 전일 바텐업 순위 저장
+        # 전일 바텀업 순위 저장
         state['prev_bottomup_ranks'] = {
             s['ticker']: i+1 for i, s in enumerate(bottomup_scores)
         }
