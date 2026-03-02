@@ -9,6 +9,13 @@ import requests
 import time
 from datetime import datetime, timezone, timedelta
 
+# pandas_ta 사용 가능 여부 (없으면 RSI/MACD graceful skip)
+try:
+    import pandas_ta  # noqa: F401
+    HAS_PANDAS_TA = True
+except ImportError:
+    HAS_PANDAS_TA = False
+
 # ===== 설정 =====
 FRED_API_KEY = os.environ.get('FRED_API_KEY', 'bd2f35437a05410f3f72fa653ab8935c')
 TELEGRAM_BOT_TOKEN = os.environ.get('TELEGRAM_BOT_TOKEN', '8209005017:AAH1IOr7h49dI3lX2TSBNOrvMsQEIcHCouM')
