@@ -525,12 +525,43 @@ def fetch_portfolio_summary():
         print(f"[PF] ✅ 총 {len(results)}종목, 평가액 ₩{total_krw:,.0f}, 당일 {day_pnl:+,.0f}원")
         if scout_alerts:
             print(f"[PF] 🎯 선발대 매수 신호: {[a['ticker'] for a in scout_alerts]}")
+
+        # ── bottomup_data.json에서 RSI/MACD 신호 재사용 ──────────────────
+        rsi_signals = {'overbought': [], 'oversold': [], 'macd_buy': [], 'macd_sell': []}
+        bu_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'bottomup_data.json')
+        if os.path.exists(bu_path):
+            try:
+                with open(bu_path, encoding='utf-8') as bf:
+                    bu_data = json.load(bf)
+                bu_map = {r['ticker']: r for r in bu_data.get('data', []) if not r.get('error')}
+                held_tickers = set(type_map.keys())
+                for t, entry in bu_map.items():
+                    if t not in held_tickers:
+                        continue
+                    raw = entry.get('raw', {})
+                    rsi = raw.get('rsi')
+                    macd_cross = raw.get('macd_cross')
+                    if rsi is not None:
+                        if rsi >= 65:
+                            rsi_signals['overbought'].append(f"{t}({rsi:.0f})")
+                        elif rsi <= 35:
+                            rsi_signals['oversold'].append(f"{t}({rsi:.0f})")
+                    if macd_cross == 1.0:
+                        rsi_signals['macd_buy'].append(t)
+                    elif macd_cross == -1.0:
+                        rsi_signals['macd_sell'].append(t)
+                print(f"[PF] RSI 과매수:{rsi_signals['overbought']} 과매도:{rsi_signals['oversold']}")
+            except Exception as e:
+                print(f"[PF] bottomup_data.json 로드 실패: {e}")
+        # ─────────────────────────────────────────────────────────────────
+
         return {
             'total_krw':    round(total_krw),
             'day_pnl':      round(day_pnl),
             'day_pct':      round(day_pnl / (total_krw - day_pnl) * 100, 2) if total_krw else 0,
             'top_movers':   top_movers,
-            'scout_alerts': scout_alerts_sorted
+            'scout_alerts': scout_alerts_sorted,
+            'rsi_signals':  rsi_signals
         }
 
     except Exception as e:
@@ -690,6 +721,16 @@ def format_morning_digest(result, bottomup_scores=None, state=None, pf_summary=N
             pf_lines += '\n\n🎯 <b>선발대 매수 기회:</b>'
             for s in scouts:
                 pf_lines += f"\n• {s['ticker']} ({s['pct']:+.1f}%) — 추가매수 검토!"
+        # RSI/MACD 신호 (bottomup_data.json 재사용)
+        sig = pf_summary.get('rsi_signals', {})
+        if sig.get('oversold'):
+            pf_lines += '\n📉 <b>RSI 과매도(매수기회):</b> ' + '  '.join(sig['oversold'])
+        if sig.get('overbought'):
+            pf_lines += '\n📈 <b>RSI 과매수(주의):</b> ' + '  '.join(sig['overbought'])
+        if sig.get('macd_buy'):
+            pf_lines += '\n🟢 <b>MACD 골든:</b> ' + '  '.join(sig['macd_buy'])
+        if sig.get('macd_sell'):
+            pf_lines += '\n🔴 <b>MACD 데드:</b> ' + '  '.join(sig['macd_sell'])
 
     msg = f"""🌅 <b>WDK LAB Morning Digest</b> {date_str}
 
