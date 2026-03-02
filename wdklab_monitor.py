@@ -521,7 +521,8 @@ def fetch_portfolio_summary():
                 total_krw += val_krw
                 day_pnl   += pnl_krw
                 results.append({'ticker': t, 'val_krw': round(val_krw),
-                                'pnl_krw': round(pnl_krw), 'pct': round(pct, 2)})
+                                'pnl_krw': round(pnl_krw), 'pct': round(pct, 2),
+                                'type': type_map.get(t, 'core')})
                 # 비중 반영 일일 수익률
                 w = weights.get(t, 0) / total_val if total_val else 0
                 daily_returns_list.append(prices.pct_change().dropna() * w)
@@ -598,6 +599,7 @@ def fetch_portfolio_summary():
             'sharpe':       sharpe,
             'mdd':          mdd,
             'volatility':   volatility,
+            'results':      results,           # 전체 보유 종목 (ai_block + action_hint용)
             'top_movers':   top_movers,
             'scout_alerts': scout_alerts_sorted,
             'rsi_signals':  rsi_signals
@@ -733,7 +735,18 @@ def format_morning_digest(result, bottomup_scores=None, state=None, pf_summary=N
     # 흐름
     action_hint = ''
     if result['signal'] == 'GREEN':
-        action_hint = f'\n\n💡 <b>행동:</b> {top5[0]["ticker"] if bottomup_scores else ""} 비중 확대 검토'
+        top_ticker = top5[0]['ticker'] if bottomup_scores else ''
+        # 당일 급락 중인지 체크 (-3% 이상이면 경고)
+        crash_pct = None
+        if pf_summary:
+            for r in pf_summary.get('results', []):
+                if r['ticker'] == top_ticker:
+                    crash_pct = r['pct']
+                    break
+        if crash_pct is not None and crash_pct <= -3.0:
+            action_hint = f'\n\n💡 <b>행동:</b> {top_ticker} 비중 확대 검토 ⚠️ 급락 중({crash_pct:.1f}%) — 분할 접근'
+        else:
+            action_hint = f'\n\n💡 <b>행동:</b> {top_ticker} 비중 확대 검토'
     elif result['signal'] == 'RED':
         action_hint = '\n\n💡 <b>행동:</b> 신규 매수 자제, 현금 비중 확대'
     else:
@@ -784,24 +797,15 @@ def format_morning_digest(result, bottomup_scores=None, state=None, pf_summary=N
     # ── AI 분석용 데이터 블록 (복붙 → AI에 던지면 100점 분석) ─────────
     ai_block = '\n\n<b>📋 AI 분석 데이터 (복붙용):</b>'
     if pf_summary:
-        # 포트폴리오 구성 요약
-        try:
-            pf_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'portfolio.json')
-            with open(pf_path, encoding='utf-8') as _f:
-                _pf = json.load(_f)
-            total_val = pf_summary['total_krw']
-            holdings_summary = []
-            for h in _pf.get('holdings', []):
-                t    = h['ticker']
-                tp   = h.get('type', 'core')
-                # 해당 종목 평가액 찾기
-                matched = next((r for r in pf_summary.get('top_movers', []) + pf_summary.get('scout_alerts', []) if r['ticker'] == t), None)
-                val  = matched['val_krw'] if matched else 0
-                pct  = round(val / total_val * 100, 1) if total_val else 0
-                holdings_summary.append(f"{t}({tp},{pct}%)")
-            ai_block += '\n• 종목: ' + '  '.join(holdings_summary)
-        except Exception:
-            pass
+        all_results = pf_summary.get('results', [])
+        total_val   = pf_summary.get('total_krw', 0)
+        if all_results and total_val:
+            parts = []
+            for r in all_results:
+                pct_of_port = round(r.get('val_krw', 0) / total_val * 100, 1) if total_val else 0
+                tp = r.get('type', 'core')
+                parts.append(f"{r['ticker']}({tp},{pct_of_port}%)")
+            ai_block += '\n• 종목: ' + '  '.join(parts)
         r_str = ''
         if pf_summary.get('sharpe') is not None:
             r_str += f"Sharpe {pf_summary['sharpe']}"
