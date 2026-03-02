@@ -487,6 +487,13 @@ def fetch_portfolio_summary():
         closes = data['Close'] if len(tickers) > 1 else data[['Close']]
         if len(tickers) == 1:
             closes.columns = tickers
+        # ── closes 실제 가격 디버그 (비중 버그 원인 추적) ──────────────
+        for _t in tickers[:3]:  # 첫 3종목만 출력
+            try:
+                _p = float(closes[_t].dropna().iloc[-1])
+                print(f"[PF-DEBUG] {_t} close=${_p:.2f}")
+            except Exception as _e:
+                print(f"[PF-DEBUG] {_t} 오류: {_e}")
 
         # ── 현재 평가액 기준 비중 계산 ────────────────────────────────────
         weights   = {}
@@ -691,8 +698,11 @@ def format_morning_digest(result, bottomup_scores=None, state=None, pf_summary=N
     prev_vix = state.get('prev_vix') if state else None
     if prev_vix is not None:
         vix_delta  = result['vix'] - prev_vix
-        vix_arrow  = '▲' if vix_delta > 0 else '▼' if vix_delta < 0 else '-'
-        vix_str    = f"{result['vix']:.1f} ({vix_arrow}{abs(vix_delta):.1f})"
+        if abs(vix_delta) < 0.05:
+            vix_str = f"{result['vix']:.1f} (→)"
+        else:
+            vix_arrow = '▲' if vix_delta > 0 else '▼'
+            vix_str   = f"{result['vix']:.1f} ({vix_arrow}{abs(vix_delta):.1f})"
     else:
         vix_str    = f"{result['vix']:.1f}"
 
@@ -700,8 +710,11 @@ def format_morning_digest(result, bottomup_scores=None, state=None, pf_summary=N
     prev_spread = state.get('prev_spread') if state else None
     if prev_spread is not None:
         sp_delta   = result['spread'] - prev_spread
-        sp_arrow   = '▲' if sp_delta > 0 else '▼' if sp_delta < 0 else '-'
-        spread_str = f"{result['spread']:+.2f}% ({sp_arrow}{abs(sp_delta):.2f}%)"
+        if abs(sp_delta) < 0.005:
+            spread_str = f"{result['spread']:+.2f}% (→)"
+        else:
+            sp_arrow   = '▲' if sp_delta > 0 else '▼'
+            spread_str = f"{result['spread']:+.2f}% ({sp_arrow}{abs(sp_delta):.2f}%)"
     else:
         spread_str = f"{result['spread']:+.2f}%"
 
