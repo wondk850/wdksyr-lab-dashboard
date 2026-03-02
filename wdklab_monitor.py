@@ -781,6 +781,37 @@ def format_morning_digest(result, bottomup_scores=None, state=None, pf_summary=N
         if sig.get('macd_sell'):
             pf_lines += '\n🔴 <b>MACD 데드:</b> ' + '  '.join(sig['macd_sell'])
 
+    # ── AI 분석용 데이터 블록 (복붙 → AI에 던지면 100점 분석) ─────────
+    ai_block = '\n\n<b>📋 AI 분석 데이터 (복붙용):</b>'
+    if pf_summary:
+        # 포트폴리오 구성 요약
+        try:
+            pf_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'portfolio.json')
+            with open(pf_path, encoding='utf-8') as _f:
+                _pf = json.load(_f)
+            total_val = pf_summary['total_krw']
+            holdings_summary = []
+            for h in _pf.get('holdings', []):
+                t    = h['ticker']
+                tp   = h.get('type', 'core')
+                # 해당 종목 평가액 찾기
+                matched = next((r for r in pf_summary.get('top_movers', []) + pf_summary.get('scout_alerts', []) if r['ticker'] == t), None)
+                val  = matched['val_krw'] if matched else 0
+                pct  = round(val / total_val * 100, 1) if total_val else 0
+                holdings_summary.append(f"{t}({tp},{pct}%)")
+            ai_block += '\n• 종목: ' + '  '.join(holdings_summary)
+        except Exception:
+            pass
+        r_str = ''
+        if pf_summary.get('sharpe') is not None:
+            r_str += f"Sharpe {pf_summary['sharpe']}"
+        if pf_summary.get('mdd') is not None:
+            r_str += f"  MDD {pf_summary['mdd']}%"
+        if pf_summary.get('volatility') is not None:
+            r_str += f"  변동성 {pf_summary['volatility']}%/yr"
+        if r_str:
+            ai_block += f'\n• 리스크: {r_str}'
+    ai_block += f'\n• 시그널: Composite {result["composite"]:+.2f} / VIX {result["vix"]:.1f} / Spread {result["spread"]:+.2f}%'
     msg = f"""🌅 <b>WDK LAB Morning Digest</b> {date_str}
 
 🚦 <b>Today's Signal:</b>
@@ -791,7 +822,7 @@ def format_morning_digest(result, bottomup_scores=None, state=None, pf_summary=N
 • VIX: {vix_str}
 • 10Y-2Y Spread: {spread_str}
 • PCE YoY: {result['pce_yoy']:.1f}%
-• 2Y 변화: {result['dgs2_change_bp']:.0f}bp{bu_lines}{pf_lines}{cal_lines}{action_hint}
+• 2Y 변화: {result['dgs2_change_bp']:.0f}bp{bu_lines}{pf_lines}{cal_lines}{action_hint}{ai_block}
 
 ⏰ {now_kst.strftime('%H:%M KST')}"""
     return msg
