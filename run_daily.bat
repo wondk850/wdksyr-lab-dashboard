@@ -6,9 +6,6 @@ echo  WDK LAB Morning Digest 텔레그램 발송 중...
 echo ============================================
 cd /d %~dp0
 
-echo [*] 의존성 확인 중... (Python 3.12)
-py -3.12 -m pip install -r requirements.txt -q 2>nul || echo [WARN] 일부 패키지 설치 실패 - 계속 진행
-
 py -3.12 wdklab_monitor.py daily
 if %ERRORLEVEL% NEQ 0 (
     color 0C
