@@ -11,8 +11,8 @@ echo [*] 의존성 확인 중...
 pip install -r requirements.txt -q 2>nul || echo [WARN] 일부 패키지 설치 실패 - 계속 진행
 
 echo [*] state 초기화 중...
-if exist wdk_state.json (
-    python -c "import json; s=json.load(open('wdk_state.json',encoding='utf-8')); s.pop('last_sent',None); json.dump(s, open('wdk_state.json','w',encoding='utf-8'), ensure_ascii=False)"
+if exist state.json (
+    python -c "import json; s=json.load(open('state.json',encoding='utf-8')); s.pop('last_sent',None); json.dump(s, open('state.json','w',encoding='utf-8'), ensure_ascii=False)"
     echo [OK] state 초기화 완료
 )
 
