@@ -2,10 +2,10 @@
 title WDK LAB - VIX Midcheck
 color 0E
 echo ============================================
-echo  WDK LAB 장중 VIX 긴급체크 중...
+echo  WDK LAB 장중 VIX 긴급체크 중... (Python 3.12)
 echo ============================================
 cd /d %~dp0
-python wdklab_monitor.py midcheck
+py -3.12 wdklab_monitor.py midcheck
 if %ERRORLEVEL% NEQ 0 (
     color 0C
     echo.

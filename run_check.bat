@@ -2,10 +2,10 @@
 title WDK LAB - Signal Check
 color 0B
 echo ============================================
-echo  WDK LAB Signal 체크 중...
+echo  WDK LAB Signal 체크 중... (Python 3.12)
 echo ============================================
 cd /d %~dp0
-python wdklab_monitor.py check
+py -3.12 wdklab_monitor.py check
 if %ERRORLEVEL% NEQ 0 (
     color 0C
     echo.
