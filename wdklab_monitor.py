@@ -615,6 +615,24 @@ def format_morning_digest(result, bottomup_scores=None, state=None, pf_summary=N
     else:
         delta_str = ''
 
+    # 전일比 VIX 변화량
+    prev_vix = state.get('prev_vix') if state else None
+    if prev_vix is not None:
+        vix_delta  = result['vix'] - prev_vix
+        vix_arrow  = '▲' if vix_delta > 0 else '▼' if vix_delta < 0 else '-'
+        vix_str    = f"{result['vix']:.1f} ({vix_arrow}{abs(vix_delta):.1f})"
+    else:
+        vix_str    = f"{result['vix']:.1f}"
+
+    # 전일比 Spread 변화량
+    prev_spread = state.get('prev_spread') if state else None
+    if prev_spread is not None:
+        sp_delta   = result['spread'] - prev_spread
+        sp_arrow   = '▲' if sp_delta > 0 else '▼' if sp_delta < 0 else '-'
+        spread_str = f"{result['spread']:+.2f}% ({sp_arrow}{abs(sp_delta):.2f}%)"
+    else:
+        spread_str = f"{result['spread']:+.2f}%"
+
     # 경제 캘린더
     cal_events = get_economic_calendar()
     cal_lines  = ''
@@ -680,8 +698,8 @@ def format_morning_digest(result, bottomup_scores=None, state=None, pf_summary=N
 
 <b>📊 탑다운 지표:</b>
 • Composite: {curr_comp:+.2f}{delta_str}
-• VIX: {result['vix']:.1f}
-• 10Y-2Y Spread: {result['spread']:+.2f}%
+• VIX: {vix_str}
+• 10Y-2Y Spread: {spread_str}
 • PCE YoY: {result['pce_yoy']:.1f}%
 • 2Y 변화: {result['dgs2_change_bp']:.0f}bp{bu_lines}{pf_lines}{cal_lines}{action_hint}
 
@@ -760,6 +778,8 @@ def main(mode='check'):
             s['ticker']: i+1 for i, s in enumerate(bottomup_scores)
         }
         state['prev_composite'] = result['composite']
+        state['prev_vix']       = result['vix']      # Δ 비교용
+        state['prev_spread']    = result['spread']   # Δ 비교용
 
     elif mode == 'check':
         # 🚨 2단계: Signal Alert (변경시만)
