@@ -7,7 +7,7 @@ echo ============================================
 cd /d %~dp0
 
 echo [*] 의존성 확인 중...
-pip install -r requirements.txt -q
+pip install -r requirements.txt -q 2>nul || echo [WARN] 일부 패키지 설치 실패 - 계속 진행 (MACD/RSI 제외될 수 있음)
 
 python wdklab_monitor.py daily
 if %ERRORLEVEL% NEQ 0 (
