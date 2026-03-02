@@ -743,6 +743,12 @@ def format_morning_digest(result, bottomup_scores=None, state=None, pf_summary=N
                 if r['ticker'] == top_ticker:
                     crash_pct = r['pct']
                     break
+        # results에서 못 찾으면 top_movers에서 fallback
+        if crash_pct is None and pf_summary:
+            for r in pf_summary.get('top_movers', []):
+                if r['ticker'] == top_ticker:
+                    crash_pct = r['pct']
+                    break
         if crash_pct is not None and crash_pct <= -3.0:
             action_hint = f'\n\n💡 <b>행동:</b> {top_ticker} 비중 확대 검토 ⚠️ 급락 중({crash_pct:.1f}%) — 분할 접근'
         else:
@@ -799,13 +805,31 @@ def format_morning_digest(result, bottomup_scores=None, state=None, pf_summary=N
     if pf_summary:
         all_results = pf_summary.get('results', [])
         total_val   = pf_summary.get('total_krw', 0)
-        if all_results and total_val:
+        # portfolio.json에서 전체 holding 목록 읽기 (순서 보장 + type 정보)
+        try:
+            _pf_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'portfolio.json')
+            with open(_pf_path, encoding='utf-8') as _f:
+                _pf_data = json.load(_f)
+            _holdings_raw = _pf_data.get('holdings', [])
+        except Exception:
+            _holdings_raw = []
+
+        # results를 ticker → dict 맵으로 변환
+        results_map = {r['ticker']: r for r in all_results}
+
+        if _holdings_raw and total_val:
             parts = []
-            for r in all_results:
-                pct_of_port = round(r.get('val_krw', 0) / total_val * 100, 1) if total_val else 0
-                tp = r.get('type', 'core')
-                parts.append(f"{r['ticker']}({tp},{pct_of_port}%)")
-            ai_block += '\n• 종목: ' + '  '.join(parts)
+            for _h in _holdings_raw:
+                _t  = _h['ticker']
+                _tp = _h.get('type', 'core')
+                _r  = results_map.get(_t)
+                if _r and _r.get('val_krw', 0) > 0:
+                    _pct = round(_r['val_krw'] / total_val * 100, 1)
+                    parts.append(f"{_t}({_tp},{_pct}%)")
+                else:
+                    parts.append(f"{_t}({_tp},N/A%)")
+            if parts:
+                ai_block += '\n• 종목: ' + '  '.join(parts)
         r_str = ''
         if pf_summary.get('sharpe') is not None:
             r_str += f"Sharpe {pf_summary['sharpe']}"

@@ -5,6 +5,10 @@ echo ============================================
 echo  WDK LAB Morning Digest 텔레그램 발송 중...
 echo ============================================
 cd /d %~dp0
+
+echo [*] 의존성 확인 중...
+pip install -r requirements.txt -q
+
 python wdklab_monitor.py daily
 if %ERRORLEVEL% NEQ 0 (
     color 0C
