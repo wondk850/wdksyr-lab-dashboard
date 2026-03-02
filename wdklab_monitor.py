@@ -889,6 +889,41 @@ def main(mode='check'):
         print("[bottomup mode] 바텀업 스크립트 분리 실행 중 — 신호 재계산만")
         pass
 
+    elif mode == 'midcheck':
+        # 📡 미장 중반 VIX 긴급 체크 (KST 01:30, 03:30)
+        vix_now  = result['vix']
+        vix_prev = state.get('prev_vix', vix_now)
+        vix_diff = round(vix_now - vix_prev, 1)
+        kst      = timezone(timedelta(hours=9))
+        now_kst  = datetime.now(kst)
+
+        print(f"[midcheck] VIX {vix_prev:.1f} → {vix_now:.1f} (Δ{vix_diff:+.1f})")
+
+        should_alert = False
+        alert_reason = ''
+        if vix_now >= 22:
+            should_alert = True
+            alert_reason = f'VIX {vix_now:.1f} ≥ 22 (경계구간 진입)'
+        elif abs(vix_diff) >= 2.0:
+            should_alert = True
+            arrow = '▲' if vix_diff > 0 else '▼'
+            alert_reason = f'VIX {arrow}{abs(vix_diff):.1f} 급변 ({vix_prev:.1f} → {vix_now:.1f})'
+
+        if should_alert:
+            lvl = '🚨' if vix_now >= 25 else '⚠️'
+            msg = f"""{lvl} <b>미장 중반 VIX 경보</b>
+
+<b>사유:</b> {alert_reason}
+📊 Composite: {result['composite']:+.2f} / Signal: {result['signal']}
+• Spread: {result['spread']:+.2f}%
+
+💡 Morning Digest 이후 시장 환경 변화 — 재점검 권고
+⏰ {now_kst.strftime('%H:%M KST')}"""
+            send_telegram(msg)
+            print(f"[midcheck] 🚨 알림 발송: {alert_reason}")
+        else:
+            print(f"[midcheck] 이상 없음 — 알림 없음")
+
     # 상태 저장
     state['previous_signal'] = result['signal']
     state['last_check'] = result['timestamp']

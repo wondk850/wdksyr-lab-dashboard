@@ -38,6 +38,7 @@ on:
           - bottomup
           - bid
           - opengo
+          - midcheck
 
 
 jobs:
@@ -82,8 +83,16 @@ jobs:
           # KST 06:00~07:00 (UTC 21:xx) = report (장 마감)
           elif [ "$HOUR" = "21" ]; then
             echo "mode=report" >> $GITHUB_OUTPUT
-          # 장 중 30분 간격 (UTC 15-17, 20) = bottomup만 업데이트
-          elif [ "$HOUR" = "15" ] || [ "$HOUR" = "16" ] || [ "$HOUR" = "17" ] || [ "$HOUR" = "20" ]; then
+          # 미장 중반/후반 VIX 긴급 체크 (UTC 16:30, 18:30)
+          elif [ "$HOUR" = "16" ] || [ "$HOUR" = "18" ]; then
+            MINUTE=$(date -u +%M)
+            if [ "$MINUTE" = "30" ]; then
+              echo "mode=midcheck" >> $GITHUB_OUTPUT
+            else
+              echo "mode=bottomup" >> $GITHUB_OUTPUT
+            fi
+          # 장 중 30분 간격 (UTC 15, 17, 20) = bottomup만 업데이트
+          elif [ "$HOUR" = "15" ] || [ "$HOUR" = "17" ] || [ "$HOUR" = "20" ]; then
             echo "mode=bottomup" >> $GITHUB_OUTPUT
           # 그 외 = check
           else
