@@ -11,9 +11,11 @@ echo [*] 의존성 확인 중...
 pip install -r requirements.txt -q 2>nul || echo [WARN] 일부 패키지 설치 실패 - 계속 진행
 
 echo [*] state 초기화 중...
-if exist state.json (
-    python -c "import json; s=json.load(open('state.json',encoding='utf-8')); s.pop('last_sent',None); json.dump(s, open('state.json','w',encoding='utf-8'), ensure_ascii=False)"
-    echo [OK] state 초기화 완료
+if exist signal_state.json (
+    del signal_state.json
+    echo [OK] signal_state.json 삭제 완료
+) else (
+    echo [OK] state 파일 없음 - 바로 진행
 )
 
 python wdklab_monitor.py daily
