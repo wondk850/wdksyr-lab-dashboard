@@ -31,6 +31,7 @@ FRED_SERIES = {
     'UNRATE': 'UNRATE',       # 실업률
     'DTWEXBGS': 'DTWEXBGS',   # 달러 인덱스
     'PCEPILFE': 'PCEPILFE',   # Core PCE
+    'M2SL': 'M2SL',           # M2 통화량 (월별)
 }
 
 # 바텀업 티커
@@ -324,6 +325,73 @@ def calculate_signal():
     else:
         final_signal = 'YELLOW'
     
+    # === 비대칭 손익비 지표 (드라켄밀러 프레임워크) ===
+    # 1) 주식-채권 수익률 갭: S&P500 이익수익률 - 10년물 금리
+    equity_bond_gap = None
+    try:
+        import yfinance as yf
+        spy = yf.Ticker('SPY')
+        spy_pe = spy.info.get('trailingPE') or spy.info.get('forwardPE')
+        dgs10_val = latest.get('DGS10', 0)
+        if spy_pe and spy_pe > 0 and dgs10_val:
+            earnings_yield = (1 / spy_pe) * 100  # EY = 1/PE * 100
+            equity_bond_gap = round(earnings_yield - dgs10_val, 2)
+            print(f"[ASYM] EY={earnings_yield:.2f}% - 10Y={dgs10_val:.2f}% = Gap={equity_bond_gap:+.2f}%")
+    except Exception as e:
+        print(f"[ASYM] equity_bond_gap 오류: {e}")
+
+    # 2) M2 가속도 (2차 미분) — 최근 6개월 변화율의 변화
+    m2_accel = None
+    m2_data = data.get('M2SL', [])
+    if len(m2_data) >= 12:
+        try:
+            # 최근 6개월 YoY 변화율
+            m2_now = m2_data[-1]['value']
+            m2_6m  = m2_data[-6]['value']
+            m2_12m = m2_data[-12]['value']
+            if m2_12m > 0 and m2_6m > 0:
+                rate_recent = ((m2_now / m2_6m) - 1) * 100 * 2   # 연환산
+                rate_prior  = ((m2_6m / m2_12m) - 1) * 100 * 2   # 연환산
+                m2_accel = round(rate_recent - rate_prior, 2)
+                print(f"[ASYM] M2 최근={rate_recent:.1f}%/yr 이전={rate_prior:.1f}%/yr 가속도={m2_accel:+.2f}%p")
+        except Exception as e:
+            print(f"[ASYM] M2 가속도 오류: {e}")
+
+    # 3) 셋업 비대칭성 등급 (Druckenmiller "pig" 판정)
+    asym_score = 0
+    # 채권갭: +면 주식 유리
+    if equity_bond_gap is not None:
+        if equity_bond_gap > 1.0:
+            asym_score += 2   # 주식 매우 유리
+        elif equity_bond_gap > 0:
+            asym_score += 1
+        elif equity_bond_gap > -1.0:
+            asym_score -= 1
+        else:
+            asym_score -= 2   # 주식 매우 불리 (2002 이후 최저 수준)
+    # M2 가속도: +면 유동성 확장
+    if m2_accel is not None:
+        if m2_accel > 2.0:
+            asym_score += 2
+        elif m2_accel > 0:
+            asym_score += 1
+        elif m2_accel > -2.0:
+            asym_score -= 1
+        else:
+            asym_score -= 2
+    # 탑다운 신호 반영
+    asym_score += fed_signal + inflation_signal
+
+    if asym_score >= 4:
+        asymmetry_grade = 'EXTREME'
+    elif asym_score >= 2:
+        asymmetry_grade = 'HIGH'
+    elif asym_score >= 0:
+        asymmetry_grade = 'MEDIUM'
+    else:
+        asymmetry_grade = 'LOW'
+    print(f"[ASYM] 비대칭 점수={asym_score} 등급={asymmetry_grade}")
+
     return {
         'signal': final_signal,
         'composite': composite,
@@ -335,6 +403,10 @@ def calculate_signal():
         'pce_3m_ann': pce_3m_ann,
         'vix': vix,
         'spread': spread,
+        'equity_bond_gap': equity_bond_gap,
+        'm2_accel': m2_accel,
+        'asymmetry_grade': asymmetry_grade,
+        'asym_score': asym_score,
         'timestamp': datetime.now(timezone.utc).isoformat()
     }
 
@@ -813,6 +885,34 @@ def format_morning_digest(result, bottomup_scores=None, state=None, pf_summary=N
         if sig.get('macd_sell'):
             pf_lines += '\n🔴 <b>MACD 데드:</b> ' + '  '.join(sig['macd_sell'])
 
+    # ── 비대칭 손익비 섹션 (드라켄밀러 프레임워크) ────────────────────
+    asym_lines = ''
+    _gap = result.get('equity_bond_gap')
+    _m2a = result.get('m2_accel')
+    _ag  = result.get('asymmetry_grade', 'N/A')
+    _as  = result.get('asym_score', 0)
+    # 채권갭 해석
+    if _gap is not None:
+        if _gap > 1.0:
+            gap_label = '주식 유리 ✅'
+        elif _gap > 0:
+            gap_label = '주식 소폭 유리'
+        elif _gap > -1.0:
+            gap_label = '주식 불리 ⚠️'
+        else:
+            gap_label = '주식 매우 불리 🚨'
+        asym_lines += f'\n• 주식-채권 갭: {_gap:+.2f}% ({gap_label})'
+    # M2 가속도
+    if _m2a is not None:
+        if _m2a > 0:
+            m2_label = '유동성 확장 📈'
+        else:
+            m2_label = '유동성 수축 📉'
+        asym_lines += f'\n• M2 가속도: {_m2a:+.2f}%p ({m2_label})'
+    # 비대칭성 등급
+    grade_emoji = {'EXTREME': '🐷🐷', 'HIGH': '🐷', 'MEDIUM': '⚠️', 'LOW': '🛑'}
+    asym_lines += f'\n• 셋업 비대칭성: {_ag} {grade_emoji.get(_ag, "")} (점수 {_as:+d})'
+
     # ── AI 분석용 데이터 블록 (복붙 → AI에 던지면 100점 분석) ─────────
     ai_block = '\n\n<b>📋 AI 분석 데이터 (복붙용):</b>'
     if pf_summary:
@@ -853,6 +953,12 @@ def format_morning_digest(result, bottomup_scores=None, state=None, pf_summary=N
         if r_str:
             ai_block += f'\n• 리스크: {r_str}'
     ai_block += f'\n• 시그널: Composite {result["composite"]:+.2f} / VIX {result["vix"]:.1f} / Spread {result["spread"]:+.2f}%'
+    # 비대칭 지표 추가
+    _gap = result.get('equity_bond_gap')
+    _m2a = result.get('m2_accel')
+    _ag  = result.get('asymmetry_grade', 'N/A')
+    _as  = result.get('asym_score', 0)
+    ai_block += f'\n• 비대칭: 채권갭 {_gap if _gap is not None else "N/A"}% / M2가속 {_m2a if _m2a is not None else "N/A"}%p / 등급 {_ag}({_as:+d})'
     msg = f"""🌅 <b>WDK LAB Morning Digest</b> {date_str}
 
 🚦 <b>Today's Signal:</b>
@@ -863,7 +969,9 @@ def format_morning_digest(result, bottomup_scores=None, state=None, pf_summary=N
 • VIX: {vix_str}
 • 10Y-2Y Spread: {spread_str}
 • PCE YoY: {result['pce_yoy']:.1f}%
-• 2Y 변화: {result['dgs2_change_bp']:.0f}bp{bu_lines}{pf_lines}{cal_lines}{action_hint}{ai_block}
+• 2Y 변화: {result['dgs2_change_bp']:.0f}bp{bu_lines}{pf_lines}{cal_lines}{action_hint}
+
+📡 <b>손익비 지표 (드라켄밀러):</b>{asym_lines}{ai_block}
 
 ⏰ {now_kst.strftime('%H:%M KST')}"""
     return msg
