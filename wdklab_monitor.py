@@ -5,9 +5,15 @@ FRED 데이터 수집 → 신호등 계산 → 바텀업 분석 → 텔레그램
 
 import os
 import json
+import sys
 import requests
 import time
 from datetime import datetime, timezone, timedelta
+
+# Windows cp949 인코딩 이모지 출력 에러 방지
+if sys.stdout.encoding and sys.stdout.encoding.lower() != 'utf-8':
+    sys.stdout.reconfigure(encoding='utf-8', errors='replace')
+    sys.stderr.reconfigure(encoding='utf-8', errors='replace')
 
 # pandas_ta 사용 가능 여부 (없으면 RSI/MACD graceful skip)
 try:
