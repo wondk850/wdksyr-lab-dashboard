@@ -1,7 +1,7 @@
 {
   "version": "3.0",
-  "updated": "2026-04-23T05:44:56.125339+09:00",
-  "updated_display": "2026. 04. 23. AM 05:44:56",
+  "updated": "2026-04-23T06:48:43.571049+09:00",
+  "updated_display": "2026. 04. 23. AM 06:48:43",
   "count": 17,
   "total": 17,
   "weights": {
@@ -45,7 +45,7 @@
       "scores": {
         "momentum": 0.47,
         "fundamental": 0.1,
-        "valuation": 0.87,
+        "valuation": 0.86,
         "risk": 0.5,
         "final": 0.35
       },
@@ -103,7 +103,7 @@
       "scores": {
         "momentum": 0.34,
         "fundamental": 0.07,
-        "valuation": 0.63,
+        "valuation": 0.62,
         "risk": 0.5,
         "final": 0.25
       },
@@ -120,7 +120,7 @@
         "roe": 1.5202099,
         "fcf_margin": 0.2440509709059201,
         "pe": 34.534767,
-        "forward_pe": 29.104141,
+        "forward_pe": 29.145535,
         "peg": 2.46,
         "beta": 1.109
       },
@@ -132,7 +132,7 @@
       "scores": {
         "momentum": 0.08,
         "fundamental": 0.13,
-        "valuation": 0.79,
+        "valuation": 0.78,
         "risk": 0.5,
         "final": 0.25
       },
@@ -161,7 +161,7 @@
       "scores": {
         "momentum": 0.15,
         "fundamental": -0.06,
-        "valuation": 0.84,
+        "valuation": 0.83,
         "risk": 0.5,
         "final": 0.17
       },
@@ -190,7 +190,7 @@
       "scores": {
         "momentum": 0.23,
         "fundamental": -0.19,
-        "valuation": 0.63,
+        "valuation": 0.62,
         "risk": 0.5,
         "final": 0.08
       },
@@ -219,7 +219,7 @@
       "scores": {
         "momentum": 0.24,
         "fundamental": -0.23,
-        "valuation": 0.68,
+        "valuation": 0.67,
         "risk": 0.5,
         "final": 0.07
       },
@@ -265,7 +265,7 @@
         "roe": 0.30238,
         "fcf_margin": 0.11659870164587598,
         "pe": 28.735945,
-        "forward_pe": 18.944122,
+        "forward_pe": 18.814228,
         "peg": 1.1,
         "beta": 1.309
       },
@@ -279,7 +279,7 @@
         "fundamental": -0.41,
         "valuation": 0.86,
         "risk": 0.5,
-        "final": 0.0
+        "final": -0.0
       },
       "raw": {
         "price": 313.02,
@@ -306,7 +306,7 @@
       "scores": {
         "momentum": 0.42,
         "fundamental": -0.51,
-        "valuation": 0.66,
+        "valuation": 0.65,
         "risk": -0.5,
         "final": -0.04
       },
@@ -364,9 +364,9 @@
       "scores": {
         "momentum": 0.0,
         "fundamental": -0.45,
-        "valuation": 0.08,
+        "valuation": 0.05,
         "risk": 0.5,
-        "final": -0.23
+        "final": -0.24
       },
       "raw": {
         "price": 1003.7,
@@ -393,9 +393,9 @@
       "scores": {
         "momentum": -0.46,
         "fundamental": -0.37,
-        "valuation": 0.23,
+        "valuation": 0.2,
         "risk": 0.5,
-        "final": -0.27
+        "final": -0.28
       },
       "raw": {
         "price": 276.29,
@@ -451,9 +451,9 @@
       "scores": {
         "momentum": 0.35,
         "fundamental": -0.77,
-        "valuation": 0.22,
+        "valuation": 0.19,
         "risk": 0.5,
-        "final": -0.29
+        "final": -0.3
       },
       "raw": {
         "price": 129.98,
@@ -480,9 +480,9 @@
       "scores": {
         "momentum": 0.12,
         "fundamental": -0.97,
-        "valuation": -1.0,
+        "valuation": -0.49,
         "risk": -0.5,
-        "final": -0.7
+        "final": -0.6
       },
       "raw": {
         "price": 387.51,
@@ -498,7 +498,7 @@
         "fcf_margin": 0.03936246788708833,
         "pe": 358.80554,
         "forward_pe": 140.78987,
-        "peg": 5.75,
+        "peg": 2,
         "beta": 1.915
       },
       "rank": 17
