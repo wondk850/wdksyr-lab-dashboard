@@ -1,7 +1,7 @@
 {
   "version": "3.0",
-  "updated": "2026-04-30T05:55:41.443217+09:00",
-  "updated_display": "2026. 04. 30. AM 05:55:41",
+  "updated": "2026-04-30T06:57:11.663651+09:00",
+  "updated_display": "2026. 04. 30. AM 06:57:11",
   "count": 17,
   "total": 17,
   "weights": {
@@ -74,9 +74,9 @@
       "scores": {
         "momentum": 0.3,
         "fundamental": 0.03,
-        "valuation": 0.78,
+        "valuation": 0.81,
         "risk": 0.5,
-        "final": 0.24
+        "final": 0.25
       },
       "raw": {
         "price": 334.86,
@@ -92,7 +92,7 @@
         "fcf_margin": 0.5322956688247912,
         "pe": 29.16899,
         "forward_pe": 22.865202,
-        "peg": 2,
+        "peg": 1.69,
         "beta": 0.799
       },
       "rank": 3
@@ -121,7 +121,7 @@
         "fcf_margin": 0.17561007740445236,
         "pe": 26.578585,
         "forward_pe": 22.427822,
-        "peg": 1.34,
+        "peg": 1.35,
         "beta": 1.107
       },
       "rank": 4
@@ -132,7 +132,7 @@
       "scores": {
         "momentum": 0.08,
         "fundamental": -0.03,
-        "valuation": 0.68,
+        "valuation": 0.69,
         "risk": 0.5,
         "final": 0.14
       },
@@ -185,43 +185,14 @@
       "rank": 6
     },
     {
-      "ticker": "META",
-      "error": false,
-      "scores": {
-        "momentum": 0.18,
-        "fundamental": -0.4,
-        "valuation": 0.91,
-        "risk": 0.5,
-        "final": 0.01
-      },
-      "raw": {
-        "price": 669.12,
-        "sma200": 679.5031,
-        "52w_change": 0,
-        "5d_change": 0.0151,
-        "rsi": 57.9,
-        "macd_cross": 1.0,
-        "eps_growth": 0.093,
-        "revenue_growth": 0.238,
-        "profit_margin": 0.30084,
-        "roe": 0.30238,
-        "fcf_margin": 0.11659870164587598,
-        "pe": 28.473192,
-        "forward_pe": 18.55574,
-        "peg": 1.1,
-        "beta": 1.309
-      },
-      "rank": 7
-    },
-    {
       "ticker": "GOOGL",
       "error": false,
       "scores": {
         "momentum": 0.1,
         "fundamental": -0.32,
-        "valuation": 0.71,
+        "valuation": 0.76,
         "risk": 0.5,
-        "final": -0.01
+        "final": 0.0
       },
       "raw": {
         "price": 349.94,
@@ -237,8 +208,37 @@
         "fcf_margin": 0.09455057798872078,
         "pe": 32.371876,
         "forward_pe": 25.86764,
-        "peg": 2.39,
+        "peg": 2,
         "beta": 1.128
+      },
+      "rank": 7
+    },
+    {
+      "ticker": "META",
+      "error": false,
+      "scores": {
+        "momentum": 0.18,
+        "fundamental": -0.4,
+        "valuation": 0.81,
+        "risk": 0.5,
+        "final": -0.01
+      },
+      "raw": {
+        "price": 669.12,
+        "sma200": 679.5031,
+        "52w_change": 0,
+        "5d_change": 0.0151,
+        "rsi": 57.9,
+        "macd_cross": 1.0,
+        "eps_growth": 0.093,
+        "revenue_growth": 0.238,
+        "profit_margin": 0.30084,
+        "roe": 0.30238,
+        "fcf_margin": 0.11659870164587598,
+        "pe": 28.473192,
+        "forward_pe": 18.55574,
+        "peg": 2,
+        "beta": 1.309
       },
       "rank": 8
     },
@@ -364,7 +364,7 @@
       "scores": {
         "momentum": -0.17,
         "fundamental": -0.51,
-        "valuation": 0.21,
+        "valuation": 0.22,
         "risk": 0.5,
         "final": -0.28
       },
@@ -410,8 +410,8 @@
         "roe": 0.45428002,
         "fcf_margin": 0.11731831497750858,
         "pe": 35.2699,
-        "forward_pe": 32.693764,
-        "peg": 6.85,
+        "forward_pe": 32.67583,
+        "peg": 6.96,
         "beta": 1.428
       },
       "rank": 14
@@ -451,9 +451,9 @@
       "scores": {
         "momentum": -0.01,
         "fundamental": -0.91,
-        "valuation": 0.33,
+        "valuation": 0.34,
         "risk": 0.5,
-        "final": -0.44
+        "final": -0.43
       },
       "raw": {
         "price": 128.01,
@@ -498,7 +498,7 @@
         "fcf_margin": 0.05365808595829302,
         "pe": 342.01834,
         "forward_pe": 147.04025,
-        "peg": 5.14,
+        "peg": 5.18,
         "beta": 1.915
       },
       "rank": 17
