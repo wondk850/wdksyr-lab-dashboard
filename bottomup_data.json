@@ -1,7 +1,7 @@
 {
   "version": "3.0",
-  "updated": "2026-05-01T05:53:03.673922+09:00",
-  "updated_display": "2026. 05. 01. AM 05:53:03",
+  "updated": "2026-05-01T06:54:34.768722+09:00",
+  "updated_display": "2026. 05. 01. AM 06:54:34",
   "count": 17,
   "total": 17,
   "weights": {
@@ -132,7 +132,7 @@
       "scores": {
         "momentum": 0.11,
         "fundamental": -0.02,
-        "valuation": 0.69,
+        "valuation": 0.74,
         "risk": 0.5,
         "final": 0.16
       },
@@ -150,7 +150,7 @@
         "fcf_margin": 0.2440509709059201,
         "pe": 34.391636,
         "forward_pe": 28.876884,
-        "peg": 2.43,
+        "peg": 2,
         "beta": 1.109
       },
       "rank": 5
@@ -364,7 +364,7 @@
       "scores": {
         "momentum": -0.02,
         "fundamental": -0.68,
-        "valuation": 0.76,
+        "valuation": 0.75,
         "risk": 0.5,
         "final": -0.23
       },
@@ -381,7 +381,7 @@
         "roe": 0.22286,
         "fcf_margin": 0.0331877933663955,
         "pe": 31.705742,
-        "forward_pe": 27.091557,
+        "forward_pe": 27.092747,
         "peg": 2,
         "beta": 1.383
       },
