@@ -1,7 +1,7 @@
 {
   "version": "3.0",
-  "updated": "2026-05-14T05:16:04.032925+09:00",
-  "updated_display": "2026. 05. 14. AM 05:16:04",
+  "updated": "2026-05-14T06:20:38.525539+09:00",
+  "updated_display": "2026. 05. 14. AM 06:20:38",
   "count": 17,
   "total": 17,
   "weights": {
@@ -50,10 +50,10 @@
         "final": 0.47
       },
       "raw": {
-        "price": 1015.94,
+        "price": 1015.75,
         "sma200": 918.0154,
         "52w_change": 0,
-        "5d_change": 0.042,
+        "5d_change": 0.0418,
         "rsi": 63.1,
         "macd_cross": 1.0,
         "eps_growth": 1.681,
@@ -61,8 +61,8 @@
         "profit_margin": 0.34986,
         "roe": 1.07459,
         "fcf_margin": 0.12673669969288362,
-        "pe": 36.141586,
-        "forward_pe": 22.94221,
+        "pe": 36.134827,
+        "forward_pe": 22.93792,
         "peg": 1.34,
         "beta": 0.481
       },
