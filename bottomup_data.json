@@ -1,7 +1,7 @@
 {
   "version": "3.0",
-  "updated": "2026-05-21T05:32:46.444398+09:00",
-  "updated_display": "2026. 05. 21. AM 05:32:46",
+  "updated": "2026-05-21T06:45:40.165828+09:00",
+  "updated_display": "2026. 05. 21. AM 06:45:40",
   "count": 17,
   "total": 17,
   "weights": {
@@ -63,7 +63,7 @@
         "fcf_margin": 0.2691929929187143,
         "pe": 45.60612,
         "forward_pe": 19.250051,
-        "peg": 0.71,
+        "peg": 0.7,
         "beta": 2.244
       },
       "rank": 2
@@ -422,7 +422,7 @@
       "scores": {
         "momentum": 0.41,
         "fundamental": -0.93,
-        "valuation": 0.89,
+        "valuation": 0.88,
         "risk": -0.3,
         "final": -0.23
       },
