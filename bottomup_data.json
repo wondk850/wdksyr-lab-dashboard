@@ -1,7 +1,7 @@
 {
   "version": "3.0",
-  "updated": "2026-06-26T05:27:40.074345+09:00",
-  "updated_display": "2026. 06. 26. AM 05:27:40",
+  "updated": "2026-06-26T06:24:39.046291+09:00",
+  "updated_display": "2026. 06. 26. AM 06:24:39",
   "count": 17,
   "total": 17,
   "weights": {
@@ -47,7 +47,7 @@
         "fundamental": 0.27,
         "valuation": 0.81,
         "risk": 0.5,
-        "final": 0.32
+        "final": 0.33
       },
       "raw": {
         "price": 1127.69,
@@ -127,6 +127,35 @@
       "rank": 4
     },
     {
+      "ticker": "AAPL",
+      "error": false,
+      "scores": {
+        "momentum": -0.49,
+        "fundamental": -0.11,
+        "valuation": 0.73,
+        "risk": 0.5,
+        "final": -0.03
+      },
+      "raw": {
+        "price": 275.15,
+        "sma200": 269.02536,
+        "52w_change": 0,
+        "5d_change": -0.0767,
+        "rsi": 31.8,
+        "macd_cross": -1.0,
+        "eps_growth": 0.194,
+        "revenue_growth": 0.166,
+        "profit_margin": 0.27152002,
+        "roe": 1.4147099,
+        "fcf_margin": 0.2239285284218523,
+        "pe": 33.31114,
+        "forward_pe": 28.634851,
+        "peg": 2.37,
+        "beta": 1.086
+      },
+      "rank": 5
+    },
+    {
       "ticker": "CAT",
       "error": false,
       "scores": {
@@ -152,35 +181,6 @@
         "forward_pe": 35.102337,
         "peg": 2.36,
         "beta": 1.603
-      },
-      "rank": 5
-    },
-    {
-      "ticker": "AAPL",
-      "error": false,
-      "scores": {
-        "momentum": -0.49,
-        "fundamental": -0.11,
-        "valuation": 0.73,
-        "risk": 0.5,
-        "final": -0.04
-      },
-      "raw": {
-        "price": 275.15,
-        "sma200": 269.02536,
-        "52w_change": 0,
-        "5d_change": -0.0767,
-        "rsi": 31.8,
-        "macd_cross": -1.0,
-        "eps_growth": 0.194,
-        "revenue_growth": 0.166,
-        "profit_margin": 0.27152002,
-        "roe": 1.4147099,
-        "fcf_margin": 0.2239285284218523,
-        "pe": 33.31114,
-        "forward_pe": 28.634851,
-        "peg": 2.37,
-        "beta": 1.086
       },
       "rank": 6
     },
@@ -306,7 +306,7 @@
       "scores": {
         "momentum": -0.24,
         "fundamental": -0.36,
-        "valuation": 0.6,
+        "valuation": 0.61,
         "risk": 0.5,
         "final": -0.14
       },
@@ -353,7 +353,7 @@
         "fcf_margin": 0.11731831497750858,
         "pe": 46.131676,
         "forward_pe": 42.751934,
-        "peg": 8.55,
+        "peg": 8.81,
         "beta": 1.375
       },
       "rank": 12
@@ -366,7 +366,7 @@
         "fundamental": -0.57,
         "valuation": 0.81,
         "risk": 0.5,
-        "final": -0.27
+        "final": -0.26
       },
       "raw": {
         "price": 227.01,
@@ -393,7 +393,7 @@
       "scores": {
         "momentum": -0.2,
         "fundamental": -0.64,
-        "valuation": 0.42,
+        "valuation": 0.44,
         "risk": 0.5,
         "final": -0.32
       },
@@ -422,7 +422,7 @@
       "scores": {
         "momentum": -0.0,
         "fundamental": -0.79,
-        "valuation": 0.47,
+        "valuation": 0.48,
         "risk": 0.5,
         "final": -0.34
       },
@@ -453,7 +453,7 @@
         "fundamental": -0.93,
         "valuation": 0.94,
         "risk": -0.3,
-        "final": -0.37
+        "final": -0.36
       },
       "raw": {
         "price": 137.55,
@@ -480,7 +480,7 @@
       "scores": {
         "momentum": -0.4,
         "fundamental": -0.77,
-        "valuation": -0.72,
+        "valuation": -0.71,
         "risk": -0.5,
         "final": -0.67
       },
