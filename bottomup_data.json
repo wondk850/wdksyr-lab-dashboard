@@ -1,7 +1,7 @@
 {
   "version": "3.0",
-  "updated": "2026-07-01T05:25:34.437933+09:00",
-  "updated_display": "2026. 07. 01. AM 05:25:34",
+  "updated": "2026-07-01T06:23:14.433086+09:00",
+  "updated_display": "2026. 07. 01. AM 06:23:14",
   "count": 17,
   "total": 17,
   "weights": {
@@ -79,19 +79,19 @@
         "final": 0.21
       },
       "raw": {
-        "price": 342.76,
+        "price": 343.09,
         "sma200": 328.72345,
         "52w_change": 0,
-        "5d_change": 0.0317,
-        "rsi": 66.8,
+        "5d_change": 0.0327,
+        "rsi": 67.0,
         "macd_cross": 1.0,
         "eps_growth": 0.315,
         "revenue_growth": 0.171,
         "profit_margin": 0.51679003,
         "roe": 0.60349,
         "fcf_margin": 0.48434120391952545,
-        "pe": 29.857145,
-        "forward_pe": 23.053307,
+        "pe": 29.88589,
+        "forward_pe": 23.0755,
         "peg": 1.48,
         "beta": 0.765
       },
