@@ -1,7 +1,7 @@
 {
   "version": "3.0",
-  "updated": "2026-07-02T05:20:46.666835+09:00",
-  "updated_display": "2026. 07. 02. AM 05:20:46",
+  "updated": "2026-07-02T06:20:43.204177+09:00",
+  "updated_display": "2026. 07. 02. AM 06:20:43",
   "count": 17,
   "total": 17,
   "weights": {
@@ -121,7 +121,7 @@
         "fcf_margin": 0.11889604277341219,
         "pe": 22.295744,
         "forward_pe": 16.909746,
-        "peg": 0.8,
+        "peg": 0.81,
         "beta": 1.229
       },
       "rank": 4
@@ -161,7 +161,7 @@
       "scores": {
         "momentum": 0.01,
         "fundamental": -0.11,
-        "valuation": 0.74,
+        "valuation": 0.73,
         "risk": 0.5,
         "final": 0.09
       },
@@ -179,7 +179,7 @@
         "fcf_margin": 0.2239285284218523,
         "pe": 35.682426,
         "forward_pe": 30.636118,
-        "peg": 2.29,
+        "peg": 2.34,
         "beta": 1.086
       },
       "rank": 6
@@ -277,7 +277,7 @@
       "scores": {
         "momentum": -0.19,
         "fundamental": -0.36,
-        "valuation": 0.63,
+        "valuation": 0.61,
         "risk": 0.5,
         "final": -0.12
       },
@@ -295,7 +295,7 @@
         "fcf_margin": 0.24466055221422175,
         "pe": 62.60326,
         "forward_pe": 37.498306,
-        "peg": 2.69,
+        "peg": 2.97,
         "beta": 1.396
       },
       "rank": 10
@@ -306,7 +306,7 @@
       "scores": {
         "momentum": 0.05,
         "fundamental": -0.6,
-        "valuation": 0.89,
+        "valuation": 0.9,
         "risk": 0.5,
         "final": -0.14
       },
@@ -324,7 +324,7 @@
         "fcf_margin": 0.0,
         "pe": 15.999522,
         "forward_pe": 14.054755,
-        "peg": 1.75,
+        "peg": 1.73,
         "beta": 1.0
       },
       "rank": 11
@@ -451,7 +451,7 @@
       "scores": {
         "momentum": -0.29,
         "fundamental": -0.79,
-        "valuation": 0.54,
+        "valuation": 0.55,
         "risk": 0.5,
         "final": -0.4
       },
@@ -469,7 +469,7 @@
         "fcf_margin": 0.009461192166889124,
         "pe": 38.316902,
         "forward_pe": 33.11857,
-        "peg": 4.4,
+        "peg": 4.31,
         "beta": 0.599
       },
       "rank": 16
