@@ -1,7 +1,7 @@
 {
   "version": "3.0",
-  "updated": "2026-07-18T05:44:05.166909+09:00",
-  "updated_display": "2026. 07. 18. AM 05:44:05",
+  "updated": "2026-07-18T06:49:34.915203+09:00",
+  "updated_display": "2026. 07. 18. AM 06:49:34",
   "count": 17,
   "total": 17,
   "weights": {
@@ -207,7 +207,7 @@
         "roe": 0.17789,
         "fcf_margin": 0.0,
         "pe": 14.620661,
-        "forward_pe": 13.915645,
+        "forward_pe": 13.932697,
         "peg": 1.8,
         "beta": 0.982
       },
@@ -264,7 +264,7 @@
         "profit_margin": 0.37919,
         "roe": 0.38884997,
         "fcf_margin": 0.06608729370410907,
-        "pe": 27.719423,
+        "pe": 26.43064,
         "forward_pe": 23.691233,
         "peg": 1.42,
         "beta": 1.247
@@ -276,10 +276,10 @@
       "error": false,
       "scores": {
         "momentum": -0.03,
-        "fundamental": -0.36,
+        "fundamental": -0.29,
         "valuation": 0.67,
         "risk": 0.5,
-        "final": -0.07
+        "final": -0.04
       },
       "raw": {
         "price": 1747.58,
@@ -288,15 +288,15 @@
         "5d_change": 0.0125,
         "rsi": 47.7,
         "macd_cross": -1.0,
-        "eps_growth": 0.171,
-        "revenue_growth": 0.132,
-        "profit_margin": 0.29713,
-        "roe": 0.52236,
-        "fcf_margin": 0.24466055221422175,
+        "eps_growth": 0.274,
+        "revenue_growth": 0.213,
+        "profit_margin": 0.30114,
+        "roe": 0.53942,
+        "fcf_margin": 0.238824566561985,
         "pe": 55.637695,
         "forward_pe": 30.24161,
         "peg": 2.65,
-        "beta": 1.394
+        "beta": 1.0
       },
       "rank": 10
     },
