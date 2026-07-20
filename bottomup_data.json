@@ -1,8 +1,8 @@
 {
   "version": "3.0",
-  "updated": "2026-07-21T06:04:10.963092+09:00",
-  "updated_display": "2026. 07. 21. AM 06:04:10",
-  "count": 16,
+  "updated": "2026-07-21T06:57:44.491599+09:00",
+  "updated_display": "2026. 07. 21. AM 06:57:44",
+  "count": 17,
   "total": 17,
   "weights": {
     "momentum": 0.25,
@@ -11,14 +11,43 @@
   },
   "data": [
     {
+      "ticker": "NVDA",
+      "error": false,
+      "scores": {
+        "momentum": -0.04,
+        "fundamental": 0.73,
+        "valuation": 0.96,
+        "risk": -0.5,
+        "final": 0.59
+      },
+      "raw": {
+        "price": 203.28,
+        "sma200": 192.395,
+        "52w_change": 0,
+        "5d_change": -0.0402,
+        "rsi": 48.9,
+        "macd_cross": 1.0,
+        "eps_growth": 2.106,
+        "revenue_growth": 0.852,
+        "profit_margin": 0.62966,
+        "roe": 1.14288,
+        "fcf_margin": 0.18279099614571304,
+        "pe": 31.130167,
+        "forward_pe": 15.827301,
+        "peg": 0.56,
+        "beta": 2.211
+      },
+      "rank": 1
+    },
+    {
       "ticker": "LLY",
       "error": false,
       "scores": {
         "momentum": -0.06,
-        "fundamental": 0.54,
-        "valuation": 0.83,
+        "fundamental": 0.27,
+        "valuation": 0.8,
         "risk": 0.5,
-        "final": 0.45
+        "final": 0.29
       },
       "raw": {
         "price": 1146.9,
@@ -37,17 +66,17 @@
         "peg": 1.58,
         "beta": 0.506
       },
-      "rank": 1
+      "rank": 2
     },
     {
       "ticker": "V",
       "error": false,
       "scores": {
         "momentum": 0.31,
-        "fundamental": 0.15,
-        "valuation": 0.85,
+        "fundamental": 0.01,
+        "valuation": 0.82,
         "risk": 0.5,
-        "final": 0.33
+        "final": 0.24
       },
       "raw": {
         "price": 360.57,
@@ -66,17 +95,17 @@
         "peg": 1.58,
         "beta": 0.754
       },
-      "rank": 2
+      "rank": 3
     },
     {
       "ticker": "AAPL",
       "error": false,
       "scores": {
         "momentum": 0.43,
-        "fundamental": -0.0,
-        "valuation": 0.67,
+        "fundamental": -0.11,
+        "valuation": 0.65,
         "risk": 0.5,
-        "final": 0.24
+        "final": 0.18
       },
       "raw": {
         "price": 326.59,
@@ -95,35 +124,6 @@
         "peg": 2.69,
         "beta": 1.097
       },
-      "rank": 3
-    },
-    {
-      "ticker": "TSM",
-      "error": false,
-      "scores": {
-        "momentum": -0.28,
-        "fundamental": 0.13,
-        "valuation": 0.94,
-        "risk": 0.5,
-        "final": 0.19
-      },
-      "raw": {
-        "price": 402.3,
-        "sma200": 351.74496,
-        "52w_change": 0,
-        "5d_change": -0.043,
-        "rsi": 42.0,
-        "macd_cross": -1.0,
-        "eps_growth": 0.774,
-        "revenue_growth": 0.36,
-        "profit_margin": 0.49923,
-        "roe": 0.39969003,
-        "fcf_margin": 0.16643604684867597,
-        "pe": 30.13483,
-        "forward_pe": 18.895512,
-        "peg": 1.01,
-        "beta": 1.246
-      },
       "rank": 4
     },
     {
@@ -131,10 +131,10 @@
       "error": false,
       "scores": {
         "momentum": 0.43,
-        "fundamental": -0.26,
-        "valuation": 0.92,
+        "fundamental": -0.39,
+        "valuation": 0.88,
         "risk": 0.5,
-        "final": 0.15
+        "final": 0.07
       },
       "raw": {
         "price": 402.29,
@@ -156,14 +156,43 @@
       "rank": 5
     },
     {
+      "ticker": "TSM",
+      "error": false,
+      "scores": {
+        "momentum": -0.28,
+        "fundamental": -0.08,
+        "valuation": 0.9,
+        "risk": 0.5,
+        "final": 0.07
+      },
+      "raw": {
+        "price": 402.3,
+        "sma200": 351.74496,
+        "52w_change": 0,
+        "5d_change": -0.043,
+        "rsi": 42.0,
+        "macd_cross": -1.0,
+        "eps_growth": 0.774,
+        "revenue_growth": 0.36,
+        "profit_margin": 0.49923,
+        "roe": 0.39969003,
+        "fcf_margin": 0.16643604684867597,
+        "pe": 30.13483,
+        "forward_pe": 18.895512,
+        "peg": 1.01,
+        "beta": 1.246
+      },
+      "rank": 6
+    },
+    {
       "ticker": "META",
       "error": false,
       "scores": {
         "momentum": 0.09,
-        "fundamental": -0.12,
-        "valuation": 0.96,
+        "fundamental": -0.29,
+        "valuation": 0.93,
         "risk": 0.5,
-        "final": 0.15
+        "final": 0.05
       },
       "raw": {
         "price": 645.85,
@@ -182,17 +211,17 @@
         "peg": 0.94,
         "beta": 1.246
       },
-      "rank": 6
+      "rank": 7
     },
     {
       "ticker": "GOOGL",
       "error": false,
       "scores": {
         "momentum": -0.15,
-        "fundamental": -0.13,
-        "valuation": 0.88,
+        "fundamental": -0.29,
+        "valuation": 0.85,
         "risk": 0.5,
-        "final": 0.07
+        "final": -0.03
       },
       "raw": {
         "price": 351.99,
@@ -211,35 +240,6 @@
         "peg": 1.37,
         "beta": 1.247
       },
-      "rank": 7
-    },
-    {
-      "ticker": "JPM",
-      "error": false,
-      "scores": {
-        "momentum": -0.05,
-        "fundamental": -0.29,
-        "valuation": 0.92,
-        "risk": 0.5,
-        "final": 0.02
-      },
-      "raw": {
-        "price": 338.87,
-        "sma200": 309.7664,
-        "52w_change": 0,
-        "5d_change": -0.0117,
-        "rsi": 58.3,
-        "macd_cross": -1.0,
-        "eps_growth": 0.412,
-        "revenue_growth": 0.304,
-        "profit_margin": 0.34921002,
-        "roe": 0.17789,
-        "fcf_margin": 0.0,
-        "pe": 14.525075,
-        "forward_pe": 13.804074,
-        "peg": 1.76,
-        "beta": 0.982
-      },
       "rank": 8
     },
     {
@@ -247,10 +247,10 @@
       "error": false,
       "scores": {
         "momentum": -0.15,
-        "fundamental": -0.17,
-        "valuation": 0.71,
+        "fundamental": -0.29,
+        "valuation": 0.68,
         "risk": 0.5,
-        "final": 0.01
+        "final": -0.06
       },
       "raw": {
         "price": 1739.02,
@@ -276,10 +276,10 @@
       "error": false,
       "scores": {
         "momentum": 0.25,
-        "fundamental": -0.47,
-        "valuation": 0.87,
+        "fundamental": -0.57,
+        "valuation": 0.84,
         "risk": 0.5,
-        "final": -0.02
+        "final": -0.08
       },
       "raw": {
         "price": 249.99,
@@ -294,21 +294,50 @@
         "roe": 0.24285,
         "fcf_margin": 0.013202668141715506,
         "pe": 29.903112,
-        "forward_pe": 25.161367,
+        "forward_pe": 25.1923,
         "peg": 1.3,
         "beta": 1.461
       },
       "rank": 10
     },
     {
+      "ticker": "JPM",
+      "error": false,
+      "scores": {
+        "momentum": -0.05,
+        "fundamental": -0.45,
+        "valuation": 0.89,
+        "risk": 0.5,
+        "final": -0.08
+      },
+      "raw": {
+        "price": 338.87,
+        "sma200": 309.7664,
+        "52w_change": 0,
+        "5d_change": -0.0117,
+        "rsi": 58.3,
+        "macd_cross": -1.0,
+        "eps_growth": 0.412,
+        "revenue_growth": 0.304,
+        "profit_margin": 0.34921002,
+        "roe": 0.17789,
+        "fcf_margin": 0.0,
+        "pe": 14.525075,
+        "forward_pe": 13.744083,
+        "peg": 1.76,
+        "beta": 0.982
+      },
+      "rank": 11
+    },
+    {
       "ticker": "COST",
       "error": false,
       "scores": {
         "momentum": 0.23,
-        "fundamental": -0.56,
-        "valuation": 0.44,
+        "fundamental": -0.64,
+        "valuation": 0.42,
         "risk": 0.5,
-        "final": -0.16
+        "final": -0.21
       },
       "raw": {
         "price": 935.8,
@@ -327,35 +356,6 @@
         "peg": 4.56,
         "beta": 0.872
       },
-      "rank": 11
-    },
-    {
-      "ticker": "CAT",
-      "error": false,
-      "scores": {
-        "momentum": -0.46,
-        "fundamental": -0.43,
-        "valuation": 0.76,
-        "risk": -0.5,
-        "final": -0.2
-      },
-      "raw": {
-        "price": 864.3,
-        "sma200": 720.01575,
-        "52w_change": 0,
-        "5d_change": -0.074,
-        "rsi": 38.2,
-        "macd_cross": -1.0,
-        "eps_growth": 0.273,
-        "revenue_growth": 0.222,
-        "profit_margin": 0.13328,
-        "roe": 0.51331,
-        "fcf_margin": 0.05337608478439196,
-        "pe": 43.064274,
-        "forward_pe": 28.398636,
-        "peg": 2.06,
-        "beta": 1.565
-      },
       "rank": 12
     },
     {
@@ -363,10 +363,10 @@
       "error": false,
       "scores": {
         "momentum": 0.34,
-        "fundamental": -0.92,
-        "valuation": 0.95,
+        "fundamental": -0.93,
+        "valuation": 0.92,
         "risk": -0.3,
-        "final": -0.23
+        "final": -0.24
       },
       "raw": {
         "price": 148.36,
@@ -388,14 +388,43 @@
       "rank": 13
     },
     {
+      "ticker": "CAT",
+      "error": false,
+      "scores": {
+        "momentum": -0.46,
+        "fundamental": -0.52,
+        "valuation": 0.73,
+        "risk": -0.5,
+        "final": -0.26
+      },
+      "raw": {
+        "price": 864.3,
+        "sma200": 720.01575,
+        "52w_change": 0,
+        "5d_change": -0.074,
+        "rsi": 38.2,
+        "macd_cross": -1.0,
+        "eps_growth": 0.273,
+        "revenue_growth": 0.222,
+        "profit_margin": 0.13328,
+        "roe": 0.51331,
+        "fcf_margin": 0.05337608478439196,
+        "pe": 43.064274,
+        "forward_pe": 28.398636,
+        "peg": 2.06,
+        "beta": 1.565
+      },
+      "rank": 14
+    },
+    {
       "ticker": "GE",
       "error": false,
       "scores": {
         "momentum": -0.24,
-        "fundamental": -0.39,
+        "fundamental": -0.48,
         "valuation": 0.11,
         "risk": 0.5,
-        "final": -0.25
+        "final": -0.3
       },
       "raw": {
         "price": 341.3,
@@ -410,21 +439,21 @@
         "roe": 0.48231998,
         "fcf_margin": 0.1302281854369602,
         "pe": 40.247643,
-        "forward_pe": 37.911777,
+        "forward_pe": 39.080795,
         "peg": 8.4,
         "beta": 1.348
       },
-      "rank": 14
+      "rank": 15
     },
     {
       "ticker": "WMT",
       "error": false,
       "scores": {
         "momentum": 0.07,
-        "fundamental": -0.75,
-        "valuation": 0.52,
+        "fundamental": -0.79,
+        "valuation": 0.5,
         "risk": 0.5,
-        "final": -0.29
+        "final": -0.32
       },
       "raw": {
         "price": 112.2,
@@ -443,17 +472,17 @@
         "peg": 4.35,
         "beta": 0.603
       },
-      "rank": 15
+      "rank": 16
     },
     {
       "ticker": "TSLA",
       "error": false,
       "scores": {
         "momentum": -0.42,
-        "fundamental": -0.71,
-        "valuation": -0.66,
+        "fundamental": -0.77,
+        "valuation": -0.68,
         "risk": -0.5,
-        "final": -0.63
+        "final": -0.67
       },
       "raw": {
         "price": 369.57,
@@ -472,12 +501,6 @@
         "peg": 4.77,
         "beta": 1.802
       },
-      "rank": 16
-    },
-    {
-      "ticker": "NVDA",
-      "error": true,
-      "scores": null,
       "rank": 17
     }
   ]
