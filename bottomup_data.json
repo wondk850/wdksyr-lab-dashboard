@@ -1,7 +1,7 @@
 {
   "version": "3.0",
-  "updated": "2026-08-15T05:53:50.782230+09:00",
-  "updated_display": "2026. 08. 15. AM 05:53:50",
+  "updated": "2026-08-15T06:21:09.474529+09:00",
+  "updated_display": "2026. 08. 15. AM 06:21:09",
   "count": 17,
   "total": 17,
   "weights": {
@@ -45,7 +45,7 @@
       "scores": {
         "momentum": -0.1,
         "fundamental": 0.09,
-        "valuation": 0.89,
+        "valuation": 0.9,
         "risk": 0.5,
         "final": 0.2
       },
@@ -63,7 +63,7 @@
         "fcf_margin": 0.05083366252044022,
         "pe": 17.364458,
         "forward_pe": 23.468445,
-        "peg": 0.97,
+        "peg": 0.93,
         "beta": 1.237
       },
       "rank": 2
@@ -119,7 +119,7 @@
         "profit_margin": 0.50782,
         "roe": 0.6119,
         "fcf_margin": 0.45864055481981575,
-        "pe": 30.472803,
+        "pe": 30.938826,
         "forward_pe": 24.315084,
         "peg": 1.64,
         "beta": 0.759
@@ -161,7 +161,7 @@
       "scores": {
         "momentum": 0.45,
         "fundamental": -0.39,
-        "valuation": 0.61,
+        "valuation": 0.6,
         "risk": 0.5,
         "final": 0.02
       },
@@ -179,7 +179,7 @@
         "fcf_margin": 0.23884155230949353,
         "pe": 62.76651,
         "forward_pe": 31.108372,
-        "peg": 2.09,
+        "peg": 2.18,
         "beta": 1.365
       },
       "rank": 6
@@ -190,7 +190,7 @@
       "scores": {
         "momentum": -0.19,
         "fundamental": -0.17,
-        "valuation": 0.59,
+        "valuation": 0.6,
         "risk": 0.5,
         "final": -0.02
       },
@@ -208,7 +208,7 @@
         "fcf_margin": 0.23075529328407707,
         "pe": 35.04353,
         "forward_pe": 32.17704,
-        "peg": 2.49,
+        "peg": 2.44,
         "beta": 1.086
       },
       "rank": 7
@@ -248,7 +248,7 @@
       "scores": {
         "momentum": -0.18,
         "fundamental": -0.35,
-        "valuation": 0.8,
+        "valuation": 0.81,
         "risk": 0.5,
         "final": -0.08
       },
@@ -266,7 +266,7 @@
         "fcf_margin": 0.004150068141515273,
         "pe": 21.13033,
         "forward_pe": 25.29981,
-        "peg": 1.48,
+        "peg": 1.42,
         "beta": 1.454
       },
       "rank": 9
@@ -306,7 +306,7 @@
       "scores": {
         "momentum": 0.02,
         "fundamental": -0.58,
-        "valuation": 0.93,
+        "valuation": 0.94,
         "risk": 0.5,
         "final": -0.13
       },
@@ -324,7 +324,7 @@
         "fcf_margin": 0.09443114505532983,
         "pe": 22.224941,
         "forward_pe": 16.908413,
-        "peg": 0.89,
+        "peg": 0.86,
         "beta": 1.243
       },
       "rank": 11
@@ -353,7 +353,7 @@
         "fcf_margin": 0.0,
         "pe": 15.539186,
         "forward_pe": 14.509542,
-        "peg": 1.76,
+        "peg": 1.79,
         "beta": 0.977
       },
       "rank": 12
@@ -411,7 +411,7 @@
         "fcf_margin": 0.1302281854369602,
         "pe": 43.44104,
         "forward_pe": 40.592342,
-        "peg": 5.39,
+        "peg": 5.37,
         "beta": 1.366
       },
       "rank": 14
@@ -440,7 +440,7 @@
         "fcf_margin": 0.02368761331466576,
         "pe": 48.272224,
         "forward_pe": 42.41705,
-        "peg": 4.62,
+        "peg": 4.61,
         "beta": 0.86
       },
       "rank": 15
@@ -451,7 +451,7 @@
       "scores": {
         "momentum": 0.23,
         "fundamental": -0.89,
-        "valuation": 0.3,
+        "valuation": 0.28,
         "risk": 0.5,
         "final": -0.37
       },
@@ -469,7 +469,7 @@
         "fcf_margin": 0.009461192166889124,
         "pe": 40.588028,
         "forward_pe": 35.131187,
-        "peg": 4.29,
+        "peg": 4.42,
         "beta": 0.605
       },
       "rank": 16
@@ -496,7 +496,7 @@
         "profit_margin": 0.03671,
         "roe": 0.046669997,
         "fcf_margin": 0.046670973793253495,
-        "pe": 305.5982,
+        "pe": 314.00916,
         "forward_pe": 157.03845,
         "peg": 4.81,
         "beta": 1.827
