@@ -1,7 +1,7 @@
 {
   "version": "3.0",
-  "updated": "2026-08-20T05:17:51.247494+09:00",
-  "updated_display": "2026. 08. 20. AM 05:17:51",
+  "updated": "2026-08-20T05:51:39.617496+09:00",
+  "updated_display": "2026. 08. 20. AM 05:51:39",
   "count": 17,
   "total": 17,
   "weights": {
@@ -43,11 +43,11 @@
       "ticker": "GOOGL",
       "error": false,
       "scores": {
-        "momentum": -0.1,
+        "momentum": -0.09,
         "fundamental": 0.09,
         "valuation": 0.9,
         "risk": 0.5,
-        "final": 0.2
+        "final": 0.21
       },
       "raw": {
         "price": 344.72,
@@ -79,19 +79,19 @@
         "final": 0.18
       },
       "raw": {
-        "price": 1281.49,
+        "price": 1280.34,
         "sma200": 1047.1002,
         "52w_change": 0,
-        "5d_change": 0.0615,
-        "rsi": 65.7,
+        "5d_change": 0.0605,
+        "rsi": 65.6,
         "macd_cross": 1.0,
         "eps_growth": 0.253,
         "revenue_growth": 0.477,
         "profit_margin": 0.33528998,
         "roe": 1.02286,
         "fcf_margin": 0.13890366631725268,
-        "pe": 43.017452,
-        "forward_pe": 27.075489,
+        "pe": 42.97885,
+        "forward_pe": 27.051191,
         "peg": 1.48,
         "beta": 0.506
       },
@@ -159,7 +159,7 @@
       "ticker": "AAPL",
       "error": false,
       "scores": {
-        "momentum": 0.12,
+        "momentum": 0.13,
         "fundamental": -0.17,
         "valuation": 0.59,
         "risk": 0.5,
@@ -188,7 +188,7 @@
       "ticker": "AMZN",
       "error": false,
       "scores": {
-        "momentum": -0.02,
+        "momentum": -0.01,
         "fundamental": -0.35,
         "valuation": 0.81,
         "risk": 0.5,
@@ -217,26 +217,26 @@
       "ticker": "XOM",
       "error": false,
       "scores": {
-        "momentum": 0.23,
+        "momentum": 0.24,
         "fundamental": -0.52,
         "valuation": 0.89,
         "risk": -0.3,
         "final": -0.05
       },
       "raw": {
-        "price": 164.81,
+        "price": 164.77,
         "sma200": 141.7949,
         "52w_change": 0,
-        "5d_change": 0.0458,
-        "rsi": 70.2,
+        "5d_change": 0.0456,
+        "rsi": 70.1,
         "macd_cross": 1.0,
         "eps_growth": 1.051,
         "revenue_growth": 0.441,
         "profit_margin": 0.09072,
         "roe": 0.12584,
         "fcf_margin": 0.05725087276811908,
-        "pe": 21.238401,
-        "forward_pe": 15.435941,
+        "pe": 21.233248,
+        "forward_pe": 15.432195,
         "peg": 1.25,
         "beta": 0.173
       },
@@ -304,7 +304,7 @@
       "ticker": "JPM",
       "error": false,
       "scores": {
-        "momentum": -0.1,
+        "momentum": -0.09,
         "fundamental": -0.54,
         "valuation": 0.83,
         "risk": 0.5,
@@ -391,7 +391,7 @@
       "ticker": "GE",
       "error": false,
       "scores": {
-        "momentum": -0.13,
+        "momentum": -0.12,
         "fundamental": -0.58,
         "valuation": 0.12,
         "risk": 0.5,
@@ -482,7 +482,7 @@
         "fundamental": -0.86,
         "valuation": -0.94,
         "risk": -0.5,
-        "final": -0.59
+        "final": -0.58
       },
       "raw": {
         "price": 351.12,
