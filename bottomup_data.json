@@ -1,7 +1,7 @@
 {
   "version": "3.0",
-  "updated": "2026-08-22T05:16:27.018237+09:00",
-  "updated_display": "2026. 08. 22. AM 05:16:27",
+  "updated": "2026-08-22T05:46:36.127491+09:00",
+  "updated_display": "2026. 08. 22. AM 05:46:36",
   "count": 17,
   "total": 17,
   "weights": {
@@ -72,26 +72,26 @@
       "ticker": "LLY",
       "error": false,
       "scores": {
-        "momentum": 0.41,
+        "momentum": 0.42,
         "fundamental": -0.16,
         "valuation": 0.74,
         "risk": 0.5,
         "final": 0.16
       },
       "raw": {
-        "price": 1254.77,
+        "price": 1255.4,
         "sma200": 1051.1871,
         "52w_change": 0,
-        "5d_change": 0.0605,
-        "rsi": 59.5,
+        "5d_change": 0.0611,
+        "rsi": 59.6,
         "macd_cross": 1.0,
         "eps_growth": 0.253,
         "revenue_growth": 0.477,
         "profit_margin": 0.33528998,
         "roe": 1.02286,
         "fcf_margin": 0.13890366631725268,
-        "pe": 42.191326,
-        "forward_pe": 26.565002,
+        "pe": 42.21251,
+        "forward_pe": 26.57834,
         "peg": 1.61,
         "beta": 0.506
       },
