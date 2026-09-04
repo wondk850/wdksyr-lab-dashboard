@@ -1,7 +1,7 @@
 {
   "version": "3.0",
-  "updated": "2026-09-05T05:53:11.961886+09:00",
-  "updated_display": "2026. 09. 05. AM 05:53:11",
+  "updated": "2026-09-05T06:59:53.108282+09:00",
+  "updated_display": "2026. 09. 05. AM 06:59:53",
   "count": 17,
   "total": 17,
   "weights": {
@@ -35,7 +35,7 @@
         "pe": 29.159492,
         "forward_pe": 14.902219,
         "peg": 0.58,
-        "beta": 2.215
+        "beta": 2.217
       },
       "rank": 1
     },
@@ -45,7 +45,7 @@
       "scores": {
         "momentum": -0.25,
         "fundamental": 0.07,
-        "valuation": 0.84,
+        "valuation": 0.83,
         "risk": 0.5,
         "final": 0.14
       },
@@ -63,7 +63,7 @@
         "fcf_margin": 0.05083366252044022,
         "pe": 16.982437,
         "forward_pe": 22.785429,
-        "peg": 1.24,
+        "peg": 1.27,
         "beta": 1.225
       },
       "rank": 2
@@ -150,7 +150,7 @@
         "fcf_margin": 0.45864055481981575,
         "pe": 31.948042,
         "forward_pe": 24.997501,
-        "peg": 1.72,
+        "peg": 1.69,
         "beta": 0.761
       },
       "rank": 5
@@ -277,7 +277,7 @@
       "scores": {
         "momentum": 0.08,
         "fundamental": -0.54,
-        "valuation": 0.77,
+        "valuation": 0.76,
         "risk": -0.5,
         "final": -0.12
       },
@@ -299,35 +299,6 @@
         "beta": 1.594
       },
       "rank": 10
-    },
-    {
-      "ticker": "MSFT",
-      "error": false,
-      "scores": {
-        "momentum": -0.24,
-        "fundamental": -0.52,
-        "valuation": 0.75,
-        "risk": 0.5,
-        "final": -0.19
-      },
-      "raw": {
-        "price": 499.7,
-        "sma200": 431.08545,
-        "52w_change": 0,
-        "5d_change": -0.015,
-        "rsi": 59.3,
-        "macd_cross": -1.0,
-        "eps_growth": 0.313,
-        "revenue_growth": 0.177,
-        "profit_margin": 0.40305,
-        "roe": 0.34039003,
-        "fcf_margin": 0.049860021030079915,
-        "pe": 27.822943,
-        "forward_pe": 21.19773,
-        "peg": 1.66,
-        "beta": 1.108
-      },
-      "rank": 11
     },
     {
       "ticker": "JPM",
@@ -355,6 +326,35 @@
         "forward_pe": 14.341591,
         "peg": 1.65,
         "beta": 0.977
+      },
+      "rank": 11
+    },
+    {
+      "ticker": "MSFT",
+      "error": false,
+      "scores": {
+        "momentum": -0.24,
+        "fundamental": -0.52,
+        "valuation": 0.75,
+        "risk": 0.5,
+        "final": -0.2
+      },
+      "raw": {
+        "price": 499.7,
+        "sma200": 431.08545,
+        "52w_change": 0,
+        "5d_change": -0.015,
+        "rsi": 59.3,
+        "macd_cross": -1.0,
+        "eps_growth": 0.313,
+        "revenue_growth": 0.177,
+        "profit_margin": 0.40305,
+        "roe": 0.34039003,
+        "fcf_margin": 0.049860021030079915,
+        "pe": 27.822943,
+        "forward_pe": 21.19773,
+        "peg": 1.66,
+        "beta": 1.108
       },
       "rank": 12
     },
@@ -393,7 +393,7 @@
       "scores": {
         "momentum": -0.23,
         "fundamental": -0.59,
-        "valuation": 0.2,
+        "valuation": 0.19,
         "risk": 0.5,
         "final": -0.34
       },
@@ -412,7 +412,7 @@
         "pe": 39.80165,
         "forward_pe": 37.14776,
         "peg": 4.23,
-        "beta": 1.366
+        "beta": 1.35
       },
       "rank": 14
     },
@@ -422,7 +422,7 @@
       "scores": {
         "momentum": 0.09,
         "fundamental": -0.94,
-        "valuation": 0.25,
+        "valuation": 0.24,
         "risk": 0.5,
         "final": -0.44
       },
@@ -441,7 +441,7 @@
         "pe": 38.81884,
         "forward_pe": 33.16032,
         "peg": 4.04,
-        "beta": 0.595
+        "beta": 0.605
       },
       "rank": 15
     },
@@ -469,7 +469,7 @@
         "fcf_margin": 0.02368761331466576,
         "pe": 46.017086,
         "forward_pe": 40.46899,
-        "peg": 4.56,
+        "peg": 4.49,
         "beta": 0.855
       },
       "rank": 16
@@ -480,9 +480,9 @@
       "scores": {
         "momentum": -0.19,
         "fundamental": -0.87,
-        "valuation": -0.99,
+        "valuation": -0.96,
         "risk": -0.5,
-        "final": -0.73
+        "final": -0.72
       },
       "raw": {
         "price": 354.08,
@@ -498,7 +498,7 @@
         "fcf_margin": 0.046670973793253495,
         "pe": 324.84402,
         "forward_pe": 164.03375,
-        "peg": 4.5,
+        "peg": 4.26,
         "beta": 1.845
       },
       "rank": 17
