@@ -1,7 +1,7 @@
 {
   "version": "3.0",
-  "updated": "2026-10-03T03:34:42.793709+09:00",
-  "updated_display": "2026. 10. 03. AM 03:34:42",
+  "updated": "2026-10-06T06:11:04.744055+09:00",
+  "updated_display": "2026. 10. 06. AM 06:11:04",
   "count": 17,
   "total": 17,
   "weights": {
@@ -14,28 +14,28 @@
       "ticker": "NVDA",
       "error": false,
       "scores": {
-        "momentum": 0.3,
+        "momentum": 0.37,
         "fundamental": 0.43,
         "valuation": 0.97,
         "risk": -0.5,
-        "final": 0.5
+        "final": 0.52
       },
       "raw": {
-        "price": 234.3969,
-        "sma200": 200.4263,
+        "price": 238.9,
+        "sma200": 200.7146,
         "52w_change": 0,
-        "5d_change": 0.0242,
-        "rsi": 63.7,
+        "5d_change": 0.0515,
+        "rsi": 67.4,
         "macd_cross": 1.0,
         "eps_growth": 1.259,
         "revenue_growth": 1.059,
         "profit_margin": 0.63663,
         "roe": 1.17211,
         "fcf_margin": 0.13800004401945898,
-        "pe": 29.595568,
-        "forward_pe": 14.934419,
-        "peg": 0.28,
-        "beta": 2.217
+        "pe": 30.202276,
+        "forward_pe": 15.12099,
+        "peg": 0.29,
+        "beta": 2.216
       },
       "rank": 1
     },
@@ -43,28 +43,28 @@
       "ticker": "GOOGL",
       "error": false,
       "scores": {
-        "momentum": -0.12,
+        "momentum": 0.1,
         "fundamental": 0.07,
         "valuation": 0.8,
         "risk": 0.5,
-        "final": 0.17
+        "final": 0.22
       },
       "raw": {
-        "price": 343.13,
-        "sma200": 338.74176,
+        "price": 346.47,
+        "sma200": 338.91815,
         "52w_change": 0,
-        "5d_change": 0.0012,
-        "rsi": 50.4,
-        "macd_cross": -1.0,
+        "5d_change": 0.0163,
+        "rsi": 52.5,
+        "macd_cross": 1.0,
         "eps_growth": 2.979,
         "revenue_growth": 0.242,
         "profit_margin": 0.54771,
         "roe": 0.48676,
         "fcf_margin": 0.05083366252044022,
-        "pe": 17.2254,
-        "forward_pe": 22.766752,
-        "peg": 1.21,
-        "beta": 1.225
+        "pe": 17.384344,
+        "forward_pe": 22.988361,
+        "peg": 1.23,
+        "beta": 1.211
       },
       "rank": 2
     },
@@ -72,289 +72,289 @@
       "ticker": "TSM",
       "error": false,
       "scores": {
-        "momentum": 0.23,
+        "momentum": 0.24,
         "fundamental": -0.22,
         "valuation": 0.83,
         "risk": 0.5,
-        "final": 0.1
+        "final": 0.11
       },
       "raw": {
-        "price": 471.265,
-        "sma200": 386.24094,
+        "price": 485.8,
+        "sma200": 387.16614,
         "52w_change": 0,
-        "5d_change": 0.0406,
-        "rsi": 72.3,
+        "5d_change": 0.0632,
+        "rsi": 74.2,
         "macd_cross": 1.0,
         "eps_growth": 0.774,
         "revenue_growth": 0.36,
         "profit_margin": 0.49923,
         "roe": 0.39969003,
         "fcf_margin": 0.16458220355302697,
-        "pe": 35.142807,
-        "forward_pe": 21.494314,
-        "peg": 0.87,
-        "beta": 1.247
+        "pe": 35.30523,
+        "forward_pe": 22.157253,
+        "peg": 0.9,
+        "beta": 1.239
       },
       "rank": 3
-    },
-    {
-      "ticker": "ASML",
-      "error": false,
-      "scores": {
-        "momentum": 0.48,
-        "fundamental": -0.4,
-        "valuation": 0.7,
-        "risk": 0.5,
-        "final": 0.04
-      },
-      "raw": {
-        "price": 1862.3,
-        "sma200": 1538.8838,
-        "52w_change": 0,
-        "5d_change": 0.0513,
-        "rsi": 65.2,
-        "macd_cross": 1.0,
-        "eps_growth": 0.274,
-        "revenue_growth": 0.213,
-        "profit_margin": 0.30114,
-        "roe": 0.53942,
-        "fcf_margin": 0.23884155230949353,
-        "pe": 64.77566,
-        "forward_pe": 31.660631,
-        "peg": 1.11,
-        "beta": 1.363
-      },
-      "rank": 4
-    },
-    {
-      "ticker": "LLY",
-      "error": false,
-      "scores": {
-        "momentum": -0.18,
-        "fundamental": -0.21,
-        "valuation": 0.77,
-        "risk": 0.5,
-        "final": -0.0
-      },
-      "raw": {
-        "price": 1145.3916,
-        "sma200": 1073.4113,
-        "52w_change": 0,
-        "5d_change": -0.0332,
-        "rsi": 42.9,
-        "macd_cross": 1.0,
-        "eps_growth": 0.253,
-        "revenue_growth": 0.477,
-        "profit_margin": 0.33528998,
-        "roe": 1.02286,
-        "fcf_margin": 0.13890366631725268,
-        "pe": 38.461773,
-        "forward_pe": 24.192787,
-        "peg": 1.14,
-        "beta": 0.502
-      },
-      "rank": 5
     },
     {
       "ticker": "V",
       "error": false,
       "scores": {
-        "momentum": -0.29,
+        "momentum": -0.13,
         "fundamental": -0.16,
         "valuation": 0.7,
         "risk": 0.5,
-        "final": -0.02
+        "final": 0.02
       },
       "raw": {
-        "price": 361.07,
-        "sma200": 337.39926,
+        "price": 369.71,
+        "sma200": 337.4681,
         "52w_change": 0,
-        "5d_change": -0.0181,
-        "rsi": 40.8,
+        "5d_change": 0.0105,
+        "rsi": 52.1,
         "macd_cross": -1.0,
         "eps_growth": 0.068,
         "revenue_growth": 0.144,
         "profit_margin": 0.50782,
         "roe": 0.6119,
         "fcf_margin": 0.45864055481981575,
-        "pe": 30.677145,
-        "forward_pe": 24.064436,
+        "pe": 31.46468,
+        "forward_pe": 24.640268,
         "peg": 1.63,
-        "beta": 0.761
+        "beta": 0.771
       },
-      "rank": 6
+      "rank": 4
+    },
+    {
+      "ticker": "AMZN",
+      "error": false,
+      "scores": {
+        "momentum": 0.1,
+        "fundamental": -0.36,
+        "valuation": 0.75,
+        "risk": 0.5,
+        "final": -0.02
+      },
+      "raw": {
+        "price": 251.4,
+        "sma200": 241.3629,
+        "52w_change": 0,
+        "5d_change": 0.0192,
+        "rsi": 48.7,
+        "macd_cross": 1.0,
+        "eps_growth": 2.449,
+        "revenue_growth": 0.196,
+        "profit_margin": 0.1744,
+        "roe": 0.30558002,
+        "fcf_margin": 0.004150068141515273,
+        "pe": 20.22526,
+        "forward_pe": 23.998373,
+        "peg": 1.49,
+        "beta": 1.456
+      },
+      "rank": 5
     },
     {
       "ticker": "AAPL",
       "error": false,
       "scores": {
-        "momentum": -0.2,
+        "momentum": -0.13,
         "fundamental": -0.18,
-        "valuation": 0.47,
+        "valuation": 0.48,
         "risk": 0.5,
-        "final": -0.05
+        "final": -0.03
       },
       "raw": {
-        "price": 333.45,
-        "sma200": 288.8607,
+        "price": 332.89,
+        "sma200": 289.1586,
         "52w_change": 0,
-        "5d_change": -0.0146,
-        "rsi": 54.9,
+        "5d_change": 0.0106,
+        "rsi": 53.4,
         "macd_cross": -1.0,
         "eps_growth": 0.271,
         "revenue_growth": 0.164,
         "profit_margin": 0.27618998,
         "roe": 1.4875101,
         "fcf_margin": 0.23075529328407707,
-        "pe": 38.239677,
-        "forward_pe": 34.796535,
-        "peg": 2.64,
-        "beta": 1.085
+        "pe": 38.17546,
+        "forward_pe": 34.7381,
+        "peg": 2.67,
+        "beta": 1.069
+      },
+      "rank": 6
+    },
+    {
+      "ticker": "ASML",
+      "error": false,
+      "scores": {
+        "momentum": 0.14,
+        "fundamental": -0.4,
+        "valuation": 0.7,
+        "risk": 0.5,
+        "final": -0.05
+      },
+      "raw": {
+        "price": 1859.86,
+        "sma200": 1542.7812,
+        "52w_change": 0,
+        "5d_change": 0.0139,
+        "rsi": 62.5,
+        "macd_cross": 1.0,
+        "eps_growth": 0.274,
+        "revenue_growth": 0.213,
+        "profit_margin": 0.30114,
+        "roe": 0.53942,
+        "fcf_margin": 0.23884155230949353,
+        "pe": 60.365467,
+        "forward_pe": 31.940226,
+        "peg": 1.15,
+        "beta": 1.302
       },
       "rank": 7
     },
     {
-      "ticker": "AMZN",
+      "ticker": "LLY",
       "error": false,
       "scores": {
-        "momentum": -0.03,
-        "fundamental": -0.36,
-        "valuation": 0.74,
-        "risk": 0.5,
+        "momentum": -0.42,
+        "fundamental": -0.21,
+        "valuation": 0.78,
+        "risk": -0.3,
         "final": -0.06
       },
       "raw": {
-        "price": 250.4725,
-        "sma200": 241.218,
+        "price": 1143.12,
+        "sma200": 1073.8146,
         "52w_change": 0,
-        "5d_change": 0.0176,
-        "rsi": 47.5,
+        "5d_change": -0.035,
+        "rsi": 44.5,
         "macd_cross": -1.0,
-        "eps_growth": 2.449,
-        "revenue_growth": 0.196,
-        "profit_margin": 0.1744,
-        "roe": 0.30558002,
-        "fcf_margin": 0.004150068141515273,
-        "pe": 20.134447,
-        "forward_pe": 23.909836,
-        "peg": 1.47,
-        "beta": 1.443
+        "eps_growth": 0.253,
+        "revenue_growth": 0.477,
+        "profit_margin": 0.33528998,
+        "roe": 1.02286,
+        "fcf_margin": 0.13890366631725268,
+        "pe": 38.37261,
+        "forward_pe": 24.018936,
+        "peg": 1.13,
+        "beta": 0.453
       },
       "rank": 8
+    },
+    {
+      "ticker": "MSFT",
+      "error": false,
+      "scores": {
+        "momentum": 0.26,
+        "fundamental": -0.52,
+        "valuation": 0.71,
+        "risk": 0.5,
+        "final": -0.08
+      },
+      "raw": {
+        "price": 525.18,
+        "sma200": 432.83096,
+        "52w_change": 0,
+        "5d_change": 0.0319,
+        "rsi": 66.6,
+        "macd_cross": 1.0,
+        "eps_growth": 0.313,
+        "revenue_growth": 0.177,
+        "profit_margin": 0.40305,
+        "roe": 0.34039003,
+        "fcf_margin": 0.049860021030079915,
+        "pe": 29.257936,
+        "forward_pe": 22.208858,
+        "peg": 1.68,
+        "beta": 1.099
+      },
+      "rank": 9
     },
     {
       "ticker": "CAT",
       "error": false,
       "scores": {
-        "momentum": 0.35,
+        "momentum": 0.18,
         "fundamental": -0.54,
         "valuation": 0.71,
         "risk": -0.5,
-        "final": -0.07
+        "final": -0.11
       },
       "raw": {
-        "price": 848.56,
-        "sma200": 793.8168,
+        "price": 848.14,
+        "sma200": 795.09503,
         "52w_change": 0,
-        "5d_change": 0.0349,
-        "rsi": 60.0,
+        "5d_change": 0.026,
+        "rsi": 58.3,
         "macd_cross": 1.0,
         "eps_growth": 0.649,
         "revenue_growth": 0.24,
         "profit_margin": 0.14511,
         "roe": 0.56972003,
         "fcf_margin": 0.06756413370821399,
-        "pe": 36.54436,
-        "forward_pe": 26.208454,
-        "peg": 1.45,
-        "beta": 1.594
-      },
-      "rank": 9
-    },
-    {
-      "ticker": "MSFT",
-      "error": false,
-      "scores": {
-        "momentum": 0.0,
-        "fundamental": -0.52,
-        "valuation": 0.71,
-        "risk": 0.5,
-        "final": -0.14
-      },
-      "raw": {
-        "price": 515.0551,
-        "sma200": 432.6174,
-        "52w_change": 0,
-        "5d_change": 0.0115,
-        "rsi": 61.3,
-        "macd_cross": -1.0,
-        "eps_growth": 0.313,
-        "revenue_growth": 0.177,
-        "profit_margin": 0.40305,
-        "roe": 0.34039003,
-        "fcf_margin": 0.049860021030079915,
-        "pe": 28.693876,
-        "forward_pe": 21.780697,
-        "peg": 1.67,
-        "beta": 1.108
+        "pe": 36.510548,
+        "forward_pe": 26.195482,
+        "peg": 1.48,
+        "beta": 1.58
       },
       "rank": 10
-    },
-    {
-      "ticker": "META",
-      "error": false,
-      "scores": {
-        "momentum": 0.05,
-        "fundamental": -0.6,
-        "valuation": 0.83,
-        "risk": 0.5,
-        "final": -0.15
-      },
-      "raw": {
-        "price": 728.625,
-        "sma200": 627.9797,
-        "52w_change": 0,
-        "5d_change": 0.0182,
-        "rsi": 62.1,
-        "macd_cross": -1.0,
-        "eps_growth": -0.136,
-        "revenue_growth": 0.28,
-        "profit_margin": 0.29834998,
-        "roe": 0.29848,
-        "fcf_margin": 0.09443114505532983,
-        "pe": 27.422846,
-        "forward_pe": 20.87396,
-        "peg": 0.96,
-        "beta": 1.243
-      },
-      "rank": 11
     },
     {
       "ticker": "XOM",
       "error": false,
       "scores": {
-        "momentum": -0.04,
+        "momentum": -0.08,
         "fundamental": -0.56,
         "valuation": 0.8,
         "risk": -0.3,
-        "final": -0.16
+        "final": -0.17
       },
       "raw": {
-        "price": 164.17,
-        "sma200": 148.8646,
+        "price": 164.0,
+        "sma200": 149.09586,
         "52w_change": 0,
-        "5d_change": 0.0102,
-        "rsi": 55.4,
+        "5d_change": 0.0164,
+        "rsi": 56.5,
         "macd_cross": -1.0,
         "eps_growth": 1.051,
         "revenue_growth": 0.441,
         "profit_margin": 0.09072,
         "roe": 0.12584,
         "fcf_margin": 0.05725087276811908,
-        "pe": 21.1287,
-        "forward_pe": 14.51926,
-        "peg": 1.44,
-        "beta": 0.175
+        "pe": 21.106821,
+        "forward_pe": 14.451936,
+        "peg": 1.45,
+        "beta": 0.209
+      },
+      "rank": 11
+    },
+    {
+      "ticker": "META",
+      "error": false,
+      "scores": {
+        "momentum": -0.11,
+        "fundamental": -0.6,
+        "valuation": 0.83,
+        "risk": 0.5,
+        "final": -0.19
+      },
+      "raw": {
+        "price": 741.9,
+        "sma200": 628.38257,
+        "52w_change": 0,
+        "5d_change": 0.0042,
+        "rsi": 64.4,
+        "macd_cross": -1.0,
+        "eps_growth": -0.136,
+        "revenue_growth": 0.28,
+        "profit_margin": 0.29834998,
+        "roe": 0.29848,
+        "fcf_margin": 0.09443114505532983,
+        "pe": 27.954031,
+        "forward_pe": 21.254269,
+        "peg": 0.96,
+        "beta": 1.185
       },
       "rank": 12
     },
@@ -362,28 +362,28 @@
       "ticker": "JPM",
       "error": false,
       "scores": {
-        "momentum": -0.31,
+        "momentum": -0.32,
         "fundamental": -0.57,
-        "valuation": 0.79,
+        "valuation": 0.8,
         "risk": 0.5,
         "final": -0.23
       },
       "raw": {
-        "price": 331.325,
-        "sma200": 321.7053,
+        "price": 332.38,
+        "sma200": 321.7671,
         "52w_change": 0,
-        "5d_change": -0.0156,
-        "rsi": 34.3,
+        "5d_change": -0.0078,
+        "rsi": 34.4,
         "macd_cross": -1.0,
         "eps_growth": 0.412,
         "revenue_growth": 0.304,
         "profit_margin": 0.34921002,
         "roe": 0.17789,
         "fcf_margin": 0.0,
-        "pe": 14.183434,
-        "forward_pe": 13.243878,
-        "peg": 1.55,
-        "beta": 0.975
+        "pe": 14.240788,
+        "forward_pe": 13.279514,
+        "peg": 1.54,
+        "beta": 1.015
       },
       "rank": 13
     },
@@ -391,28 +391,28 @@
       "ticker": "GE",
       "error": false,
       "scores": {
-        "momentum": -0.15,
+        "momentum": -0.29,
         "fundamental": -0.59,
-        "valuation": 0.26,
+        "valuation": 0.28,
         "risk": 0.5,
-        "final": -0.31
+        "final": -0.34
       },
       "raw": {
-        "price": 310.825,
-        "sma200": 323.8025,
+        "price": 306.34,
+        "sma200": 323.8454,
         "52w_change": 0,
-        "5d_change": -0.0233,
-        "rsi": 35.4,
+        "5d_change": -0.0363,
+        "rsi": 31.4,
         "macd_cross": 1.0,
         "eps_growth": 0.169,
         "revenue_growth": 0.211,
         "profit_margin": 0.17716,
         "roe": 0.48231998,
         "fcf_margin": 0.1302281854369602,
-        "pe": 36.697166,
-        "forward_pe": 34.252914,
-        "peg": 3.97,
-        "beta": 1.35
+        "pe": 36.125,
+        "forward_pe": 33.758667,
+        "peg": 3.94,
+        "beta": 1.374
       },
       "rank": 14
     },
@@ -420,28 +420,28 @@
       "ticker": "COST",
       "error": false,
       "scores": {
-        "momentum": 0.04,
+        "momentum": 0.01,
         "fundamental": -0.85,
         "valuation": 0.14,
         "risk": 0.5,
-        "final": -0.43
+        "final": -0.44
       },
       "raw": {
-        "price": 917.6,
-        "sma200": 961.1195,
+        "price": 923.52,
+        "sma200": 961.4199,
         "52w_change": 0,
-        "5d_change": -0.0058,
-        "rsi": 49.9,
+        "5d_change": -0.0012,
+        "rsi": 52.7,
         "macd_cross": 1.0,
         "eps_growth": 0.149,
         "revenue_growth": 0.111,
         "profit_margin": 0.03043,
         "roe": 0.28402,
         "fcf_margin": 0.023577125614195973,
-        "pe": 44.179104,
-        "forward_pe": 36.68277,
-        "peg": 4.61,
-        "beta": 0.855
+        "pe": 44.48555,
+        "forward_pe": 36.919434,
+        "peg": 4.64,
+        "beta": 0.87
       },
       "rank": 15
     },
@@ -449,28 +449,28 @@
       "ticker": "WMT",
       "error": false,
       "scores": {
-        "momentum": -0.45,
+        "momentum": -0.32,
         "fundamental": -0.94,
-        "valuation": 0.34,
+        "valuation": 0.35,
         "risk": 0.5,
-        "final": -0.56
+        "final": -0.53
       },
       "raw": {
-        "price": 104.09,
-        "sma200": 118.38375,
+        "price": 105.07,
+        "sma200": 118.3211,
         "52w_change": 0,
-        "5d_change": -0.0427,
-        "rsi": 39.5,
+        "5d_change": -0.0162,
+        "rsi": 43.6,
         "macd_cross": -1.0,
         "eps_growth": -0.094,
         "revenue_growth": 0.059,
         "profit_margin": 0.03,
         "roe": 0.22313999,
         "fcf_margin": 0.009686379422448842,
-        "pe": 37.713768,
-        "forward_pe": 32.271465,
+        "pe": 38.06884,
+        "forward_pe": 32.5753,
         "peg": 3.54,
-        "beta": 0.595
+        "beta": 0.578
       },
       "rank": 16
     },
@@ -478,28 +478,28 @@
       "ticker": "TSLA",
       "error": false,
       "scores": {
-        "momentum": 0.15,
+        "momentum": 0.24,
         "fundamental": -0.87,
-        "valuation": -0.94,
+        "valuation": -0.97,
         "risk": -0.5,
-        "final": -0.63
+        "final": -0.61
       },
       "raw": {
-        "price": 371.05,
-        "sma200": 393.70575,
+        "price": 378.73,
+        "sma200": 393.18216,
         "52w_change": 0,
-        "5d_change": 0.038,
-        "rsi": 56.8,
+        "5d_change": 0.0734,
+        "rsi": 57.6,
         "macd_cross": -1.0,
         "eps_growth": -0.049,
         "revenue_growth": 0.255,
         "profit_margin": 0.03671,
         "roe": 0.046669997,
         "fcf_margin": 0.046670973793253495,
-        "pe": 350.04718,
-        "forward_pe": 171.54414,
-        "peg": 4.23,
-        "beta": 1.845
+        "pe": 350.67593,
+        "forward_pe": 176.58551,
+        "peg": 4.43,
+        "beta": 1.916
       },
       "rank": 17
     }
