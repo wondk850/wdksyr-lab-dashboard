@@ -1,1 +1,65 @@
-IyEvdXNyL2Jpbi9lbnYgcHl0aG9uMwoiIiIKRlJFRCDtg5Hri6TsmrQg7KeA7ZGcIOyEnOuyhOyCrOydtOuTnCBmZXRjaGVyCkdpdEh1YiBBY3Rpb25z7JeQ7IScIOyLpO2WieuQmOyWtCB0b3Bkb3duX2RhdGEuanNvbiDsg53shLEKIiIiCmltcG9ydCBvcwppbXBvcnQganNvbgppbXBvcnQgdXJsbGliLnJlcXVlc3QKaW1wb3J0IHVybGxpYi5wYXJzZQpmcm9tIGRhdGV0aW1lIGltcG9ydCBkYXRldGltZSwgdGltZXpvbmUsIHRpbWVkZWx0YQoKRlJFRF9BUElfS0VZID0gb3MuZW52aXJvbi5nZXQoJ0ZSRURfQVBJX0tFWScsICcnKQppZiBub3QgRlJFRF9BUElfS0VZOgogICAgcHJpbnQoIkVSUk9SOiBGUkVEX0FQSV9LRVkgZW52IG5vdCBzZXQiKQogICAgZXhpdCgxKQoKIyDtg5Hri6TsmrQg64yA7Iuc67O065Oc7JeQ7IScIOyCrOyaqe2VmOuKlCDsi5zrpqzspogKU0VSSUVTX0NPTkZJRyA9IHsKICAgICdER1MxMCc6IDI1MiwgICAgICAjIDEw64WE66y8IOq1reyxhAogICAgJ0RHUzInOiAyNTIsICAgICAgICMgMuuFhOusvCDqta3ssYQKICAgICdQQ0VQSUxGRSc6IDM2LCAgICAjIENvcmUgUENFCiAgICAnVU5SQVRFJzogMTMsICAgICAgIyDsi6Tsl4XrpaAKICAgICdWSVhDTFMnOiAyNTIgKiAzLCAjIFZJWAogICAgJ0JBQSc6IDI1MiwgICAgICAgICMgQkFBIO2ajOyCrOyxhAogICAgJ0RUV0VYQkdTJzogMjUyICogMywgICMg64us65+sIOyduOuNseyKpAp9CgpkZWYgZmV0Y2hfc2VyaWVzKHNlcmllc19pZCwgbGltaXQpOgogICAgIiIiRlJFRCBBUEnsl5DshJwg7Iuc66as7KaIIOuNsOydtO2EsCDqsIDsoLjsmKTquLAiIiIKICAgIHBhcmFtcyA9IHVybGxpYi5wYXJzZS51cmxlbmNvZGUoewogICAgICAgICdzZXJpZXNfaWQnOiBzZXJpZXNfaWQsCiAgICAgICAgJ2FwaV9rZXknOiBGUkVEX0FQSV9LRVksCiAgICAgICAgJ2ZpbGVfdHlwZSc6ICdqc29uJywKICAgICAgICAnc29ydF9vcmRlcic6ICdkZXNjJywKICAgICAgICAnbGltaXQnOiBsaW1pdCwKICAgIH0pCiAgICB1cmwgPSBmImh0dHBzOi8vYXBpLnN0bG91aXNmZWQub3JnL2ZyZWQvc2VyaWVzL29ic2VydmF0aW9ucz97cGFyYW1zfSIKICAgIHRyeToKICAgICAgICB3aXRoIHVybGxpYi5yZXF1ZXN0LnVybG9wZW4odXJsLCB0aW1lb3V0PTMwKSBhcyByZXNwOgogICAgICAgICAgICBkYXRhID0ganNvbi5sb2FkcyhyZXNwLnJlYWQoKS5kZWNvZGUoJ3V0Zi04JykpCiAgICAgICAgb2JzZXJ2YXRpb25zID0gZGF0YS5nZXQoJ29ic2VydmF0aW9ucycsIFtdKQogICAgICAgIHJlc3VsdCA9IFtdCiAgICAgICAgZm9yIG9icyBpbiBvYnNlcnZhdGlvbnM6CiAgICAgICAgICAgIHYgPSBvYnMuZ2V0KCd2YWx1ZScsICcnKQogICAgICAgICAgICBpZiB2IGluICgnLicsICcnKToKICAgICAgICAgICAgICAgIGNvbnRpbnVlCiAgICAgICAgICAgIHRyeToKICAgICAgICAgICAgICAgIHJlc3VsdC5hcHBlbmQoewogICAgICAgICAgICAgICAgICAgICdkYXRlJzogb2JzWydkYXRlJ10sCiAgICAgICAgICAgICAgICAgICAgJ3ZhbHVlJzogZmxvYXQodiksCiAgICAgICAgICAgICAgICB9KQogICAgICAgICAgICBleGNlcHQgKFZhbHVlRXJyb3IsIEtleUVycm9yKToKICAgICAgICAgICAgICAgIGNvbnRpbnVlCiAgICAgICAgcmVzdWx0LnJldmVyc2UoKSAgIyBvbGRlc3QgZmlyc3QKICAgICAgICBwcmludChmIiAg4pyFIHtzZXJpZXNfaWR9OiB7bGVuKHJlc3VsdCl9IHBvaW50cyIpCiAgICAgICAgcmV0dXJuIHJlc3VsdAogICAgZXhjZXB0IEV4Y2VwdGlvbiBhcyBlOgogICAgICAgIHByaW50KGYiICDinYwge3Nlcmllc19pZH06IHtlfSIpCiAgICAgICAgcmV0dXJuIFtdCgpkZWYgbWFpbigpOgogICAgcHJpbnQoIkZldGNoaW5nIEZSRUQgdG9wZG93biBpbmRpY2F0b3JzLi4uIikKICAgIGluZGljYXRvcnMgPSB7fQogICAgZm9yIHNlcmllc19pZCwgbGltaXQgaW4gU0VSSUVTX0NPTkZJRy5pdGVtcygpOgogICAgICAgIGluZGljYXRvcnNbc2VyaWVzX2lkXSA9IGZldGNoX3NlcmllcyhzZXJpZXNfaWQsIGxpbWl0KQoKICAgIGtzdCA9IHRpbWV6b25lKHRpbWVkZWx0YShob3Vycz05KSkKICAgIG5vdyA9IGRhdGV0aW1lLm5vdyhrc3QpCiAgICBvdXRwdXQgPSB7CiAgICAgICAgJ3VwZGF0ZWQnOiBub3cuaXNvZm9ybWF0KCksCiAgICAgICAgJ3VwZGF0ZWRfZGlzcGxheSc6IG5vdy5zdHJmdGltZSgnJVkuICVtLiAlZC4gJXAgJUk6JU06JVMnKS5yZXBsYWNlKCdBTScsICdBTScpLnJlcGxhY2UoJ1BNJywgJ1BNJyksCiAgICAgICAgJ2luZGljYXRvcnMnOiBpbmRpY2F0b3JzLAogICAgfQoKICAgIHdpdGggb3BlbigndG9wZG93bl9kYXRhLmpzb24nLCAndycsIGVuY29kaW5nPSd1dGYtOCcpIGFzIGY6CiAgICAgICAganNvbi5kdW1wKG91dHB1dCwgZiwgZW5zdXJlX2FzY2lpPUZhbHNlLCBpbmRlbnQ9MikKCiAgICBzdWNjZXNzID0gc3VtKDEgZm9yIHYgaW4gaW5kaWNhdG9ycy52YWx1ZXMoKSBpZiB2KQogICAgcHJpbnQoZiJEb25lOiB7c3VjY2Vzc30ve2xlbihpbmRpY2F0b3JzKX0gaW5kaWNhdG9ycyAtPiB0b3Bkb3duX2RhdGEuanNvbiIpCgppZiBfX25hbWVfXyA9PSAnX19tYWluX18nOgogICAgbWFpbigpCg==
+#!/usr/bin/env python3
+"""
+FRED 탑다운 지표 서버사이드 fetcher
+GitHub Actions에서 실행되어 topdown_data.json 생성
+"""
+import os
+import json
+import urllib.request
+import urllib.parse
+from datetime import datetime, timezone, timedelta
+
+FRED_API_KEY = os.environ.get('FRED_API_KEY', '')
+if not FRED_API_KEY:
+    print("ERROR: FRED_API_KEY env not set")
+    exit(1)
+
+SERIES_CONFIG = {
+    'DGS10': 252,
+    'DGS2': 252,
+    'PCEPILFE': 36,
+    'UNRATE': 13,
+    'VIXCLS': 252 * 3,
+    'BAA': 252,
+    'DTWEXBGS': 252 * 3,
+}
+
+def fetch_series(series_id, limit):
+    params = urllib.parse.urlencode({
+        'series_id': series_id,
+        'api_key': FRED_API_KEY,
+        'file_type': 'json',
+        'sort_order': 'desc',
+        'limit': limit,
+    })
+    url = f"https://api.stlouisfed.org/fred/series/observations?{params}"
+    try:
+        with urllib.request.urlopen(url, timeout=30) as resp:
+            data = json.loads(resp.read().decode('utf-8'))
+        observations = data.get('observations', [])
+        result = []
+        for obs in observations:
+            v = obs.get('value', '')
+            if v in ('.', ''):
+                continue
+            try:
+                result.append({'date': obs['date'], 'value': float(v)})
+            except ValueError:
+                continue
+        return result[::-1]
+    except Exception as e:
+        print(f"ERROR fetching {series_id}: {e}")
+        return []
+
+def main():
+    output = {'updated': datetime.now(timezone.utc).isoformat(), 'series': {}}
+    for sid, limit in SERIES_CONFIG.items():
+        print(f"Fetching {sid}...")
+        output['series'][sid] = fetch_series(sid, limit)
+        print(f"  Got {len(output['series'][sid])} points")
+    with open('topdown_data.json', 'w') as f:
+        json.dump(output, f)
+    print("Wrote topdown_data.json")
+
+if __name__ == '__main__':
+    main()
